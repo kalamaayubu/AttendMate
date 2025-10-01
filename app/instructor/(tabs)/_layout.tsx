@@ -20,11 +20,11 @@ export default function InstructorLayout() {
             case "home":
               iconName = "home-outline";
               break;
-            case "addSchedules":
-              iconName = "add-outline";
-              break;
             case "schedules":
               iconName = "calendar-outline";
+              break;
+            case "reports":
+              iconName = "document-text-outline";
               break;
             default:
               iconName = "ellipse-outline";
@@ -35,8 +35,8 @@ export default function InstructorLayout() {
       })}
     >
       <Tabs.Screen name="home" options={{ title: "Home" }} />
-      <Tabs.Screen name="addSchedules" options={{ title: "Add Schedule" }} />
       <Tabs.Screen name="schedules" options={{ title: "Schedules" }} />
+      <Tabs.Screen name="reports" options={{ title: "Reports" }} />
     </Tabs>
   );
 }

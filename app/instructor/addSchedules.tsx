@@ -1,143 +1,185 @@
-import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { Picker } from "@react-native-picker/picker";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import React, { useState } from "react";
+import {
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-// Dummy schedule data
-const schedules = {
-  upcoming: [
-    { id: "u1", title: "Yoga Class", datetime: "2025-10-05 09:00 AM" },
-    { id: "u2", title: "Meditation Session", datetime: "2025-10-06 06:00 PM" },
-  ],
-  current: [
-    { id: "c1", title: "Pilates", datetime: "2025-10-01 10:00 AM" },
-    { id: "p1", title: "Zumba", datetime: "2025-09-25 05:00 PM" },
-    { id: "p2", title: "Spin Class", datetime: "2025-09-20 07:00 AM" },
-  ],
-  past: [
-    { id: "p1", title: "Zumba", datetime: "2025-09-25 05:00 PM" },
-    { id: "p2", title: "Spin Class", datetime: "2025-09-20 07:00 AM" },
-    { id: "c1", title: "Pilates", datetime: "2025-10-01 10:00 AM" },
-    { id: "p7", title: "Zumba", datetime: "2025-09-25 05:00 PM" },
-  ],
-};
+const courses = [
+  "Yoga",
+  "Pilates",
+  "Zumba",
+  "Spin Class",
+  "Meditation",
+  "Crossfit",
+];
 
-function ScheduleSection({
-  title,
-  data,
-  color,
-}: {
-  title: string;
-  data: { id: string; title: string; datetime: string }[];
-  color: string;
-}) {
+export default function AddSchedule() {
+  // Form states
+  const [selectedCourse, setSelectedCourse] = useState(courses[0]);
+  const [startTime, setStartTime] = useState(new Date());
+  const [endTime, setEndTime] = useState(new Date());
+  const [venue, setVenue] = useState("");
+  const [directions, setDirections] = useState("");
+
+  // Datepicker visibility states (for Android)
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
+
+  // Handlers for date changes
+  const onChangeStart = (event: any, selectedDate?: Date) => {
+    setShowStartPicker(Platform.OS === "ios"); // keep open on iOS
+    if (selectedDate) setStartTime(selectedDate);
+  };
+
+  const onChangeEnd = (event: any, selectedDate?: Date) => {
+    setShowEndPicker(Platform.OS === "ios");
+    if (selectedDate) setEndTime(selectedDate);
+  };
+
+  const handleSubmit = () => {
+    // Basic validation
+    if (!venue.trim()) {
+      alert("Please enter the venue");
+      return;
+    }
+    if (endTime <= startTime) {
+      alert("End time must be after start time");
+      return;
+    }
+
+    // Build schedule object
+    const newSchedule = {
+      course: selectedCourse,
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+      venue,
+      directions,
+    };
+
+    // For now just log it
+    console.log("New Schedule:", newSchedule);
+    alert("Schedule added successfully!");
+
+    // TODO: Add real submission logic, then navigate back or reset form
+  };
+
   return (
-    <View className="px-4 py-8">
-      <Text className="text-[15px] mb-3 font-semibold text-gray-600">
-        {title}
-      </Text>
-      {data.length === 0 ? (
-        <Text className="text-gray-400 italic">No schedules</Text>
-      ) : (
-        data.map(({ id, title, datetime }) => (
-          <View
-            key={id}
-            className="flex-row bg-gray-50 rounded-xl p-4 mb-3 shadow-sm border-l-4"
-            style={{ borderColor: color }}
+    <>
+      <Stack.Screen
+        options={{
+          title: "Add Schedule",
+          headerTintColor: "white",
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: "#16a34a",
+            elevation: 0,
+          },
+          headerTitleStyle: {
+            fontWeight: "bold",
+          },
+          headerBackTitleVisible: false,
+        }}
+      />
+      <StatusBar style="light" />
+      <ScrollView
+        contentContainerStyle={{
+          padding: 24,
+          backgroundColor: "white",
+          flexGrow: 1,
+        }}
+      >
+        {/* Course picker */}
+        <Text className="mb-1 font-semibold text-gray-700">Select course</Text>
+        <View className="overflow-hidden mb-5 rounded-full border-[#ccc] border">
+          <Picker
+            selectedValue={selectedCourse}
+            onValueChange={(itemValue) => setSelectedCourse(itemValue)}
+            mode="dialog"
           >
-            <Ionicons
-              name="calendar-outline"
-              size={20}
-              color={color}
-              className="mr-3"
-            />
-            <View>
-              <Text className="font-semibold text-gray-800">{title}</Text>
-              <Text className="text-gray-500 mt-1">{datetime}</Text>
-            </View>
-          </View>
-        ))
-      )}
-    </View>
-  );
-}
+            {courses.map((course) => (
+              <Picker.Item key={course} label={course} value={course} />
+            ))}
+          </Picker>
+        </View>
 
-// Fancy section
-function ScheduleSummary() {
-  return (
-    <View className="mx-4 my-6 p-5 bg-green-100 rounded-xl shadow-xl border border-green-200">
-      <View className="flex-row items-center mb-2">
-        <Ionicons
-          name="help-circle-outline"
-          size={32}
-          color="green"
-          className="mr-3"
-        />
-        <Text className="text-gray-700 text-xl font-semibold">
-          Want to add new schedule
-        </Text>
-      </View>
-      <Text className="text-gray-600 text-base">
-        Click the<Text className=" text-green-600 px-4"> + </Text>
-        button on the top right conner to add a schedule.
-      </Text>
-    </View>
-  );
-}
-
-export default function AddSchedules() {
-  const [dropdownVisible, setDropdownVisible] = useState(false);
-
-  return (
-    <SafeAreaView edges={["top", "left", "right"]} className="bg-white flex-1">
-      <View>
-        <ScrollView
-          contentContainerStyle={{
-            paddingBottom: 0,
-            marginBottom: 0,
-          }}
-          stickyHeaderIndices={[0]}
+        {/* Start Time */}
+        <Text className="mb-1 font-semibold text-gray-700">Start Time</Text>
+        <TouchableOpacity
+          onPress={() => setShowStartPicker(true)}
+          className="mb-5 rounded-full border boder-[#ccc] p-4"
         >
-          {/* Header */}
-          <View className="flex p-2 px-4 top-0 flex-row bg-white items-center justify-between">
-            <Text className="font-semibold text-xl text-gray-700">
-              Schedules
-            </Text>
-            <View className="flex-row items-center gap-4">
-              <TouchableOpacity
-                onPress={() => setDropdownVisible(!dropdownVisible)}
-              >
-                <Ionicons
-                  name="add"
-                  size={24}
-                  color={"green"}
-                  className="rounded-full p-3 bg-green-100"
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
+          <Text>{startTime.toLocaleString()}</Text>
+        </TouchableOpacity>
+        {showStartPicker && (
+          <DateTimePicker
+            value={startTime}
+            mode="datetime"
+            is24Hour={false}
+            display="default"
+            onChange={onChangeStart}
+          />
+        )}
 
-          {/* Fancy Summary Card */}
-          <ScheduleSummary />
+        {/* End Time */}
+        <Text className="mb-1 font-semibold text-gray-700">End Time</Text>
+        <TouchableOpacity
+          onPress={() => setShowEndPicker(true)}
+          className="mb-5 rounded-full border boder-[#ccc] p-4"
+        >
+          <Text>{endTime.toLocaleString()}</Text>
+        </TouchableOpacity>
+        {showEndPicker && (
+          <DateTimePicker
+            value={endTime}
+            mode="datetime"
+            is24Hour={false}
+            display="default"
+            onChange={onChangeEnd}
+          />
+        )}
 
-          {/* The schedule sections */}
-          <ScheduleSection
-            title="Upcoming Schedules"
-            data={schedules.upcoming}
-            color="#34D399"
-          />
-          <ScheduleSection
-            title="Current Schedules"
-            data={schedules.current}
-            color="#60A5FA"
-          />
-          <ScheduleSection
-            title="Past Schedules"
-            data={schedules.past}
-            color="#9CA3AF"
-          />
-        </ScrollView>
-      </View>
-    </SafeAreaView>
+        {/* Venue */}
+        <Text className="mb-1 font-semibold text-gray-700">Venue</Text>
+        <TextInput
+          placeholder="Enter venue"
+          value={venue}
+          onChangeText={setVenue}
+          className="mb-5 rounded-full border boder-[#ccc] p-4"
+        />
+
+        {/* Directions (optional) */}
+        <Text className="mb-1 font-semibold text-gray-700">
+          Directions (optional)
+        </Text>
+        <TextInput
+          placeholder="Any notes or instructions for the class"
+          value={directions}
+          onChangeText={setDirections}
+          multiline
+          numberOfLines={6}
+          textAlignVertical="top"
+          className="border border-gray-300 rounded-md p-3 mb-8 text-base text-gray-800"
+        />
+
+        {/* Submit Button */}
+        <Pressable
+          onPress={handleSubmit}
+          className="bg-green-600 active: scale-95 transition-all duration-300 py-3 rounded-full items-center"
+        >
+          <Text className="text-white font-semibold text-base">
+            Add Schedule
+          </Text>
+        </Pressable>
+      </ScrollView>
+    </>
   );
 }
