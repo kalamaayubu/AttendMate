@@ -101,9 +101,7 @@ export default function Schedules() {
         >
           {/* Header */}
           <View className="flex p-2 px-4 top-0 flex-row bg-white items-center justify-between">
-            <Text className="font-semibold text-2xl text-gray-700">
-              Schedules
-            </Text>
+            <Text className="font-bold text-2xl text-gray-700">Schedules</Text>
             <View className="flex-row items-center gap-4">
               <TouchableOpacity
                 onPress={() => {

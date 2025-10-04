@@ -1,4 +1,4 @@
-import { SignupFormProps } from "@/types";
+import { SignupForm } from "@/types";
 import { router } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -18,7 +18,7 @@ export default function Signup() {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<SignupFormProps>({
+  } = useForm<SignupForm>({
     defaultValues: {
       name: "",
       email: "",
@@ -26,7 +26,7 @@ export default function Signup() {
     },
   });
 
-  const onSubmit = (data: SignupFormProps) => {
+  const onSubmit = (data: SignupForm) => {
     // TODO: integrate with Supabase or backend
     alert("Account created successfully");
     // router.replace("/");

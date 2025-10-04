@@ -1,3 +1,4 @@
+import { LoginForm } from "@/types";
 import { router } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -12,24 +13,19 @@ import {
   View,
 } from "react-native";
 
-interface LoginFormProps {
-  email: string;
-  password: string;
-}
-
 export default function Login() {
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormProps>({
+  } = useForm<LoginForm>({
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  const onSubmit = (data: LoginFormProps) => {
+  const onSubmit = (data: LoginForm) => {
     // TODO: integrate with Supabase or backend
     alert(`Logged in as ${data.email}`);
     router.replace("/instructor/home");

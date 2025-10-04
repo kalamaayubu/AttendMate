@@ -1,10 +1,18 @@
-export interface SignupFormProps {
+export interface SignupForm {
   name: string;
   email: string;
   password: string;
 }
 
-export interface LoginFormProps {
+export interface LoginForm {
   email: string;
   password: string;
 }
+
+export type ScheduleForm = {
+  course: string;
+  startTime: Date | null;
+  endTime: Date | null;
+  venue: string;
+  directions?: string;
+};
