@@ -1,6 +1,6 @@
 import CustomHeader from "@/components/general/CustomHeader";
 import { Ionicons } from "@expo/vector-icons";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import React, { useState } from "react";
 import { Pressable, SafeAreaView, SectionList, Text, View } from "react-native";
 
@@ -104,7 +104,8 @@ export default function Schedules() {
             </Text>
           )}
           renderItem={({ item }) => (
-            <View
+            <Pressable
+              onPress={() => router.push(`/student/schedules/${item.id}`)} // dynamic route
               className="bg-white rounded-2xl shadow-sm p-4 mb-4 flex-row items-center"
               style={{
                 borderLeftWidth: 5,
@@ -129,7 +130,7 @@ export default function Schedules() {
                   {item.location} • {item.instructor}
                 </Text>
               </View>
-            </View>
+            </Pressable>
           )}
           ListEmptyComponent={
             <Text className="text-center text-gray-500 mt-20">
