@@ -28,7 +28,7 @@ export default function Login() {
   const onSubmit = (data: LoginForm) => {
     // TODO: integrate with Supabase or backend
     alert(`Logged in as ${data.email}`);
-    router.replace("/instructor/home");
+    router.replace("/student/home");
   };
 
   return (
