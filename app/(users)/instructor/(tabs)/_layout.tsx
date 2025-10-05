@@ -13,6 +13,9 @@ export default function InstructorLayout() {
           fontWeight: "600",
           elevation: 0,
         },
+        tabBarStyle: {
+          height: 60,
+        },
         tabBarIcon: ({ color, size }) => {
           let iconName: keyof typeof Ionicons.glyphMap;
 

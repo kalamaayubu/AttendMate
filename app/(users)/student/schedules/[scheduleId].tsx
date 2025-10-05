@@ -1,9 +1,11 @@
 import CustomHeader from "@/components/general/CustomHeader";
+import AttendanceModal from "@/components/student/AttendanceModal";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  Modal,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -32,16 +34,30 @@ export default function ScheduleDetails() {
   };
 
   const [openDescription, setOpenDescription] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const attendancePercent =
     (classInfo.attendance.attended / classInfo.attendance.total) * 100;
 
+  // Mock: lesson time & place
+  const lessonTime = true; // change to true to simulate within lesson time
+  const place = true; // change to false to simulate not in classroom
+
+  const canMarkAttendance = lessonTime && place;
+
+  // Determine why student cannot mark attendance
+  const reasons: string[] = [];
+  if (!lessonTime)
+    reasons.push("The class time has not started or has already ended.");
+  if (!place) reasons.push("You are not in the class location.");
+
+  const reason = reasons.join(" ");
+
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-
       <SafeAreaView className="flex-1 bg-gray-50">
-        <CustomHeader title={`${classInfo.course}`} />
+        <CustomHeader title={`${classInfo.course}`} backButton />
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
           {/* ===== Header Card with Gradient ===== */}
           <View
@@ -58,7 +74,6 @@ export default function ScheduleDetails() {
               end={[1, 1]}
               className="p-5 gap-3"
             >
-              {/* Content inside */}
               <Text className="text-2xl font-bold text-gray-50 mb-1">
                 {classInfo.course}
               </Text>
@@ -83,13 +98,13 @@ export default function ScheduleDetails() {
 
           {/* ===== Attendance Progress Bar ===== */}
           <View className="bg-white rounded-2xl shadow p-4 mb-4">
-            <Text className="text-base font-semibold text-gray-800 mb-2">
+            <Text className="text-xl font-semibold text-gray-800 mb-2">
               Attendance
             </Text>
-            <Text className="text-sm text-gray-600">
+            <Text className="text-gray-600">
               Total Sessions: {classInfo.attendance.total}
             </Text>
-            <Text className="text-sm text-gray-600">
+            <Text className="text-gray-600">
               Attended: {classInfo.attendance.attended}
             </Text>
             <View className="bg-gray-200 h-2 rounded-full mt-2">
@@ -106,8 +121,8 @@ export default function ScheduleDetails() {
               className="flex-row justify-between items-center"
               onPress={() => setOpenDescription(!openDescription)}
             >
-              <Text className="text-base font-semibold text-gray-800">
-                About this class
+              <Text className="text-xl font-semibold text-gray-800">
+                Lesson Guideline
               </Text>
               <Ionicons
                 name={
@@ -120,7 +135,7 @@ export default function ScheduleDetails() {
               />
             </TouchableOpacity>
             {openDescription && (
-              <Text className="text-sm text-gray-600 leading-5 mt-2">
+              <Text className=" text-gray-600 leading-5 mt-2">
                 {classInfo.description}
               </Text>
             )}
@@ -129,11 +144,47 @@ export default function ScheduleDetails() {
 
         {/* ===== Floating Action Button ===== */}
         <Pressable
-          className="absolute bottom-16 right-6 bg-green-600/80 w-16 h-16 rounded-full items-center justify-center shadow-lg"
-          onPress={() => alert("Add to Calendar / Mark Attendance")}
+          className={`absolute bottom-16 right-6 w-16 h-16 rounded-full items-center justify-center shadow-lg
+          ${canMarkAttendance ? "bg-green-600" : "bg-gray-400"}`}
+          onPress={() => {
+            if (canMarkAttendance) setModalVisible(true);
+            else alert(reason);
+          }}
         >
-          <Ionicons name="calendar-outline" size={28} color="white" />
+          <Ionicons name="checkmark-outline" size={28} color="white" />
         </Pressable>
+
+        {/* ===== Modal for disabled FAB(Floating Action Button) ===== */}
+        <Modal
+          visible={modalVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <Pressable
+            className="flex-1 justify-center items-center bg-black/50"
+            onPress={() => setModalVisible(false)}
+          >
+            <View className="bg-white rounded-xl p-6 w-80">
+              <Text className="text-lg font-semibold text-gray-800 mb-4">
+                Cannot Mark Attendance
+              </Text>
+              <Text className="text-sm text-gray-600">{reason}</Text>
+              <Pressable
+                className="mt-6 bg-green-600 py-2 rounded-lg"
+                onPress={() => setModalVisible(false)}
+              >
+                <Text className="text-white text-center font-semibold">OK</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Modal>
+
+        {/* ===== Attendance Modal ===== */}
+        <AttendanceModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+        />
       </SafeAreaView>
     </>
   );

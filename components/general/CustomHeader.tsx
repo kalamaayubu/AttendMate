@@ -12,7 +12,12 @@ import {
 
 const HEADER_HEIGHT = 48;
 
-export default function CustomHeader({ title }: { title: string }) {
+interface CustomHeaderProps {
+  title: string;
+  backButton?: boolean; // <-- optional prop
+}
+
+export default function CustomHeader({ title, backButton }: CustomHeaderProps) {
   const router = useRouter();
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
@@ -26,16 +31,27 @@ export default function CustomHeader({ title }: { title: string }) {
             (Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0) +
             HEADER_HEIGHT,
         }}
-        className="bg-indigo-500 flex-row items-center justify-between px-4"
+        className="bg-indigo-500 flex-row items-center px-4"
       >
+        {/* Back button */}
+        {backButton && (
+          <TouchableOpacity onPress={() => router.back()} className="mr-4">
+            <Ionicons name="arrow-back-outline" size={24} color="#fff" />
+          </TouchableOpacity>
+        )}
+
+        {/* Title */}
         <Text className="text-white font-bold text-xl">{title}</Text>
 
-        <TouchableOpacity onPress={() => setDropdownVisible((prev) => !prev)}>
-          <Ionicons name="ellipsis-horizontal" size={22} color="#fff" />
-        </TouchableOpacity>
+        {/* Right: dropdown */}
+        <View className="flex-1 items-end">
+          <TouchableOpacity onPress={() => setDropdownVisible((prev) => !prev)}>
+            <Ionicons name="ellipsis-horizontal" size={22} color="#fff" />
+          </TouchableOpacity>
+        </View>
       </View>
 
-      {/* Dropdown */}
+      {/* Dropdown Menu */}
       {dropdownVisible && (
         <>
           {/* Overlay */}
@@ -50,8 +66,7 @@ export default function CustomHeader({ title }: { title: string }) {
             style={{
               top:
                 (Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0) +
-                HEADER_HEIGHT +
-                0,
+                HEADER_HEIGHT,
             }}
           >
             <Pressable
@@ -82,7 +97,6 @@ export default function CustomHeader({ title }: { title: string }) {
               className="flex-row items-center px-3 py-2"
               onPress={() => {
                 setDropdownVisible(false);
-                // TODO: replace with real logout logic
                 router.push("/");
               }}
             >
