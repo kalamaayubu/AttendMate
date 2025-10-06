@@ -1,3 +1,4 @@
+import { supabase } from "@/lib/supabase";
 import { SignupForm } from "@/types";
 import { router } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
@@ -17,7 +18,7 @@ export default function Signup() {
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<SignupForm>({
     defaultValues: {
       name: "",
@@ -26,10 +27,29 @@ export default function Signup() {
     },
   });
 
-  const onSubmit = (data: SignupForm) => {
-    // TODO: integrate with Supabase or backend
-    alert("Account created successfully");
-    // router.replace("/");
+  // Function to log sign up
+  const onSubmit = async (data: SignupForm) => {
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: {
+        emailRedirectTo: "attendmate://callback",
+      },
+    });
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    if (!session) {
+      alert("Please check your inbox for email verification!");
+    } else {
+      router.replace("/instructor/home");
+    }
   };
 
   return (
@@ -67,7 +87,9 @@ export default function Signup() {
                     placeholder="Full name"
                     value={value}
                     onChangeText={onChange}
-                    className={` ${errors.name && "border-red-500"} border border-gray-300 rounded-full px-6 py-3 mb-2`}
+                    className={` ${
+                      errors.name && "border-red-500"
+                    } border border-gray-300 rounded-full px-6 py-3 mb-2`}
                   />
                   {errors.name && (
                     <Text className="text-red-500 text-sm translate-x-2 -translate-y-1 mb-2">
@@ -96,7 +118,9 @@ export default function Signup() {
                     value={value}
                     keyboardType="email-address"
                     onChangeText={onChange}
-                    className={` ${errors.email && "border-red-500"} border border-gray-300 rounded-full px-6 py-3 mb-2`}
+                    className={` ${
+                      errors.email && "border-red-500"
+                    } border border-gray-300 rounded-full px-6 py-3 mb-2`}
                   />
                   {errors.email && (
                     <Text className="text-red-500 text-sm translate-x-2 -translate-y-1 mb-2">
@@ -125,7 +149,9 @@ export default function Signup() {
                     placeholder="Password"
                     onChangeText={onChange}
                     secureTextEntry
-                    className={` ${errors.password && "border-red-500"} border border-gray-300 rounded-full px-6 py-3 mb-2`}
+                    className={` ${
+                      errors.password && "border-red-500"
+                    } border border-gray-300 rounded-full px-6 py-3 mb-2`}
                   />
                   {errors.password && (
                     <Text className="text-red-500 text-sm translate-x-2 -translate-y-1 mb-2">
@@ -136,14 +162,25 @@ export default function Signup() {
               )}
             />
 
-            {/* Submit */}
+            {/* Submit button */}
             <Pressable
               onPress={handleSubmit(onSubmit)}
-              className="bg-green-600 rounded-full py-4 active:scale-95"
+              disabled={isSubmitting} // disables press while submitting
+              className={`bg-green-600 rounded-full py-4 active:scale-95 ${
+                isSubmitting ? "opacity-70" : ""
+              }`}
             >
-              <Text className="text-center text-white font-semibold">
-                Sign Up
-              </Text>
+              {isSubmitting ? (
+                <Text className="text-center text-white font-semibold">
+                  Submitting...
+                </Text>
+              ) : (
+                // OR use a spinner:
+                // <ActivityIndicator color="#fff" />
+                <Text className="text-center text-white font-semibold">
+                  Sign Up
+                </Text>
+              )}
             </Pressable>
 
             <Pressable

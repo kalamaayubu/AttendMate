@@ -1,3 +1,4 @@
+import { supabase } from "@/lib/supabase";
 import { LoginForm } from "@/types";
 import { router } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
@@ -17,7 +18,7 @@ export default function Login() {
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<LoginForm>({
     defaultValues: {
       email: "",
@@ -25,10 +26,21 @@ export default function Login() {
     },
   });
 
-  const onSubmit = (data: LoginForm) => {
-    // TODO: integrate with Supabase or backend
-    alert(`Logged in as ${data.email}`);
-    router.replace("/student/home");
+  // Function to log in
+  const onSubmit = async (data: LoginForm) => {
+    const { data: userData, error } = await supabase.auth.signInWithPassword({
+      email: data.email,
+      password: data.password,
+    });
+
+    if (error) {
+      alert(error.message);
+      return; // Stop here if login failed
+    }
+
+    if (userData.session) {
+      router.replace("/instructor/home");
+    }
   };
 
   return (
@@ -111,14 +123,25 @@ export default function Login() {
               )}
             />
 
-            {/* Submit */}
+            {/* Submit button*/}
             <Pressable
               onPress={handleSubmit(onSubmit)}
-              className="bg-green-600 rounded-full py-4 active:scale-95 mt-4"
+              disabled={isSubmitting} // prevent pressing while submitting
+              className={`bg-green-600 rounded-full py-4 active:scale-95 mt-4 ${
+                isSubmitting ? "opacity-70" : ""
+              }`}
             >
-              <Text className="text-center text-white font-semibold">
-                Log In
-              </Text>
+              {isSubmitting ? (
+                <Text className="text-center text-white font-semibold">
+                  Logging In...
+                </Text>
+              ) : (
+                // Or show a spinner instead:
+                // <ActivityIndicator color="#fff" />
+                <Text className="text-center text-white font-semibold">
+                  Log In
+                </Text>
+              )}
             </Pressable>
 
             <Pressable
