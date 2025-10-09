@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { LoginForm } from "@/types";
+import { redirectBasedOnRole } from "@/utils/auth/redirectBasedOnRole";
 import { router } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -39,7 +40,8 @@ export default function Login() {
     }
 
     if (userData.session) {
-      router.replace("/instructor/home");
+      alert("Logged in successfuly");
+      await redirectBasedOnRole();
     }
   };
 
@@ -75,7 +77,10 @@ export default function Login() {
               render={({ field: { onChange, value } }) => (
                 <>
                   <TextInput
-                    placeholder="Email"
+                    placeholder="Enter your email"
+                    placeholderTextColor={"#6B7280"}
+                    importantForAutofill="no" // for Android to suppress the overlay
+                    textContentType="emailAddress" // helps iOS autofill but keeps your style
                     value={value}
                     keyboardType="email-address"
                     onChangeText={onChange}
@@ -107,12 +112,13 @@ export default function Login() {
                 <>
                   <TextInput
                     value={value}
-                    placeholder="Password"
+                    placeholder="Enter your password"
+                    placeholderTextColor={"#6B7280"}
                     secureTextEntry
                     onChangeText={onChange}
                     className={`${
                       errors.password && "border-red-500"
-                    } border border-gray-300 rounded-full px-6 py-3 mb-2`}
+                    } border border-gray-300 text-gray-800 outline-none rounded-full px-6 py-3 mb-2`}
                   />
                   {errors.password && (
                     <Text className="text-red-500 text-sm translate-x-2 -translate-y-1 mb-2">

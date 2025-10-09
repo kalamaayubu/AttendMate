@@ -1,20 +1,10 @@
 import CustomHeader from "@/components/general/CustomHeader";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
-import {
-  Dimensions,
-  Pressable,
-  ScrollView,
-  StatusBar,
-  Text,
-  View,
-} from "react-native";
+import { Dimensions, ScrollView, Text, View } from "react-native";
 import { LineChart, PieChart } from "react-native-chart-kit";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const screenWidth = Dimensions.get("window").width;
-const HEADER_HEIGHT = 56;
 
 const quickStats = [
   {
@@ -62,88 +52,13 @@ const tableData = [
 ];
 
 export default function StudentDashboard() {
-  const router = useRouter();
-  const [dropdownVisible, setDropdownVisible] = useState(false);
-
   return (
     <SafeAreaView
       edges={["left", "right"]}
       className="flex-1 bg-gray-100 relative"
     >
-      <StatusBar
-        hidden={true}
-        animated={true}
-        barStyle="light-content"
-        backgroundColor="#4f46e5"
-      />
-
       {/* ===== Header ===== */}
       <CustomHeader title="Dashboard" />
-
-      {/* ===== Dropdown ===== */}
-      {dropdownVisible && (
-        <>
-          <Pressable
-            onPress={() => setDropdownVisible(false)}
-            className="absolute inset-0 z-10"
-          />
-          <View
-            className="absolute right-3 z-20 w-44 bg-white rounded-lg shadow-lg py-1"
-            style={{ top: HEADER_HEIGHT + 8 }}
-          >
-            <Pressable
-              className="flex-row items-center px-3 py-2"
-              onPress={() => {
-                setDropdownVisible(false);
-                router.push("/student/notifications");
-              }}
-            >
-              <Ionicons
-                name="person-outline"
-                size={18}
-                color="#333"
-                className="mr-2"
-              />
-              <Text className="text-sm text-gray-800">Profile</Text>
-            </Pressable>
-
-            <Pressable
-              className="flex-row items-center px-3 py-2"
-              onPress={() => {
-                setDropdownVisible(false);
-                router.push("/student/schedules");
-              }}
-            >
-              <Ionicons
-                name="settings-outline"
-                size={18}
-                color="#333"
-                className="mr-2"
-              />
-              <Text className="text-sm text-gray-800">Settings</Text>
-            </Pressable>
-
-            <View className="h-px bg-gray-200 my-1" />
-
-            <Pressable
-              className="flex-row items-center px-3 py-2"
-              onPress={() => {
-                setDropdownVisible(false);
-                console.log("Logout logic");
-                router.push("/"); // replace with auth flow
-              }}
-            >
-              <Ionicons
-                name="log-out-outline"
-                size={18}
-                color="#e11d48"
-                className="mr-2"
-              />
-              <Text className="text-sm text-red-600">Logout</Text>
-            </Pressable>
-          </View>
-        </>
-      )}
 
       <ScrollView contentContainerClassName="pb-10">
         {/* ===== Stats ===== */}
@@ -240,7 +155,9 @@ export default function StudentDashboard() {
             {tableData.map((row, idx) => (
               <View
                 key={row.unit}
-                className={`flex-row px-3 py-2 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50"}`}
+                className={`flex-row px-3 py-2 ${
+                  idx % 2 === 0 ? "bg-white" : "bg-gray-50"
+                }`}
               >
                 <Text className="flex-1 text-gray-700">{row.unit}</Text>
                 <Text className="w-16 text-center text-gray-700">

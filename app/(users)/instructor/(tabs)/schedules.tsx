@@ -1,28 +1,38 @@
+import CustomHeader from "@/components/general/CustomHeader";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  Dimensions,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+const screenWidth = Dimensions.get("window").width;
 
 // Dummy schedule data
 const schedules = {
   upcoming: [
-    { id: "u1", title: "Yoga Class", datetime: "2025-10-05 09:00 AM" },
-    { id: "u2", title: "Meditation Session", datetime: "2025-10-06 06:00 PM" },
+    { id: "u1", title: "Yoga Class", datetime: "2025-10-05 • 09:00 AM" },
+    {
+      id: "u2",
+      title: "Meditation Session",
+      datetime: "2025-10-06 • 06:00 PM",
+    },
   ],
   current: [
-    { id: "c1", title: "Pilates", datetime: "2025-10-01 10:00 AM" },
-    { id: "p1", title: "Zumba", datetime: "2025-09-25 05:00 PM" },
-    { id: "p2", title: "Spin Class", datetime: "2025-09-20 07:00 AM" },
+    { id: "c1", title: "Pilates", datetime: "2025-10-01 • 10:00 AM" },
+    { id: "c2", title: "Zumba", datetime: "2025-09-25 • 05:00 PM" },
   ],
   past: [
-    { id: "p1", title: "Zumba", datetime: "2025-09-25 05:00 PM" },
-    { id: "p2", title: "Spin Class", datetime: "2025-09-20 07:00 AM" },
-    { id: "c1", title: "Pilates", datetime: "2025-10-01 10:00 AM" },
-    { id: "p7", title: "Zumba", datetime: "2025-09-25 05:00 PM" },
+    { id: "p1", title: "Spin Class", datetime: "2025-09-20 • 07:00 AM" },
+    { id: "p2", title: "Cardio Blast", datetime: "2025-09-10 • 08:00 AM" },
   ],
 };
 
+// Reusable section
 function ScheduleSection({
   title,
   data,
@@ -33,29 +43,41 @@ function ScheduleSection({
   color: string;
 }) {
   return (
-    <View className="px-4 py-8">
-      <Text className="text-[15px] mb-3 font-semibold text-gray-600">
+    <View className="px-5 mb-8">
+      <Text className="text-[16px] mb-3 font-semibold text-gray-700 tracking-wide">
         {title}
       </Text>
+
       {data.length === 0 ? (
         <Text className="text-gray-400 italic">No schedules</Text>
       ) : (
         data.map(({ id, title, datetime }) => (
           <View
             key={id}
-            className="flex-row bg-gray-50 rounded-xl p-4 mb-3 shadow-sm border-l-4"
-            style={{ borderColor: color }}
+            className="flex-row items-center rounded-2xl bg-white p-4 mb-3 shadow-sm border border-gray-100"
+            style={{
+              elevation: 2,
+              shadowColor: "#000",
+              shadowOpacity: 0.05,
+              shadowOffset: { width: 0, height: 2 },
+              shadowRadius: 4,
+            }}
           >
-            <Ionicons
-              name="calendar-outline"
-              size={20}
-              color={color}
-              className="mr-3"
-            />
-            <View>
-              <Text className="font-semibold text-gray-800">{title}</Text>
-              <Text className="text-gray-500 mt-1">{datetime}</Text>
+            <View
+              className="rounded-full p-3 mr-3"
+              style={{ backgroundColor: color + "20" }}
+            >
+              <Ionicons name="calendar-outline" size={20} color={color} />
             </View>
+
+            <View className="flex-1">
+              <Text className="text-gray-800 font-semibold text-base">
+                {title}
+              </Text>
+              <Text className="text-gray-500 text-sm mt-1">{datetime}</Text>
+            </View>
+
+            <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
           </View>
         ))
       )}
@@ -63,83 +85,72 @@ function ScheduleSection({
   );
 }
 
-// Fancy section
+// Top highlight card
 function ScheduleSummary() {
   return (
-    <View className="mx-4 my-6 p-5 bg-green-100 rounded-xl shadow-xl border border-green-200">
+    <View
+      className="mx-5 mt-6 mb-8 p-5 rounded-2xl"
+      style={{
+        backgroundColor: "#ecfdf5",
+        borderWidth: 1,
+        borderColor: "#bbf7d0",
+        shadowColor: "#000",
+        shadowOpacity: 0.08,
+        shadowOffset: { width: 0, height: 4 },
+        shadowRadius: 6,
+        elevation: 3,
+      }}
+    >
       <View className="flex-row items-center mb-2">
-        <Ionicons
-          name="help-circle-outline"
-          size={32}
-          color="green"
-          className="mr-3"
-        />
-        <Text className="text-gray-700 text-xl font-semibold">
-          Want to add new schedule
+        <Ionicons name="sparkles-outline" size={30} color="#16a34a" />
+        <Text className="text-gray-800 text-lg font-semibold ml-3">
+          Manage your schedules
         </Text>
       </View>
-      <Text className="text-gray-600 text-base">
-        Click the<Text className=" text-green-600 px-4"> + </Text>
-        button on the top right conner to add a schedule.
+      <Text className="text-gray-600 leading-relaxed">
+        Tap the <Text className="text-green-600 font-bold text-xl">＋</Text>{" "}
+        button on the bottom right to create a new class schedule.
       </Text>
     </View>
   );
 }
 
 export default function Schedules() {
-  const [dropdownVisible, setDropdownVisible] = useState(false);
-
   return (
-    <SafeAreaView edges={["top", "left", "right"]} className="bg-white flex-1">
-      <View>
-        <ScrollView
-          contentContainerStyle={{
-            paddingBottom: 0,
-            marginBottom: 0,
-          }}
-          stickyHeaderIndices={[0]}
-        >
-          {/* Header */}
-          <View className="flex p-2 px-4 top-0 flex-row bg-white items-center justify-between">
-            <Text className="font-bold text-2xl text-gray-700">Schedules</Text>
-            <View className="flex-row items-center gap-4">
-              <TouchableOpacity
-                onPress={() => {
-                  router.push("/instructor/addSchedules");
-                  setDropdownVisible(!dropdownVisible);
-                }}
-              >
-                <Ionicons
-                  name="add"
-                  size={24}
-                  color={"green"}
-                  className="rounded-full p-3 bg-green-100"
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
+    <SafeAreaView edges={["left", "right"]} className="bg-gray-50 flex-1">
+      {/* Header */}
+      <CustomHeader title="Schedules" />
 
-          {/* Fancy Summary Card */}
-          <ScheduleSummary />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
+        <ScheduleSummary />
 
-          {/* The schedule sections */}
-          <ScheduleSection
-            title="Upcoming Schedules"
-            data={schedules.upcoming}
-            color="#34D399"
-          />
-          <ScheduleSection
-            title="Current Schedules"
-            data={schedules.current}
-            color="#60A5FA"
-          />
-          <ScheduleSection
-            title="Past Schedules"
-            data={schedules.past}
-            color="#9CA3AF"
-          />
-        </ScrollView>
-      </View>
+        <ScheduleSection
+          title="Upcoming"
+          data={schedules.upcoming}
+          color="#34D399"
+        />
+        <ScheduleSection
+          title="Current"
+          data={schedules.current}
+          color="#60A5FA"
+        />
+        <ScheduleSection title="Past" data={schedules.past} color="#9CA3AF" />
+      </ScrollView>
+
+      {/* Floating Add Button */}
+      <TouchableOpacity
+        onPress={() => router.push("/instructor/addSchedules")}
+        activeOpacity={0.8}
+        className="absolute items-center justify-center w-14 h-14  bg-[#16a34a]/80 bottom-8 right-6 rounded-full"
+        style={{
+          elevation: 5,
+        }}
+      >
+        <Ionicons name="add" size={26} color="#fff" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }

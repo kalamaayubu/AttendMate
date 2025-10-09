@@ -1,7 +1,6 @@
 import {
   Feather,
   FontAwesome5,
-  Ionicons,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -45,13 +44,13 @@ export default function RootLayout() {
               Get started and enjoy the experience
             </Text>
             <Pressable
-              onPress={() => router.push("/(auth)/login")}
+              onPress={() => router.replace("/(auth)/login")}
               className="px-6 active:scale-95 transition-all duration-300 rounded-full bg-green-600 py-4"
             >
               <Text className="text-white text-center">Log in Here</Text>
             </Pressable>
             <Pressable
-              onPress={() => router.push("/(auth)/signup")}
+              onPress={() => router.replace("/(auth)/signup")}
               className="active:scale-95 transition-all outline-none duration-300 bg-orange-500/15 rounded-full px-6 py-4"
             >
               <Text className="text-orange-500 text-center">
@@ -61,14 +60,6 @@ export default function RootLayout() {
           </View>
         </View>
       </View>
-
-      {/* DEBUG PAGE BUTTON */}
-      <Pressable
-        onPress={() => router.push("/databaseLogs")}
-        className="active:scale-95 absolute bottom-4 z-20 transition-all items-center justify-center outline-none duration-300 bg-gray-600/20 rounded-full px-6 py-4"
-      >
-        <Ionicons name="bug-outline" size={20} color="red" className="" />
-      </Pressable>
     </>
   );
 }

@@ -1,289 +1,186 @@
-import StatsCard from "@/components/instructor/StatsCard";
+import CustomHeader from "@/components/general/CustomHeader";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
-import {
-  Dimensions,
-  Pressable,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Dimensions, ScrollView, Text, View } from "react-native";
 import { LineChart, PieChart } from "react-native-chart-kit";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const screenWidth = Dimensions.get("window").width;
 
-export default function Home() {
-  const [dropdownVisible, setDropdownVisible] = useState(false);
-
-  const statsData = [
+export default function InstructorDashboard() {
+  const quickStats = [
     {
       id: "1",
       title: "My Courses",
       value: 12,
       icon: "book-outline",
+      color: "#16a34a",
     },
     {
       id: "2",
       title: "Attendance",
       value: "85%",
       icon: "checkmark-done-outline",
+      color: "#fb923c",
     },
     {
       id: "3",
-      title: "Assignments Completed",
-      value: 9,
-      icon: "document-text-outline",
+      title: "Scheduled",
+      value: 2,
+      icon: "calendar-outline",
+      color: "#6366f1",
     },
   ];
 
-  // Sample data for charts with dual colors
   const lineChartData = {
     labels: ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"],
     datasets: [
       {
         data: [50, 75, 60, 90, 70, 95, 40, 66, 73, 50, 89, 51],
-        color: () => "#16a34a", // green-600 stroke
+        color: () => "#16a34a",
         strokeWidth: 3,
       },
       {
         data: [30, 65, 40, 60, 50, 70, 50, 75, 60, 90, 70, 95],
-        color: () => "#f97316", // orange-500 stroke
+        color: () => "#f97316",
         strokeWidth: 3,
       },
       {
         data: [20, 45, 40, 70, 95, 60, 50, 70, 50, 75, 60, 90],
-        color: () => "#3B82F6", // blue-500 stroke
+        color: () => "#3B82F6",
         strokeWidth: 3,
       },
       {
         data: [60, 50, 70, 50, 75, 60, 90, 70, 95, 30, 45, 40],
-        color: () => "#D946EF", // magenta-500 stroke
+        color: () => "#D946EF",
         strokeWidth: 3,
       },
     ],
   };
 
   const coursesAttendance = [
-    {
-      name: "Math 101",
-      attendance: 85,
-      color: "#D946EF", //magenta-600
-      legendFontColor: "#D946EF",
-      legendFontSize: 14,
-    },
-    {
-      name: "History 201",
-      attendance: 75,
-      color: "rgba(249, 115, 22, 0.8)", // orange-500 @ 80% opacity
-      legendFontColor: "rgba(249, 115, 22, 0.8)",
-      legendFontSize: 14,
-    },
-    {
-      name: "Physics 301",
-      attendance: 65,
-      color: "#22c55e", // green-500
-      legendFontColor: "#166534",
-      legendFontSize: 14,
-    },
-    {
-      name: "Chemistry 101",
-      attendance: 55,
-      color: "#3B82F6", // blue-500
-      legendFontColor: "#3B82F6",
-      legendFontSize: 14,
-    },
+    { name: "Math 101", attendance: 85, color: "#D946EF" },
+    { name: "History 201", attendance: 75, color: "#f97316" },
+    { name: "Physics 301", attendance: 65, color: "#22c55e" },
+    { name: "Chemistry 101", attendance: 55, color: "#3B82F6" },
   ];
 
-  const pieChartData = coursesAttendance.map(
-    ({ name, attendance, color, legendFontColor, legendFontSize }) => ({
-      name,
-      population: attendance,
-      color,
-      legendFontColor,
-      legendFontSize,
-    })
-  );
+  const pieChartData = coursesAttendance.map((c) => ({
+    name: c.name,
+    population: c.attendance,
+    color: c.color,
+    legendFontColor: "#333",
+    legendFontSize: 12,
+  }));
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} className="bg-white flex-1">
-      <View style={{ flex: 1 }}>
-        <ScrollView
-          contentContainerStyle={{ paddingBottom: 0, marginBottom: 0 }}
-          stickyHeaderIndices={[0]}
-        >
-          {/* Header */}
-          <View className="flex p-2 px-4 top-0 flex-row bg-white items-center justify-between">
-            <Text className="font-bold text-2xl text-gray-700">Dashboard</Text>
-            <View className="flex-row items-center gap-4">
-              <TouchableOpacity
-                onPress={() => setDropdownVisible(!dropdownVisible)}
+    <SafeAreaView
+      edges={["left", "right"]}
+      className="flex-1 bg-gray-100 relative"
+    >
+      {/* ===== Header ===== */}
+      <CustomHeader title="Dashboard" />
+
+      <ScrollView contentContainerClassName="pb-10">
+        {/* ===== Quick Stats ===== */}
+        <View className="flex-row flex-wrap justify-between px-4 mt-4">
+          {quickStats.map((item) => (
+            <View
+              key={item.id}
+              className="bg-white rounded-lg shadow-md mb-4 items-center py-4"
+              style={{ width: (screenWidth - 48) / 3 }}
+            >
+              <View
+                className="rounded-full p-3 mb-2"
+                style={{ backgroundColor: item.color + "20" }}
               >
-                <Ionicons name="ellipsis-vertical" size={24} color="black" />
-              </TouchableOpacity>
+                <Ionicons
+                  name={item.icon as any}
+                  size={24}
+                  color={item.color}
+                />
+              </View>
+              <Text style={{ color: item.color }} className="text-lg font-bold">
+                {item.value}
+              </Text>
+              <Text className="text-xs text-gray-600">{item.title}</Text>
             </View>
-          </View>
+          ))}
+        </View>
 
-          {/* Quick Stats*/}
-          <View className="gap-4 px-4 py-3">
-            {statsData.map(({ id, title, value, icon }) => (
-              <StatsCard key={id} title={title} value={value} icon={icon} />
-            ))}
-          </View>
-
-          {/* Graphs */}
-
-          {/* 1. Line graph */}
-          <View className="py-4 bg-green-50 rounded-xl mx-4 mb-6">
-            <Text className="text-lg px-4 font-semibold text-green-700 mb-2">
-              Attendance Over the Year
-            </Text>
+        {/* ===== Line Chart ===== */}
+        <View className="px-4 mt-2">
+          <Text className="text-gray-700 font-bold mb-2">
+            Attendance Over the Year
+          </Text>
+          <View className="bg-white rounded-xl p-2 shadow">
             <LineChart
               data={lineChartData}
-              width={screenWidth - 24}
+              width={screenWidth - 32}
               height={220}
               chartConfig={{
-                backgroundGradientFrom: "#ECFDF5", // green-50
-                backgroundGradientTo: "#ECFDF5",
-                color: (opacity = 1) => `rgba(22, 163, 74, ${opacity})`, // green-600 base color
-                labelColor: () => "#4B5563", // gray-600 for labels
-                strokeWidth: 1,
-                propsForDots: {
-                  r: "3",
-                  strokeWidth: "1",
-                },
+                backgroundGradientFrom: "#fff",
+                backgroundGradientTo: "#fff",
+                color: (opacity = 1) => `rgba(22,163,74,${opacity})`,
+                labelColor: (opacity = 1) => `rgba(0,0,0,${opacity})`,
+                propsForDots: { r: "4", strokeWidth: "0", stroke: "#16a34a" },
               }}
               bezier
-              style={{ borderRadius: 32 }}
+              style={{ borderRadius: 12 }}
             />
           </View>
+        </View>
 
-          {/* 2. Pie chart */}
-          <View className="px-4 py-4 bg-green-50 rounded-xl mx-4 mb-6">
-            <Text className="text-lg font-semibold text-green-700 mb-2">
-              Attendance Distribution
-            </Text>
+        {/* ===== Pie Chart ===== */}
+        <View className="px-4 mt-4">
+          <Text className="text-gray-700 font-bold mb-2">
+            Attendance Distribution
+          </Text>
+          <View className="bg-white rounded-xl p-2 shadow items-center">
             <PieChart
               data={pieChartData}
-              width={screenWidth - 64}
-              height={180}
+              width={screenWidth - 32}
+              height={200}
               chartConfig={{
-                color: () => "#16a34a",
+                backgroundGradientFrom: "#fff",
+                backgroundGradientTo: "#fff",
+                color: (opacity = 1) => `rgba(0,0,0,${opacity})`,
               }}
-              accessor={"population"}
-              backgroundColor={"transparent"}
-              paddingLeft={"15"}
+              accessor="population"
+              backgroundColor="transparent"
+              paddingLeft="15"
               absolute
             />
           </View>
+        </View>
 
-          {/* Table Section */}
-          <View className="px-4 py-4 bg-white rounded-xl mx-4 mb-6 shadow-sm border border-gray-200">
-            <Text className="text-lg font-semibold text-gray-700 mb-3">
-              Course Attendance Summary
-            </Text>
-
-            {/* Table Header */}
-            <View className="flex-row border-b border-gray-200 pb-2 mb-2">
-              <Text className="flex-1 font-semibold text-gray-600">Course</Text>
-              <Text className="w-24 text-center font-semibold text-gray-600">
+        {/* ===== Table ===== */}
+        <View className="px-4 mt-4">
+          <Text className="text-gray-700 font-bold mb-2">
+            Course Attendance Summary
+          </Text>
+          <View className="bg-white rounded-xl shadow overflow-hidden">
+            <View className="flex-row bg-green-600/20 px-3 py-2">
+              <Text className="flex-1 font-semibold text-gray-700">Course</Text>
+              <Text className="w-24 text-center font-semibold text-gray-700">
                 Attendance
               </Text>
             </View>
-
-            {/* Table Rows */}
-            {coursesAttendance.map(({ name, attendance, color }) => (
+            {coursesAttendance.map((row, idx) => (
               <View
-                key={name}
-                className="flex-row items-center justify-between py-2 border-b border-gray-100"
+                key={row.name}
+                className={`flex-row px-3 py-2 ${
+                  idx % 2 === 0 ? "bg-white" : "bg-gray-50"
+                }`}
               >
-                <View className="flex-row items-center flex-1">
-                  <View
-                    style={{ backgroundColor: color }}
-                    className="w-3 h-3 rounded-full mr-2"
-                  />
-                  <Text className="text-gray-700">{name}</Text>
-                </View>
-                <Text className="w-24 text-center text-gray-800 font-medium">
-                  {attendance}%
+                <Text className="flex-1 text-gray-700">{row.name}</Text>
+                <Text className="w-24 text-center text-gray-700">
+                  {row.attendance}%
                 </Text>
               </View>
             ))}
           </View>
-        </ScrollView>
-
-        {/* More horizontal */}
-        {dropdownVisible && (
-          <>
-            {/* Transparent overlay to close dropdown on outside press */}
-            <Pressable
-              style={{
-                position: "absolute",
-                top: 0,
-                bottom: 0,
-                left: 0,
-                right: 0,
-                zIndex: 10,
-              }}
-              onPress={() => setDropdownVisible(false)}
-            />
-
-            {/* Dropdown menu itself */}
-            <View
-              style={{
-                position: "absolute",
-                top: 40, // Adjust this to align with your header dropdown button
-                right: 16,
-                zIndex: 20,
-                backgroundColor: "white",
-                borderWidth: 1,
-                borderColor: "#ccc",
-                borderRadius: 8,
-                elevation: 2,
-                width: 150,
-              }}
-            >
-              {/* Your dropdown options here */}
-              <Pressable
-                onPress={() => {
-                  setDropdownVisible(false);
-                  alert("Profile clicked");
-                }}
-                style={{
-                  padding: 12,
-                  borderBottomWidth: 1,
-                  borderBottomColor: "#eee",
-                }}
-              >
-                <Text>Profile</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => {
-                  setDropdownVisible(false);
-                  alert("Settings clicked");
-                }}
-                style={{
-                  padding: 12,
-                  borderBottomWidth: 1,
-                  borderBottomColor: "#eee",
-                }}
-              >
-                <Text>Settings</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => {
-                  setDropdownVisible(false);
-                  alert("Logout clicked");
-                }}
-                style={{ padding: 12 }}
-              >
-                <Text>Logout</Text>
-              </Pressable>
-            </View>
-          </>
-        )}
-      </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

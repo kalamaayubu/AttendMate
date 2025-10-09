@@ -1,3 +1,4 @@
+import { logout } from "@/utils/auth/logout";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -54,41 +55,44 @@ export default function CustomHeader({ title, backButton }: CustomHeaderProps) {
       {/* Dropdown Menu */}
       {dropdownVisible && (
         <>
-          {/* Overlay */}
           <Pressable
             onPress={() => setDropdownVisible(false)}
             className="absolute inset-0 z-10"
           />
-
-          {/* Menu */}
           <View
-            className="absolute right-3 z-20 w-44 bg-white border border-gray-300 rounded-lg shadow-lg py-3"
-            style={{
-              top:
-                (Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0) +
-                HEADER_HEIGHT,
-            }}
+            className="absolute right-3 z-20 w-44 bg-white border border-t-0 border-gray-300 rounded-b-lg shadow-2xl shadow-black py-1"
+            style={{ top: HEADER_HEIGHT + 32 }}
           >
             <Pressable
               className="flex-row items-center px-3 py-2"
               onPress={() => {
                 setDropdownVisible(false);
-                router.push("/student/home");
+                router.push("/student/notifications");
               }}
             >
-              <Ionicons name="person-outline" size={18} color="#333" />
-              <Text className="ml-2 text-sm text-gray-800">Profile</Text>
+              <Ionicons
+                name="person-outline"
+                size={18}
+                color="#333"
+                className="mr-2"
+              />
+              <Text className="text-sm text-gray-800">Profile</Text>
             </Pressable>
 
             <Pressable
               className="flex-row items-center px-3 py-2"
               onPress={() => {
                 setDropdownVisible(false);
-                router.push("/student/home");
+                router.push("/student/schedules");
               }}
             >
-              <Ionicons name="settings-outline" size={18} color="#333" />
-              <Text className="ml-2 text-sm text-gray-800">Settings</Text>
+              <Ionicons
+                name="settings-outline"
+                size={18}
+                color="#333"
+                className="mr-2"
+              />
+              <Text className="text-sm text-gray-800">Settings</Text>
             </Pressable>
 
             <View className="h-px bg-gray-200 my-1" />
@@ -97,11 +101,16 @@ export default function CustomHeader({ title, backButton }: CustomHeaderProps) {
               className="flex-row items-center px-3 py-2"
               onPress={() => {
                 setDropdownVisible(false);
-                router.push("/");
+                logout();
               }}
             >
-              <Ionicons name="log-out-outline" size={18} color="#e11d48" />
-              <Text className="ml-2 text-sm text-red-600">Logout</Text>
+              <Ionicons
+                name="log-out-outline"
+                size={18}
+                color="#e11d48"
+                className="mr-2"
+              />
+              <Text className="text-sm text-red-600">Logout</Text>
             </Pressable>
           </View>
         </>

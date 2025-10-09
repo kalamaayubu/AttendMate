@@ -36,11 +36,15 @@ export default function Signup() {
       email: data.email,
       password: data.password,
       options: {
+        data: {
+          full_name: data.name,
+        },
         emailRedirectTo: "attendmate://callback",
       },
     });
 
     if (error) {
+      console.log("Error signup:", error.stack);
       alert(error.message);
       return;
     }
@@ -85,11 +89,12 @@ export default function Signup() {
                 <>
                   <TextInput
                     placeholder="Full name"
+                    placeholderTextColor={"#6B7280"}
                     value={value}
                     onChangeText={onChange}
                     className={` ${
                       errors.name && "border-red-500"
-                    } border border-gray-300 rounded-full px-6 py-3 mb-2`}
+                    } border border-gray-300 text-gray-800 rounded-full px-6 py-3 mb-2`}
                   />
                   {errors.name && (
                     <Text className="text-red-500 text-sm translate-x-2 -translate-y-1 mb-2">
@@ -114,13 +119,14 @@ export default function Signup() {
               render={({ field: { onChange, value } }) => (
                 <>
                   <TextInput
-                    placeholder="Email"
+                    placeholder="Email address"
+                    placeholderTextColor={"#6B7280"}
                     value={value}
                     keyboardType="email-address"
                     onChangeText={onChange}
                     className={` ${
                       errors.email && "border-red-500"
-                    } border border-gray-300 rounded-full px-6 py-3 mb-2`}
+                    } border border-gray-300 text-gray-800  rounded-full px-6 py-3 mb-2`}
                   />
                   {errors.email && (
                     <Text className="text-red-500 text-sm translate-x-2 -translate-y-1 mb-2">
@@ -146,12 +152,13 @@ export default function Signup() {
                 <>
                   <TextInput
                     value={value}
-                    placeholder="Password"
+                    placeholder="Enter password"
+                    placeholderTextColor={"#6B7280"}
                     onChangeText={onChange}
                     secureTextEntry
                     className={` ${
                       errors.password && "border-red-500"
-                    } border border-gray-300 rounded-full px-6 py-3 mb-2`}
+                    } border border-gray-300 text-gray-800  rounded-full px-6 py-3 mb-2`}
                   />
                   {errors.password && (
                     <Text className="text-red-500 text-sm translate-x-2 -translate-y-1 mb-2">

@@ -1,4 +1,4 @@
-import { useAuthDeepLink } from "@/utils/useAuthDeepLink";
+import { useAuthDeepLink } from "@/utils/auth/useAuthDeepLink";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 export default function AuthCallbackScreen() {
