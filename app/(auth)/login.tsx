@@ -40,7 +40,6 @@ export default function Login() {
     }
 
     if (userData.session) {
-      alert("Logged in successfuly");
       await redirectBasedOnRole();
     }
   };

@@ -135,7 +135,7 @@ export default function Schedules() {
         <ScheduleSection
           title="Current"
           data={schedules.current}
-          color="#60A5FA"
+          color="#6366F1"
         />
         <ScheduleSection title="Past" data={schedules.past} color="#9CA3AF" />
       </ScrollView>
@@ -143,11 +143,8 @@ export default function Schedules() {
       {/* Floating Add Button */}
       <TouchableOpacity
         onPress={() => router.push("/instructor/addSchedules")}
-        activeOpacity={0.8}
-        className="absolute items-center justify-center w-14 h-14  bg-[#16a34a]/80 bottom-8 right-6 rounded-full"
-        style={{
-          elevation: 5,
-        }}
+        activeOpacity={0.7}
+        className="absolute items-center z-30 justify-center w-14 h-14 bg-indigo-500/90 shadow-2xl shadow-green-600 bottom-8 right-6 rounded-full"
       >
         <Ionicons name="add" size={26} color="#fff" />
       </TouchableOpacity>

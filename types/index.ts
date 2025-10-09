@@ -14,5 +14,5 @@ export type ScheduleForm = {
   startTime: Date | null;
   endTime: Date | null;
   venue: string;
-  directions?: string;
+  instructions?: string;
 };
