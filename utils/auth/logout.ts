@@ -1,4 +1,6 @@
 import { supabase } from "@/lib/supabase";
+import { store } from "@/redux/store";
+import { clearUser } from "@/redux/userSlice";
 import { router } from "expo-router";
 
 /**
@@ -13,6 +15,8 @@ export async function logout() {
       alert("Something went wrong while logging out. Please try again.");
       return;
     }
+
+    store.dispatch(clearUser); // Clear redux state
 
     // Clear navigation stack and go back to auth entry point
     router.replace("/login");

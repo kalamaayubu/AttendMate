@@ -31,17 +31,21 @@ export default function InstructorLayout() {
               case "reports":
                 iconName = "document-text-outline";
                 break;
+              case "courses":
+                iconName = "library-outline";
+                break;
               default:
                 iconName = "ellipse-outline";
             }
 
-            return <Ionicons name={iconName} size={size} color={color} />;
+            return <Ionicons name={iconName} size={20} color={color} />;
           },
         })}
       >
         <Tabs.Screen name="home" options={{ title: "Home" }} />
         <Tabs.Screen name="schedules" options={{ title: "Schedules" }} />
         <Tabs.Screen name="reports" options={{ title: "Reports" }} />
+        <Tabs.Screen name="courses" options={{ title: "Courses" }} />
       </Tabs>
     </ProtectedLayout>
   );

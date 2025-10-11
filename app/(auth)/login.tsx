@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { setUser } from "@/redux/userSlice";
 import { LoginForm } from "@/types";
 import { redirectBasedOnRole } from "@/utils/auth/redirectBasedOnRole";
 import { router } from "expo-router";
@@ -14,6 +15,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { useDispatch } from "react-redux";
 
 export default function Login() {
   const {
@@ -26,6 +28,8 @@ export default function Login() {
       password: "",
     },
   });
+
+  const dispatch = useDispatch();
 
   // Function to log in
   const onSubmit = async (data: LoginForm) => {
@@ -40,7 +44,8 @@ export default function Login() {
     }
 
     if (userData.session) {
-      await redirectBasedOnRole();
+      dispatch(setUser(userData.user)); // Set the user in Redux
+      await redirectBasedOnRole(); // Redirect based on the role
     }
   };
 

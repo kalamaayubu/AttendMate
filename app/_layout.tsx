@@ -1,8 +1,10 @@
 import { supabase } from "@/lib/supabase";
+import { store } from "@/redux/store";
 import * as NavigationBar from "expo-navigation-bar";
 import { Stack } from "expo-router";
 import { useEffect } from "react";
 import { AppState } from "react-native";
+import { Provider } from "react-redux";
 
 export default function RootLayout() {
   // Hide navigation bars
@@ -41,12 +43,14 @@ export default function RootLayout() {
 
   return (
     <>
-      <Stack screenOptions={{ headerShown: false }}>
-        {/* Home screen */}
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        {/* Auth group (login, signup, etc.) */}
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      </Stack>
+      <Provider store={store}>
+        <Stack screenOptions={{ headerShown: false }}>
+          {/* Home screen */}
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          {/* Auth group (login, signup, etc.) */}
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        </Stack>
+      </Provider>
     </>
   );
 }

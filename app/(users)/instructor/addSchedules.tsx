@@ -74,7 +74,7 @@ export default function AddSchedule() {
 
       <CustomHeader title="Schedule a Class" backButton />
 
-      {/* 🧩 Wrap ScrollView inside KeyboardAvoidingView */}
+      {/* 🧩 Wrap ScrollView inside KeyboardAwareScrollView */}
       <KeyboardAwareScrollView
         contentContainerStyle={{ paddingBottom: 0, flexGrow: 1 }}
         extraScrollHeight={0}
@@ -143,13 +143,44 @@ export default function AddSchedule() {
             control={control}
             name="startTime"
             label="Start Time"
+            rules={{
+              required: "Start time is required",
+              validate: (value: any) =>
+                value instanceof Date || "Please select a valid start time",
+            }}
           />
+          {errors.startTime && (
+            <Text className="text-red-500 text-sm -translate-y-4 mb-2">
+              {errors.startTime.message}
+            </Text>
+          )}
+
           <DateTimeField
             control={control}
             name="endTime"
             label="End Time"
             timeOnly
+            rules={{
+              required: "End time is required",
+              validate: (value: any, formValues: any) => {
+                // Ensure both times are valid Dates
+                if (!(value instanceof Date))
+                  return "Please select a valid end time";
+                if (
+                  formValues.startTime instanceof Date &&
+                  value <= formValues.startTime
+                ) {
+                  return "End time must be after the start time";
+                }
+                return true;
+              },
+            }}
           />
+          {errors.endTime && (
+            <Text className="text-red-500 text-sm -translate-y-4 mb-2">
+              {errors.endTime.message}
+            </Text>
+          )}
 
           {/* --- Venue --- */}
           <Text className="mb-1 font-semibold text-gray-700">Venue</Text>

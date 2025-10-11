@@ -16,3 +16,8 @@ export type ScheduleForm = {
   venue: string;
   instructions?: string;
 };
+
+export interface AddCourseForm {
+  course_name: string;
+  course_code: string;
+}
