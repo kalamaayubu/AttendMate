@@ -13,6 +13,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 
 export default function Signup() {
   const {
@@ -45,12 +46,22 @@ export default function Signup() {
 
     if (error) {
       console.log("Error signup:", error.stack);
-      alert(error.message);
+      Toast.show({
+        type: "error",
+        text1: "Signup Failed",
+        text2: error.message,
+      });
       return;
     }
 
     if (!session) {
-      alert("Please check your inbox for email verification!");
+      Toast.show({
+        type: "info",
+        text1: "Confirm your email",
+        text2: "A confirmation link has been sent to your email.",
+      });
+      router.replace("/(auth)/login");
+      return;
     } else {
       router.replace("/instructor/home");
     }

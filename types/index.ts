@@ -11,9 +11,10 @@ export interface LoginForm {
 
 export type ScheduleForm = {
   course: string;
-  startTime: Date | null;
-  endTime: Date | null;
+  startTime: string;
+  endTime: string;
   venue: string;
+  instructorId?: string;
   instructions?: string;
 };
 

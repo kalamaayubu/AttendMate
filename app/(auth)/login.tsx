@@ -15,6 +15,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
 
 export default function Login() {
@@ -39,12 +40,27 @@ export default function Login() {
     });
 
     if (error) {
-      alert(error.message);
+      Toast.show({
+        type: "error",
+        text1: "Login Failed",
+        text2: error.message,
+      });
+      console.log("Login error:", error.message);
       return; // Stop here if login failed
     }
+    console.log("USERDATA::", userData.session.user.email);
 
-    if (userData.session) {
-      dispatch(setUser(userData.user)); // Set the user in Redux
+    if (userData.session?.user) {
+      const user = userData.session.user;
+
+      dispatch(
+        setUser({
+          id: user.id,
+          email: user.email || "", // Ensure email is a string
+          role: user.user_metadata?.role || "member", // Default to 'member' if role is missing
+          full_name: user.user_metadata.full_name || null,
+        })
+      ); // Set the user in Redux
       await redirectBasedOnRole(); // Redirect based on the role
     }
   };

@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 
 export default function ScheduleDetails() {
   const router = useRouter();
@@ -148,7 +149,12 @@ export default function ScheduleDetails() {
           ${canMarkAttendance ? "bg-green-600" : "bg-gray-400"}`}
           onPress={() => {
             if (canMarkAttendance) setModalVisible(true);
-            else alert(reason);
+            else
+              Toast.show({
+                type: "error",
+                text1: "Cannot Mark Attendance",
+                text2: reason,
+              });
           }}
         >
           <Ionicons name="checkmark-outline" size={28} color="white" />

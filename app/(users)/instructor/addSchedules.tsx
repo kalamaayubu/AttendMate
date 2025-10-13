@@ -8,6 +8,8 @@ import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
+import { RootState } from "@/redux/store";
+import { schedulesService } from "@/services/schedulesService";
 import {
   ActivityIndicator,
   Pressable,
@@ -16,50 +18,86 @@ import {
   TextInput,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
+import { useSelector } from "react-redux";
 
 const courses = [
-  "Yoga",
-  "Pilates",
-  "Zumba",
-  "Spin Class",
-  "Meditation",
-  "Crossfit",
+  { id: "60ce1ecc-0ec1-4f71-8b93-3bd2af4699e2", code: "YGA101", name: "Yoga" },
+  {
+    id: "7316cf17-9c67-458b-ac01-94afe7e0a292",
+    code: "PIL102",
+    name: "Pilates",
+  },
+  { id: "42c11e93-ffbd-4767-9434-77917e97ca26", code: "ZMB103", name: "Zumba" },
+  {
+    id: "f4a23822-8b19-4f67-81c8-19221a9cc341",
+    code: "SPN104",
+    name: "Spin Class",
+  },
+  {
+    id: "ac100e66-0bd2-4564-9e3e-82c925c00771",
+    code: "MDT105",
+    name: "Meditation",
+  },
+  {
+    id: "072bd4e6-0457-4bac-b414-efe48d24d8f6",
+    code: "CRF106",
+    name: "Crossfit",
+  },
 ];
 
 export default function AddSchedule() {
+  // Get instructor ID from redux
+  const { user } = useSelector((state: RootState) => state.user);
+
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<ScheduleForm>({
     defaultValues: {
       course: "",
-      startTime: null,
-      endTime: null,
+      startTime: "",
+      endTime: "",
       venue: "",
       instructions: "",
     },
   });
 
-  const onSubmit = (data: ScheduleForm) => {
+  const onSubmit = async (data: ScheduleForm) => {
     if (!data.startTime || !data.endTime) {
-      alert("Please select both start and end times");
+      Toast.show({
+        type: "error",
+        text1: "Missing Fields",
+        text2: "Please select both start and end times.",
+      });
       return;
     }
 
-    if (data.endTime <= data.startTime) {
-      alert("End time must be after start time");
-      return;
-    }
+    console.log("🕒 Submitted Start Time:", data.startTime);
+    console.log("🕓 Submitted End Time:", data.endTime);
 
-    const newSchedule = {
+    const payload = {
       ...data,
-      startTime: data.startTime.toISOString(),
-      endTime: data.endTime.toISOString(),
+      instructorId: user?.id || "s94hf949wnflwh94ho4g4ho4we",
     };
 
-    console.log("✅ New Schedule:", newSchedule);
-    alert("Schedule added successfully!");
+    const res = await schedulesService.addSchedule(payload);
+    if (!res.success) {
+      Toast.show({
+        type: "error",
+        text1: "Error adding schedule",
+        text2: res.message,
+      });
+      return;
+    }
+
+    Toast.show({
+      type: "success",
+      text1: "Schedule added successfully!",
+    });
+    reset();
   };
 
   return (
@@ -74,7 +112,7 @@ export default function AddSchedule() {
 
       <CustomHeader title="Schedule a Class" backButton />
 
-      {/* 🧩 Wrap ScrollView inside KeyboardAwareScrollView */}
+      {/* Make the scroll view aware of keyboard*/}
       <KeyboardAwareScrollView
         contentContainerStyle={{ paddingBottom: 0, flexGrow: 1 }}
         extraScrollHeight={0}
@@ -90,6 +128,21 @@ export default function AddSchedule() {
         >
           {/* --- Info Header --- */}
           <View className="mb-6 p-5 bg-green-50 rounded-2xl border border-green-100 shadow-sm">
+            <View className="flex-row items-center gap-3 mb-2">
+              <View className="bg-green-100 p-2 rounded-xl">
+                <Ionicons name="create-outline" size={22} color="#16a34a" />
+              </View>
+              <Text className="text-lg font-semibold text-gray-800">
+                Create New Schedule
+              </Text>
+            </View>
+
+            <Text className="text-gray-600 leading-relaxed">
+              Fill in the course details, venue, and timings below to create a
+              new schedule.
+            </Text>
+          </View>
+          {/* <View className="mb-6 p-5 bg-green-50 rounded-2xl border border-green-100 shadow-sm">
             <View className="flex-row items-center gap-3 mb-1">
               <Ionicons name="calendar-outline" size={22} color="#16a34a" />
               <Text className="text-lg font-semibold text-gray-800">
@@ -99,7 +152,7 @@ export default function AddSchedule() {
             <Text className="text-gray-600">
               Fill in the course details, venue, and timings below.
             </Text>
-          </View>
+          </View> */}
 
           {/* --- Course Picker --- */}
           <Text className="mb-1 font-semibold text-gray-700">Course</Text>
@@ -126,7 +179,11 @@ export default function AddSchedule() {
                     color="#9CA3AF"
                   />
                   {courses.map((course) => (
-                    <Picker.Item key={course} label={course} value={course} />
+                    <Picker.Item
+                      key={course.id}
+                      label={course.name}
+                      value={course.id}
+                    />
                   ))}
                 </Picker>
               )}
@@ -145,8 +202,6 @@ export default function AddSchedule() {
             label="Start Time"
             rules={{
               required: "Start time is required",
-              validate: (value: any) =>
-                value instanceof Date || "Please select a valid start time",
             }}
           />
           {errors.startTime && (
@@ -163,15 +218,23 @@ export default function AddSchedule() {
             rules={{
               required: "End time is required",
               validate: (value: any, formValues: any) => {
-                // Ensure both times are valid Dates
-                if (!(value instanceof Date))
-                  return "Please select a valid end time";
-                if (
-                  formValues.startTime instanceof Date &&
-                  value <= formValues.startTime
-                ) {
+                // Debug logs
+                console.log("🕒 Start Time:", formValues.startTime);
+                console.log("🕓 End Time:", value);
+
+                // Validation logic
+                if (!formValues.startTime) return "Start time is missing";
+                if (!value) return "End time is missing";
+
+                const start = new Date(formValues.startTime);
+                const end = new Date(value);
+
+                if (isNaN(start.getTime()) || isNaN(end.getTime()))
+                  return "Invalid date values";
+
+                if (end <= start)
                   return "End time must be after the start time";
-                }
+
                 return true;
               },
             }}

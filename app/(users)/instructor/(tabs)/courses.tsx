@@ -15,6 +15,7 @@ import { CourseCard } from "@/components/instructor/CourseCard";
 import { SelectCourseModal } from "@/components/instructor/SelectCourseModal";
 import { RootState } from "@/redux/store";
 import { coursesService } from "@/services/coursesService"; // ✅ import service
+import Toast from "react-native-toast-message";
 import { useSelector } from "react-redux";
 
 export const CoursesScreen = () => {
@@ -54,22 +55,29 @@ export const CoursesScreen = () => {
     );
 
     if (!success) {
-      alert("Error Failed to add course. Please try again.");
+      Toast.show({
+        type: "error",
+        text1: "Error occurred",
+        text2: "Failed to add course. Please try again.",
+      });
       console.error("Failed to add course:", error);
       return;
     }
 
     // Optimistic update
     setCourses((prev) => [...prev, course]);
-    alert(`${course.course_code} added successfully!`);
+    Toast.show({
+      type: "success",
+      text1: "Course added successfully!",
+    });
     setModalVisible(false);
   };
 
   return (
     <>
       <CustomHeader title="Courses" />
-      <SafeAreaView className="flex-1 bg-white px-4">
-        <View className="mb-6 p-5 bg-green-50 rounded-3xl border border-green-100 shadow-sm">
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="mb-6 mx-4 p-5 bg-green-50 rounded-2xl border border-green-100 shadow-sm">
           <View className="flex-row items-center gap-3 mb-2">
             <View className="bg-green-100 p-2 rounded-xl">
               <Ionicons name="library-outline" size={22} color="#16a34a" />
@@ -98,7 +106,7 @@ export const CoursesScreen = () => {
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => <CourseCard course={item} />}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 80 }}
+            contentContainerStyle={{ paddingBottom: 80, paddingHorizontal: 16 }}
           />
         ) : (
           <View className="flex-1 justify-center items-center">

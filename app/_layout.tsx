@@ -1,10 +1,12 @@
 import { supabase } from "@/lib/supabase";
-import { store } from "@/redux/store";
+import { persistor, store } from "@/redux/store";
 import * as NavigationBar from "expo-navigation-bar";
 import { Stack } from "expo-router";
 import { useEffect } from "react";
-import { AppState } from "react-native";
+import { ActivityIndicator, AppState, View } from "react-native";
+import Toast from "react-native-toast-message";
 import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
 
 export default function RootLayout() {
   // Hide navigation bars
@@ -44,12 +46,30 @@ export default function RootLayout() {
   return (
     <>
       <Provider store={store}>
-        <Stack screenOptions={{ headerShown: false }}>
-          {/* Home screen */}
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          {/* Auth group (login, signup, etc.) */}
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        </Stack>
+        <PersistGate
+          loading={
+            <View className="flex-1 justify-center items-center">
+              <ActivityIndicator size="large" color="#16a34a" />
+            </View>
+          }
+          persistor={persistor}
+        >
+          <Stack screenOptions={{ headerShown: false }}>
+            {/* Home screen */}
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            {/* Auth group (login, signup, etc.) */}
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          </Stack>
+
+          {/* Toast notification provider */}
+          <Toast
+            position="top"
+            visibilityTime={6000}
+            autoHide
+            topOffset={80}
+            swipeable
+          />
+        </PersistGate>
       </Provider>
     </>
   );

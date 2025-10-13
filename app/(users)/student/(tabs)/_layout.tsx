@@ -10,7 +10,7 @@ export default function StudentLayout() {
           tabBarActiveTintColor: "#16a34a",
           tabBarInactiveTintColor: "#888",
           tabBarLabelStyle: {
-            fontSize: 12,
+            fontSize: 10,
             fontWeight: "600",
             elevation: 0,
           },
@@ -27,6 +27,9 @@ export default function StudentLayout() {
               case "schedules/index":
                 iconName = "calendar-outline";
                 break;
+              case "courses":
+                iconName = "book-outline";
+                break;
               case "notifications":
                 iconName = "notifications-outline";
                 break;
@@ -34,7 +37,7 @@ export default function StudentLayout() {
                 iconName = "ellipse-outline";
             }
 
-            return <Ionicons name={iconName} size={20} color={color} />;
+            return <Ionicons name={iconName} size={18} color={color} />;
           },
         })}
       >
@@ -45,6 +48,10 @@ export default function StudentLayout() {
         <Tabs.Screen
           name="schedules/index"
           options={{ title: "Schedules", headerShown: false }}
+        />
+        <Tabs.Screen
+          name="courses"
+          options={{ title: "Courses", headerShown: false }}
         />
         <Tabs.Screen
           name="notifications"

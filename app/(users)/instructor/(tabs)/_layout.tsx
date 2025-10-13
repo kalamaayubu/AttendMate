@@ -11,7 +11,7 @@ export default function InstructorLayout() {
           tabBarActiveTintColor: "#16a34a",
           tabBarInactiveTintColor: "#888",
           tabBarLabelStyle: {
-            fontSize: 12,
+            fontSize: 10,
             fontWeight: "600",
             elevation: 0,
           },
@@ -38,7 +38,7 @@ export default function InstructorLayout() {
                 iconName = "ellipse-outline";
             }
 
-            return <Ionicons name={iconName} size={20} color={color} />;
+            return <Ionicons name={iconName} size={18} color={color} />;
           },
         })}
       >

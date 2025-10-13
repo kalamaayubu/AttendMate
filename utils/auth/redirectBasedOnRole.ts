@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { router } from "expo-router";
+import Toast from "react-native-toast-message";
 import { getUserRole } from "./getUserRole";
 
 /**
@@ -19,7 +20,12 @@ export async function redirectBasedOnRole() {
   const role = await getUserRole(userId);
 
   if (!role) {
-    alert("Could not determine your role. Please try logging in again.");
+    Toast.show({
+      type: "error",
+      text1: "Role Not Found",
+      text2: "Failed to determine role. Please log in again.",
+    });
+    console.error("User role not found for ID:", userId);
     return;
   }
 

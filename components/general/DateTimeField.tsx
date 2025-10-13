@@ -9,7 +9,7 @@ interface DateTimeFieldProps {
   name: string;
   label: string;
   rules?: object;
-  timeOnly?: boolean; // 👈 new prop
+  timeOnly?: boolean;
 }
 
 export default function DateTimeField({
@@ -55,48 +55,110 @@ export default function DateTimeField({
             {/* --- Date Picker (only if not timeOnly) --- */}
             {!timeOnly && showDatePicker && (
               <DateTimePicker
-                value={value ?? new Date()}
+                value={value instanceof Date ? value : new Date()}
                 mode="date"
                 display={Platform.OS === "ios" ? "inline" : "default"}
                 minimumDate={new Date()}
                 onChange={(event, selectedDate) => {
-                  if (Platform.OS === "android") {
+                  // Only proceed if the user pressed "OK" (set), not canceled
+                  if (event.type === "dismissed") {
                     setShowDatePicker(false);
-                    if (event.type === "set" && selectedDate) {
+                    return;
+                  }
+
+                  if (event.type === "set" && selectedDate) {
+                    if (Platform.OS === "android") {
+                      setShowDatePicker(false);
                       setTempDate(selectedDate);
-                      setShowTimePicker(true); // Chain with time selection
+                      setShowTimePicker(true); // Chain time selection
+                    } else {
+                      setTempDate(selectedDate);
                     }
-                  } else if (selectedDate) {
-                    setTempDate(selectedDate);
                   }
                 }}
               />
             )}
 
             {/* --- Time Picker (used for both modes) --- */}
-            {showTimePicker && (
+            {showTimePicker &&
+              (() => {
+                const safeDateValue =
+                  value instanceof Date
+                    ? value
+                    : tempDate instanceof Date
+                    ? tempDate
+                    : new Date();
+
+                try {
+                  return (
+                    <DateTimePicker
+                      testID={`${name}-time-picker`}
+                      value={safeDateValue}
+                      mode="time"
+                      display={Platform.OS === "ios" ? "spinner" : "default"}
+                      is24Hour={false}
+                      onChange={(event, selectedTime) => {
+                        if (!event) return;
+                        if (Platform.OS === "android") setShowTimePicker(false);
+
+                        if (event?.type !== "set" || !selectedTime) return;
+
+                        if (timeOnly) {
+                          const startTime = control._formValues?.startTime;
+                          const baseDate =
+                            startTime instanceof Date
+                              ? new Date(startTime)
+                              : new Date();
+                          baseDate.setHours(selectedTime.getHours());
+                          baseDate.setMinutes(selectedTime.getMinutes());
+                          onChange(baseDate);
+                        } else if (tempDate) {
+                          const finalDate = new Date(tempDate);
+                          finalDate.setHours(selectedTime.getHours());
+                          finalDate.setMinutes(selectedTime.getMinutes());
+                          onChange(finalDate);
+                        }
+                      }}
+                    />
+                  );
+                } catch (err) {
+                  console.error("⚠️ DateTimePicker crashed:", err);
+                  return null;
+                }
+              })()}
+
+            {/* {showTimePicker && (
               <DateTimePicker
-                value={tempDate ?? value ?? new Date()}
+                value={value ?? new Date()}
                 mode="time"
                 display={Platform.OS === "ios" ? "spinner" : "default"}
                 is24Hour={false}
                 onChange={(event, selectedTime) => {
+                  if (!event) return;
                   if (Platform.OS === "android") setShowTimePicker(false);
 
-                  if (event.type === "set" && selectedTime) {
-                    if (timeOnly) {
+                  if (event?.type !== "set" || !selectedTime) return;
+
+                  // ✅ Fix: ensure endTime inherits the date from startTime
+                  if (timeOnly) {
+                    const startTime = control._formValues?.startTime;
+                    if (startTime instanceof Date) {
+                      const sameDate = new Date(startTime);
+                      sameDate.setHours(selectedTime.getHours());
+                      sameDate.setMinutes(selectedTime.getMinutes());
+                      onChange(sameDate);
+                    } else {
                       onChange(selectedTime);
-                    } else if (tempDate) {
-                      // Concatenate selected date and time
-                      const finalDate = new Date(tempDate);
-                      finalDate.setHours(selectedTime.getHours());
-                      finalDate.setMinutes(selectedTime.getMinutes());
-                      onChange(finalDate);
                     }
+                  } else if (tempDate) {
+                    const finalDate = new Date(tempDate);
+                    finalDate.setHours(selectedTime.getHours());
+                    finalDate.setMinutes(selectedTime.getMinutes());
+                    onChange(finalDate);
                   }
                 }}
               />
-            )}
+            )} */}
           </>
         )}
       />

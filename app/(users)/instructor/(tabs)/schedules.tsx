@@ -1,34 +1,46 @@
 import CustomHeader from "@/components/general/CustomHeader";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import {
-  Dimensions,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-const screenWidth = Dimensions.get("window").width;
 
 // Dummy schedule data
 const schedules = {
   upcoming: [
-    { id: "u1", title: "Yoga Class", datetime: "2025-10-05 • 09:00 AM" },
     {
-      id: "u2",
+      id: "60ce1ecc-0ec1-4f71-8b93-3bd2af4699e2",
+      title: "Yoga Class",
+      datetime: "2025-10-05 • 09:00 AM",
+    },
+    {
+      id: "7316cf17-9c67-458b-ac01-94afe7e0a292",
       title: "Meditation Session",
       datetime: "2025-10-06 • 06:00 PM",
     },
   ],
   current: [
-    { id: "c1", title: "Pilates", datetime: "2025-10-01 • 10:00 AM" },
-    { id: "c2", title: "Zumba", datetime: "2025-09-25 • 05:00 PM" },
+    {
+      id: "42c11e93-ffbd-4767-9434-77917e97ca26",
+      title: "Pilates",
+      datetime: "2025-10-01 • 10:00 AM",
+    },
+    {
+      id: "ac100e66-0bd2-4564-9e3e-82c925c00771",
+      title: "Zumba",
+      datetime: "2025-09-25 • 05:00 PM",
+    },
   ],
   past: [
-    { id: "p1", title: "Spin Class", datetime: "2025-09-20 • 07:00 AM" },
-    { id: "p2", title: "Cardio Blast", datetime: "2025-09-10 • 08:00 AM" },
+    {
+      id: "f6b0e2ab-f449-4039-a6c7-e9b097bb8e81",
+      title: "Spin Class",
+      datetime: "2025-09-20 • 07:00 AM",
+    },
+    {
+      id: "072bd4e6-0457-4bac-b414-efe48d24d8f6",
+      title: "Cardio Blast",
+      datetime: "2025-09-10 • 08:00 AM",
+    },
   ],
 };
 
@@ -125,7 +137,21 @@ export default function Schedules() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}
       >
-        <ScheduleSummary />
+        <View className="mb-6 p-5 m-5 bg-green-50 rounded-2xl border border-green-100 shadow-sm">
+          <View className="flex-row items-center gap-3 mb-1">
+            <View className="bg-green-100 p-2 rounded-xl">
+              <Ionicons name="calendar-outline" size={22} color="#16a34a" />
+            </View>
+            <Text className="text-lg font-semibold text-gray-800">
+              Manage your schedules
+            </Text>
+          </View>
+          <Text className="text-gray-600 leading-relaxed">
+            Tap the <Text className="text-green-600 font-bold text-xl">＋</Text>{" "}
+            button on the bottom right to create a new class schedule.
+          </Text>
+        </View>
+        {/* <ScheduleSummary /> */}
 
         <ScheduleSection
           title="Upcoming"

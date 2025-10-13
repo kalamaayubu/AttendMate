@@ -64,6 +64,10 @@ async function handleAuthLink(url: string) {
     await redirectBasedOnRole(); // Redirect based on role
   } catch (err: any) {
     console.error("Auth link handling failed:", err.message);
-    alert("Sign-in failed, please try again."); // Notify the user of an error
+    // Toast.show({
+    //   type: "error",
+    //   text1: "Authentication Failed",
+    //   text2: "Sign-in failed, please try again.",
+    // });
   }
 }

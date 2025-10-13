@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface User {
   id: string;
-  email: string | null;
+  email: string;
   full_name?: string | null;
   role?: string | null;
   [key: string]: any; // For any extra fields from Supabase

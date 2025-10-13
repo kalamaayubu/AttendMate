@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 export default function Courses() {
   const [selectedFilter, setSelectedFilter] = useState("All");
@@ -68,12 +69,19 @@ export default function Courses() {
     const res = await coursesService.addCourse(data);
 
     if (!res.success) {
-      alert(res.message);
+      Toast.show({
+        type: "error",
+        text1: "Error adding course",
+        text2: res.message,
+      });
       return;
     }
 
     setIsModalVisible(false);
-    alert(res.message);
+    Toast.show({
+      type: "success",
+      text1: "Course added successfully!",
+    });
   };
 
   return (
