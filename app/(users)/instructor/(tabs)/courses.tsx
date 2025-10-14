@@ -77,6 +77,7 @@ export const CoursesScreen = () => {
     <>
       <CustomHeader title="Courses" />
       <SafeAreaView className="flex-1 bg-white">
+        {/* Heading information */}
         <View className="mb-6 mx-4 p-5 bg-green-50 rounded-2xl border border-green-100 shadow-sm">
           <View className="flex-row items-center gap-3 mb-2">
             <View className="bg-green-100 p-2 rounded-xl">

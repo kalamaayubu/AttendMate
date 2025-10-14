@@ -1,3 +1,10 @@
+/* eslint-disable import/first */
+// Conditionally load Reactotron before anything else in dev
+if (__DEV__) {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require("../ReactotronConfig");
+}
+
 import { supabase } from "@/lib/supabase";
 import { persistor, store } from "@/redux/store";
 import * as NavigationBar from "expo-navigation-bar";

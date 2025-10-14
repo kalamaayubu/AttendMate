@@ -71,7 +71,7 @@ export const SelectCourseModal = ({
         onPress={(e) => e.stopPropagation()} // prevent background press from closing modal
       >
         {/* Header */}
-        <View className="flex-row justify-between items-center mb-4">
+        <View className="flex-row justify-between items-center mb-2">
           <Text className="text-xl font-semibold text-gray-800">
             Select a Course
           </Text>
@@ -105,32 +105,37 @@ export const SelectCourseModal = ({
             No available courses found.
           </Text>
         ) : (
-          <FlatList
-            data={courses}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => {
-              const isSelected = selectedId === item.id;
-              return (
-                <TouchableOpacity
-                  onPress={() => setSelectedId(item.id)}
-                  className={`p-4 mb-3 border rounded-2xl ${
-                    isSelected
-                      ? "border-indigo-600 bg-indigo-50"
-                      : "border-gray-100"
-                  }`}
-                >
-                  <Text
-                    className={`text-base font-semibold ${
-                      isSelected ? "text-indigo-600" : "text-gray-800"
+          <>
+            <Text className="text-gray-400 mb-6">
+              Choose a course you will take students through.
+            </Text>
+            <FlatList
+              data={courses}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => {
+                const isSelected = selectedId === item.id;
+                return (
+                  <TouchableOpacity
+                    onPress={() => setSelectedId(item.id)}
+                    className={`p-4 mb-3 border rounded-2xl ${
+                      isSelected
+                        ? "border-indigo-600 bg-indigo-50"
+                        : "border-gray-100"
                     }`}
                   >
-                    {item.code}
-                  </Text>
-                  <Text className="text-gray-500 text-sm">{item.name}</Text>
-                </TouchableOpacity>
-              );
-            }}
-          />
+                    <Text
+                      className={`text-base font-semibold ${
+                        isSelected ? "text-indigo-600" : "text-gray-800"
+                      }`}
+                    >
+                      {item.code}
+                    </Text>
+                    <Text className="text-gray-500 text-sm">{item.name}</Text>
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          </>
         )}
 
         {/* Add button */}

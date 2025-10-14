@@ -170,7 +170,7 @@ export default function Schedules() {
       <TouchableOpacity
         onPress={() => router.push("/instructor/addSchedules")}
         activeOpacity={0.7}
-        className="absolute items-center z-30 justify-center w-14 h-14 bg-indigo-500/90 shadow-2xl shadow-green-600 bottom-8 right-6 rounded-full"
+        className="absolute items-center z-30 justify-center w-14 h-14 bg-indigo-500/90 shadow-2xl shadow-indigo-600 bottom-8 right-6 rounded-full"
       >
         <Ionicons name="add" size={26} color="#fff" />
       </TouchableOpacity>

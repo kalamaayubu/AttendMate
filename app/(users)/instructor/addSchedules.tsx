@@ -142,17 +142,6 @@ export default function AddSchedule() {
               new schedule.
             </Text>
           </View>
-          {/* <View className="mb-6 p-5 bg-green-50 rounded-2xl border border-green-100 shadow-sm">
-            <View className="flex-row items-center gap-3 mb-1">
-              <Ionicons name="calendar-outline" size={22} color="#16a34a" />
-              <Text className="text-lg font-semibold text-gray-800">
-                Create New Schedule
-              </Text>
-            </View>
-            <Text className="text-gray-600">
-              Fill in the course details, venue, and timings below.
-            </Text>
-          </View> */}
 
           {/* --- Course Picker --- */}
           <Text className="mb-1 font-semibold text-gray-700">Course</Text>
