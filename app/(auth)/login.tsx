@@ -76,8 +76,9 @@ export default function Login() {
           keyboardShouldPersistTaps="handled"
         >
           <View className="flex-1 justify-center p-6 bg-white">
-            <View className="w-12 h-12 bg-gray-300 self-center mb-4 rounded-full relative">
-              <View className="absolute bg-orange-500/85 size-10 top-1/4 left-1/4 rounded-full" />
+            {/* Logo */}
+            <View className="w-10 h-10 bg-green-600 self-center mb-8 rounded-full relative">
+              <View className="absolute bg-indigo-600/80 size-12 top-1/4 left-1/4 rounded-full" />
             </View>
             <Text className="text-2xl font-bold text-center mb-6 text-gray-800">
               Log In
