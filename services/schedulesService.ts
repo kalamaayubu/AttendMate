@@ -1,37 +1,10 @@
 import { supabase } from "@/lib/supabase";
-import { ScheduleForm, StudentSchedule } from "@/types";
-
-interface Schedule {
-  id: string;
-  start_time: string;
-  end_time: string;
-  venue: string;
-}
-
-interface Course {
-  id: string;
-  course_code: string;
-  course_name: string;
-  schedules?: Schedule[];
-}
-
-interface Enrollment {
-  id: string;
-  course_id: string;
-  courses: Course;
-}
-
-interface FormattedSchedule {
-  id: string;
-  course: string;
-  time: string;
-  location: string;
-}
+import { ScheduleForm, StudentSchedule, StudentScheduleDetails } from "@/types";
 
 export const schedulesService = {
   // Instructor: Adding a new schedule
   async addSchedule(schedule: ScheduleForm) {
-    console.log("ADDING SCHEDULE:", schedule);
+    // console.log("ADDING SCHEDULE:", schedule);
     try {
       const { data, error } = await supabase.from("schedules").insert([
         {
@@ -97,7 +70,6 @@ export const schedulesService = {
           data: [],
         };
       }
-      console.log("NEW SCHEDULES:", JSON.stringify(data, null, 2));
 
       // Flatten data and format cleanly
       const flattenSchedules = (data: any[]): StudentSchedule[] => {
@@ -110,8 +82,8 @@ export const schedulesService = {
             schedules,
           } = courses;
 
-          console.log("ENROLLMENT:", enrollment);
-          console.log("COURSES:", courses);
+          // console.log("ENROLLMENT:", enrollment);
+          // console.log("COURSES:", courses);
 
           return (schedules || []).map((schedule: any) => ({
             enrollmentId,
@@ -126,7 +98,6 @@ export const schedulesService = {
         });
       };
 
-      console.log("FLATTENDATA:", flattenSchedules(data));
       const formattedSchedules = flattenSchedules(data || []);
       return {
         success: true,
@@ -140,5 +111,67 @@ export const schedulesService = {
         data: [],
       };
     }
+  },
+
+  // Student: Fetching schedule details
+  async getScheduleDetailsForStudent(scheduleId: string) {
+    const { data, error } = await supabase
+      .from("schedules")
+      .select(
+        `
+          id,
+          start_time,
+          end_time,
+          venue,
+          instructions,
+          course: courses (
+            id,
+            course_name,
+            course_code
+          ),
+          instructor: instructors (
+            profile: profiles (
+              id, 
+              full_name,
+              email
+            )
+          )
+        `
+      )
+      .eq("id", scheduleId)
+      .single();
+
+    if (error) {
+      console.log("ERROR FETCHING SCHEDULE DETAILS:", error);
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+
+    console.log("SCHEDULE DETAILS DATA:", JSON.stringify(data, null, 2));
+    // Grab the first item from the returned arrays (Supabase nests relations as arrays)
+    const course = data.course;
+    const instructor = data.instructor;
+
+    // Flatten the nested data safely
+    const flattened: StudentScheduleDetails = {
+      courseId: course?.id,
+      courseName: course?.course_name,
+      courseCode: course?.course_code,
+      scheduleId: data.id,
+      startTime: data.start_time,
+      endTime: data.end_time,
+      venue: data.venue,
+      instructions: data.instructions || "Nothing to display here",
+      instructorName: instructor?.profile?.full_name,
+      instructorEmail: instructor?.profile?.email,
+    };
+
+    console.log("FLATTENED SCHEDULE DETAILS:", flattened);
+    return {
+      success: true,
+      data: flattened,
+    };
   },
 };

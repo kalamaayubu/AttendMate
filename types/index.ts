@@ -24,7 +24,7 @@ export interface AddCourseForm {
 }
 
 export interface StudentSchedule {
-  enrollmentId: string;
+  enrollmentId?: string; // optional(required only on list view)
   courseId: string;
   courseName: string;
   courseCode: string;
@@ -32,4 +32,10 @@ export interface StudentSchedule {
   startTime: string;
   endTime: string;
   venue: string;
+}
+
+export interface StudentScheduleDetails extends StudentSchedule {
+  instructions?: string;
+  instructorName: string;
+  instructorEmail: string;
 }

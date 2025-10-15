@@ -1,64 +1,131 @@
 import CustomHeader from "@/components/general/CustomHeader";
 import AttendanceModal from "@/components/student/AttendanceModal";
+import { schedulesService } from "@/services/schedulesService";
+import { StudentScheduleDetails } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Modal,
   Pressable,
-  SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
+// dayjs for time conversion
+import dayjs from "dayjs";
+import calendar from "dayjs/plugin/calendar";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
+dayjs.extend(localizedFormat);
+dayjs.extend(calendar);
+
 export default function ScheduleDetails() {
-  const router = useRouter();
-  const { id } = useLocalSearchParams();
-
-  // Demo data
-  const classInfo = {
-    course: "Math 101",
-    time: "08:00 AM - 09:30 AM",
-    date: "Today, 4th Oct",
-    location: "Room A2",
-    instructor: "Prof. Kimani",
-    color: "#3b82f6",
-    description:
-      "Ensure to put on your lab court. This class covers algebraic functions and their applications in physics. You will learn algebraic manipulations, solving equations, and applying formulas in real-life problems.",
-    attendance: { total: 12, attended: 10 },
-    type: "Lecture",
-    credits: 3,
-  };
-
-  const [openDescription, setOpenDescription] = useState(true);
+  const { scheduleId } = useLocalSearchParams();
+  const [loading, setLoading] = useState(true);
+  const [openInstructions, setOpenInstructions] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const attendancePercent =
-    (classInfo.attendance.attended / classInfo.attendance.total) * 100;
+  const [scheduleDetails, setScheduleDetails] =
+    useState<StudentScheduleDetails | null>(null);
+
+  // Fetch schedule details when component mounts
+  useEffect(() => {
+    const fetchScheduleDetails = async () => {
+      setLoading(true);
+      try {
+        const res = await schedulesService.getScheduleDetailsForStudent(
+          scheduleId as string
+        );
+        setLoading(false);
+
+        if (!res.success) {
+          Toast.show({
+            type: "error",
+            text1: "Something went wrong",
+            text2: res?.error || "Unknown error occurred, ",
+          });
+          return;
+        }
+
+        if (!res.data) return;
+        setScheduleDetails(res.data);
+
+        console.log("Schedule DDD:", res.data);
+      } catch (error) {
+        setLoading(false);
+        console.error("Error fetching schedule details:", error);
+        Toast.show({
+          type: "error",
+          text1: "Something went wrong",
+          text2: "Failed to load schedule details.",
+        });
+      }
+    };
+
+    fetchScheduleDetails();
+  }, [scheduleId]);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center bg-gray-50">
+        <ActivityIndicator size="large" color="#16a34a" />
+        <Text className="text-gray-500 mt-2">Loading schedule details...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  // Show if no details
+  if (!scheduleDetails) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center bg-gray-50">
+        <Text className="text-gray-500">No details available.</Text>
+      </SafeAreaView>
+    );
+  }
+
+  //  Format date & time nicely with dayjs
+  const start = dayjs(scheduleDetails.startTime);
+  const end = dayjs(scheduleDetails.endTime);
+  const friendlyDate = start.calendar(null, {
+    sameDay: "[Today]",
+    nextDay: "Tomorrow",
+    nextWeek: "dddd, MMM D",
+    lastDay: "[Yesterday]",
+    lastWeek: "dddd, MMM D",
+    sameElse: "dddd, MMM D, YYYY",
+  });
+  const friendlyTime = `${start.format("h:mm A")} - ${end.format("h:mm A")}`;
+
+  // const attendancePercent =
+  //   (classInfo.attendance.attended / classInfo.attendance.total) * 100;
 
   // Mock: lesson time & place
   const lessonTime = true; // change to true to simulate within lesson time
   const place = true; // change to false to simulate not in classroom
-
   const canMarkAttendance = lessonTime && place;
 
   // Determine why student cannot mark attendance
   const reasons: string[] = [];
   if (!lessonTime)
     reasons.push("The class time has not started or has already ended.");
-  if (!place) reasons.push("You are not in the class location.");
+  if (!place) reasons.push("You are not in the class venue.");
 
   const reason = reasons.join(" ");
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: false }} />
-      <SafeAreaView className="flex-1 bg-gray-50">
-        <CustomHeader title={`${classInfo.course}`} backButton />
+      <SafeAreaView edges={["left", "right"]} className="flex-1 bg-gray-50">
+        <CustomHeader title={`${scheduleDetails?.courseCode}`} backButton />
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
           {/* ===== Header Card with Gradient ===== */}
           <View
@@ -66,32 +133,32 @@ export default function ScheduleDetails() {
             style={{
               overflow: "hidden",
               borderLeftWidth: 5,
-              borderLeftColor: "#6366f1",
+              borderLeftColor: "#16a34a",
             }}
           >
             <LinearGradient
-              colors={["#3b82f6", "#6366f1"]} // blue -> indigo gradient
+              colors={["#ffff", "#ffff"]}
               start={[0, 0]}
               end={[1, 1]}
               className="p-5 gap-3"
             >
-              <Text className="text-2xl font-bold text-gray-50 mb-1">
-                {classInfo.course}
+              <Text className="text-2xl font-semibold text-gray-800 mb-1">
+                {scheduleDetails?.courseName}
               </Text>
-              <Text className="text-sm text-gray-100">{classInfo.date}</Text>
-              <Text className="text-sm text-gray-100">{classInfo.time}</Text>
+              <Text className=" text-gray-700">{friendlyDate}</Text>
+              <Text className="text-sm text-gray-700">{friendlyTime}</Text>
 
               <View className="flex-row items-center mt-2">
-                <Ionicons name="location-outline" size={16} color="#fff" />
-                <Text className="ml-1 text-sm text-white">
-                  {classInfo.location}
+                <Ionicons name="location-outline" size={16} color={"gray"} />
+                <Text className="ml-1 text-sm text-gray-500">
+                  {scheduleDetails?.venue}
                 </Text>
               </View>
 
               <View className="flex-row items-center mt-1">
-                <Ionicons name="person-outline" size={16} color="#fff" />
-                <Text className="ml-1 text-sm text-white">
-                  {classInfo.instructor}
+                <Ionicons name="person-outline" size={16} color={"gray"} />
+                <Text className="ml-1 text-sm text-gray-500">
+                  {scheduleDetails?.instructorName}
                 </Text>
               </View>
             </LinearGradient>
@@ -102,32 +169,28 @@ export default function ScheduleDetails() {
             <Text className="text-xl font-semibold text-gray-800 mb-2">
               Attendance
             </Text>
-            <Text className="text-gray-600">
-              Total Sessions: {classInfo.attendance.total}
-            </Text>
-            <Text className="text-gray-600">
-              Attended: {classInfo.attendance.attended}
-            </Text>
+            <Text className="text-gray-600">Total Sessions:</Text>
+            <Text className="text-gray-600">Attended:</Text>
             <View className="bg-gray-200 h-2 rounded-full mt-2">
               <View
                 className="h-2 rounded-full bg-green-500"
-                style={{ width: `${attendancePercent}%` }}
+                style={{ width: `${20}%` }}
               />
             </View>
           </View>
 
-          {/* ===== Description (collapsible) ===== */}
+          {/* ===== instructions (collapsible) ===== */}
           <View className="bg-white rounded-2xl shadow p-4 mb-4">
             <TouchableOpacity
               className="flex-row justify-between items-center"
-              onPress={() => setOpenDescription(!openDescription)}
+              onPress={() => setOpenInstructions(!openInstructions)}
             >
               <Text className="text-xl font-semibold text-gray-800">
                 Lesson Guideline
               </Text>
               <Ionicons
                 name={
-                  openDescription
+                  openInstructions
                     ? "chevron-up-outline"
                     : "chevron-down-outline"
                 }
@@ -135,9 +198,9 @@ export default function ScheduleDetails() {
                 color="#888"
               />
             </TouchableOpacity>
-            {openDescription && (
-              <Text className=" text-gray-600 leading-5 mt-2">
-                {classInfo.description}
+            {openInstructions && (
+              <Text className=" text-gray-500 leading-6 mt-2">
+                {scheduleDetails?.instructions}
               </Text>
             )}
           </View>
@@ -146,7 +209,7 @@ export default function ScheduleDetails() {
         {/* ===== Floating Action Button ===== */}
         <Pressable
           className={`absolute bottom-16 right-6 w-16 h-16 rounded-full items-center justify-center shadow-lg
-          ${canMarkAttendance ? "bg-green-600" : "bg-gray-400"}`}
+          ${canMarkAttendance ? "bg-indigo-500" : "bg-gray-400"}`}
           onPress={() => {
             if (canMarkAttendance) setModalVisible(true);
             else

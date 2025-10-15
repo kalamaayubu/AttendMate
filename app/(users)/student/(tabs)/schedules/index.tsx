@@ -2,70 +2,45 @@ import CustomHeader from "@/components/general/CustomHeader";
 import { RootState } from "@/redux/store";
 import { schedulesService } from "@/services/schedulesService";
 import { Ionicons } from "@expo/vector-icons";
-import { router, Stack } from "expo-router";
+import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { FlatList, Pressable, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 import { useSelector } from "react-redux";
 
-const tabs = ["All", "Today", "Upcoming"];
+// Date handling
+import dayjs from "dayjs";
+import isToday from "dayjs/plugin/isToday";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+import relativeTime from "dayjs/plugin/relativeTime";
 
-// const scheduleData = [
-//   {
-//     title: "Today",
-//     data: [
-//       {
-//         id: "1",
-//         course: "Math 101",
-//         time: "08:00 AM - 09:30 AM",
-//         location: "Room A2",
-//         instructor: "Prof. Kimani",
-//         color: "#3b82f6",
-//       },
-//       {
-//         id: "2",
-//         course: "Physics 202",
-//         time: "11:00 AM - 12:30 PM",
-//         location: "Lab B1",
-//         instructor: "Dr. Mwangi",
-//         color: "#16a34a",
-//       },
-//     ],
-//   },
-//   {
-//     title: "Tomorrow",
-//     data: [
-//       {
-//         id: "3",
-//         course: "Chemistry 103",
-//         time: "09:00 AM - 10:30 AM",
-//         location: "Room C3",
-//         instructor: "Dr. Njeri",
-//         color: "#f59e0b",
-//       },
-//       {
-//         id: "4",
-//         course: "Computer Science 204",
-//         time: "02:00 PM - 03:30 PM",
-//         location: "Lab D2",
-//         instructor: "Eng. Otieno",
-//         color: "#8b5cf6",
-//       },
-//     ],
-//   },
-// ];
+dayjs.extend(relativeTime);
+dayjs.extend(isToday);
+dayjs.extend(localizedFormat);
+
+const tabs = ["All", "Today", "Upcoming"];
 
 export default function Schedules() {
   const [activeTab, setActiveTab] = useState("All");
   const [schedules, setSchedules] = useState([]);
+  const [loading, setLoading] = useState(true);
   const studentId = useSelector((state: RootState) => state.user.user?.id);
 
   useEffect(() => {
-    // Fetch schedules from backend when component mounts
+    // Fetch schedules when component mounts
     const fetchSchedules = async () => {
       if (!studentId) return;
+      setLoading(true);
+
       const res = await schedulesService.getSchedules(studentId);
+      setLoading(false);
 
       if (!res.success) {
         Toast.show({
@@ -76,18 +51,11 @@ export default function Schedules() {
         return;
       }
 
-      setSchedules(res.data || []);
-      console.log("Fetched schedules:", res.data);
-      Toast.show({
-        type: "success",
-        text1: "Schedules fetched successfully",
-      });
+      setSchedules(res.data ?? []);
     };
 
     fetchSchedules();
   }, [studentId]);
-
-  console.log("RENDERING SCHEDULES:", JSON.stringify(schedules, null, 2));
 
   // Filter based on tab
   // const filteredData =
@@ -101,7 +69,7 @@ export default function Schedules() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: false }} />
+      {/* <Stack.Screen options={{ headerShown: false }} /> */}
 
       <SafeAreaView edges={["left", "right"]} className="flex-1 bg-gray-50">
         {/* ===== Header ===== */}
@@ -129,43 +97,65 @@ export default function Schedules() {
         </View>
 
         {/* ===== Schedule List ===== */}
-        <FlatList
-          data={schedules}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => router.push(`/student/schedules/${item.id}`)}
-              className="bg-white rounded-2xl shadow-sm p-4 mb-4 flex-row items-center"
-              style={{
-                borderLeftWidth: 5,
-                borderLeftColor: "#3b82f6",
-              }}
-            >
-              <View
-                className="w-12 h-12 rounded-full items-center justify-center mr-4"
-                style={{ backgroundColor: "#3b82f620" }}
-              >
-                <Ionicons name="book-outline" size={24} color="#3b82f6" />
-              </View>
+        {loading ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color="#16a34a" />
+            <Text className="text-gray-500 mt-2">Loading schedules...</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={schedules}
+            keyExtractor={(item) => item.scheduleId}
+            contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
+            renderItem={({ item }) => {
+              const start = dayjs(item.startTime);
+              const end = dayjs(item.endTime);
+              const isTodayClass = start.isToday()
+                ? "Today"
+                : start.format("ddd, MMM D");
 
-              <View className="flex-1">
-                <Text className="text-base font-semibold text-gray-800">
-                  {item.course}
-                </Text>
-                <Text className="text-sm text-gray-600">{item.time}</Text>
-                <Text className="text-xs text-gray-500">
-                  {item.location} • {item.instructor}
-                </Text>
-              </View>
-            </Pressable>
-          )}
-          ListEmptyComponent={
-            <Text className="text-center text-gray-500 mt-20">
-              No schedules found.
-            </Text>
-          }
-        />
+              return (
+                <Pressable
+                  onPress={() =>
+                    router.push(`/student/schedules/${item.scheduleId}`)
+                  }
+                  className="bg-white rounded-2xl shadow-sm p-4 mb-4 flex-row items-center"
+                  style={{
+                    borderLeftWidth: 5,
+                    borderLeftColor: "#3b82f6",
+                  }}
+                >
+                  <View
+                    className="w-12 h-12 rounded-full items-center justify-center mr-4"
+                    style={{ backgroundColor: "#3b82f620" }}
+                  >
+                    <Ionicons name="book-outline" size={24} color="#3b82f6" />
+                  </View>
+
+                  <View className="flex-1">
+                    <Text className="text-base font-semibold text-gray-800">
+                      {item.courseCode}
+                    </Text>
+
+                    <Text className="text-sm text-gray-600">
+                      {isTodayClass} • {start.format("h:mm A")} -{" "}
+                      {end.format("h:mm A")}
+                    </Text>
+
+                    <Text className="text-xs text-gray-500">
+                      Venue: {item.venue}
+                    </Text>
+                  </View>
+                </Pressable>
+              );
+            }}
+            ListEmptyComponent={
+              <Text className="text-center text-gray-500 mt-20">
+                No schedules found.
+              </Text>
+            }
+          />
+        )}
       </SafeAreaView>
     </>
   );
