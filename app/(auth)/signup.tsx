@@ -105,7 +105,7 @@ export default function Signup() {
                     onChangeText={onChange}
                     className={` ${
                       errors.name && "border-red-500"
-                    } border border-gray-300 text-gray-800 rounded-full px-6 py-3 mb-2`}
+                    } border border-gray-300 text-gray-800 rounded-full px-6 py-3 mb-4`}
                   />
                   {errors.name && (
                     <Text className="text-red-500 text-sm translate-x-2 -translate-y-1 mb-2">
@@ -137,7 +137,7 @@ export default function Signup() {
                     onChangeText={onChange}
                     className={` ${
                       errors.email && "border-red-500"
-                    } border border-gray-300 text-gray-800  rounded-full px-6 py-3 mb-2`}
+                    } border border-gray-300 text-gray-800  rounded-full px-6 py-3 mb-4`}
                   />
                   {errors.email && (
                     <Text className="text-red-500 text-sm translate-x-2 -translate-y-1 mb-2">
@@ -169,7 +169,7 @@ export default function Signup() {
                     secureTextEntry
                     className={` ${
                       errors.password && "border-red-500"
-                    } border border-gray-300 text-gray-800  rounded-full px-6 py-3 mb-2`}
+                    } border border-gray-300 text-gray-800  rounded-full px-6 py-3 mb-4`}
                   />
                   {errors.password && (
                     <Text className="text-red-500 text-sm translate-x-2 -translate-y-1 mb-2">
@@ -184,7 +184,7 @@ export default function Signup() {
             <Pressable
               onPress={handleSubmit(onSubmit)}
               disabled={isSubmitting} // disables press while submitting
-              className={`bg-green-600 rounded-full py-4 active:scale-95 ${
+              className={`bg-green-600 rounded-full mt-2 py-4 active:scale-95 ${
                 isSubmitting ? "opacity-70" : ""
               }`}
             >

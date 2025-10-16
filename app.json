@@ -21,13 +21,48 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.attendmate"
+      "package": "com.anonymous.attendmate",
+      "googleServicesFile": "./google-services.json",
+      "manifest": {
+        "application": {
+          "meta-data": [
+            {
+              "android:name": "com.google.firebase.messaging.default_notification_color",
+              "android:resource": "@color/notification_icon_color",
+              "tools:replace": "android:resource"
+            }
+          ]
+        }
+      },
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "attendmate"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "@react-native-firebase/app",
+        {
+          "googleServicesFile": "./google-services.json"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png"
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",

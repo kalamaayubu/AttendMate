@@ -5,6 +5,7 @@ if (__DEV__) {
   require("../ReactotronConfig");
 }
 
+import NotificationPermissionHandler from "@/lib/firebase/NotificationPermissionHandler";
 import { supabase } from "@/lib/supabase";
 import { persistor, store } from "@/redux/store";
 import * as NavigationBar from "expo-navigation-bar";
@@ -61,6 +62,8 @@ export default function RootLayout() {
           }
           persistor={persistor}
         >
+          {/* Notification handler */}
+          <NotificationPermissionHandler />
           <Stack screenOptions={{ headerShown: false }}>
             {/* Home screen */}
             <Stack.Screen name="index" options={{ headerShown: false }} />

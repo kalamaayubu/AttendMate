@@ -107,7 +107,7 @@ export default function Login() {
                     onChangeText={onChange}
                     className={`${
                       errors.email && "border-red-500"
-                    } border border-gray-300 rounded-full px-6 py-3 mb-2`}
+                    } border border-gray-300 rounded-full px-6 py-3 mb-4`}
                   />
                   {errors.email && (
                     <Text className="text-red-500 text-sm translate-x-2 -translate-y-1 mb-2">

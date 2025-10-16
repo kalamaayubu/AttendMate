@@ -58,8 +58,6 @@ export default function ScheduleDetails() {
 
         if (!res.data) return;
         setScheduleDetails(res.data);
-
-        console.log("Schedule DDD:", res.data);
       } catch (error) {
         setLoading(false);
         console.error("Error fetching schedule details:", error);

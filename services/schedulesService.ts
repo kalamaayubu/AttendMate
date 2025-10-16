@@ -149,7 +149,6 @@ export const schedulesService = {
       };
     }
 
-    console.log("SCHEDULE DETAILS DATA:", JSON.stringify(data, null, 2));
     // Grab the first item from the returned arrays (Supabase nests relations as arrays)
     const course = data.course;
     const instructor = data.instructor;
@@ -168,7 +167,6 @@ export const schedulesService = {
       instructorEmail: instructor?.profile?.email,
     };
 
-    console.log("FLATTENED SCHEDULE DETAILS:", flattened);
     return {
       success: true,
       data: flattened,
