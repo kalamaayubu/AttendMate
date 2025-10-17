@@ -2,12 +2,13 @@ import { supabase } from "@/lib/supabase";
 
 export const notificationServices = {
   // Save FCM token to Supabase
-  async saveToken(token: string) {
+  async saveToken(token: string, userId: string) {
+    console.log("Saving FCM token for user:", userId);
     const { data, error } = await supabase
       .from("profiles")
-      .insert([{ fcm_token: token }])
-      .select()
-      .single();
+      .update({ device_id: token })
+      .eq("id", userId)
+      .select();
 
     if (error) {
       console.error("Error storing FCM token:", error);

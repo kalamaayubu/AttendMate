@@ -1,11 +1,14 @@
 // Purpose: Save the FCM token, Configure the notification behaviours(Logical and appearance behaviour)
+import { RootState } from "@/redux/store";
 import { notificationServices } from "@/services/notificationServices";
 import messaging from "@react-native-firebase/messaging";
 import * as Notifications from "expo-notifications";
 import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import { requestPermissionsAndGetToken } from "./firebase";
 import { getFirebaseApp } from "./firebaseInit";
 
+// Configure how notifications are handled when received in the foreground
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -17,14 +20,22 @@ Notifications.setNotificationHandler({
 });
 
 export default function NotificationPermissionHandler() {
-  getFirebaseApp(); // Initialize Firebase before using messaging
+  // Get logged in user from Redux store
+  const { user } = useSelector((state: RootState) => state.user);
+
+  // Initialize Firebase(only once)
+  getFirebaseApp();
 
   useEffect(() => {
+    console.log("USER IN NOTIFICATION HANDLER:", user);
+    // Only register for notifications if user is logged in
+    if (!user?.id) return;
+
     (async () => {
       const token = await requestPermissionsAndGetToken();
       if (token) {
         // Send token to the backend
-        await notificationServices.saveToken(token);
+        await notificationServices.saveToken(token, user.id);
       }
     })(); // Invoke the async function immediately: ()
 
@@ -57,6 +68,7 @@ export default function NotificationPermissionHandler() {
       unsubscribeOnMessage();
       responseListener.remove();
     };
-  }, []);
+  }, [user]);
+
   return null; // No UI just cool logic
 }
