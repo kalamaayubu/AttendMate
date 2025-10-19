@@ -11,7 +11,6 @@ import { getFirebaseApp } from "./firebaseInit";
 // Configure how notifications are handled when received in the foreground
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
     shouldShowBanner: true,

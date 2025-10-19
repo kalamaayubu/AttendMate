@@ -35,6 +35,7 @@ export async function POST(req: Request) {
       data: data || {},
     };
 
+    // Send the message
     const response = await admin.messaging().send(message);
 
     return NextResponse.json({ success: true, messageId: response });

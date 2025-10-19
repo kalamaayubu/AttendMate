@@ -1,3 +1,4 @@
+import { sendNotification } from "@/lib/firebase/sendNotification";
 import { supabase } from "@/lib/supabase";
 import { ScheduleForm, StudentSchedule, StudentScheduleDetails } from "@/types";
 
@@ -18,12 +19,24 @@ export const schedulesService = {
       ]);
 
       if (error) {
+        console.log("Error scheduling:", error.message);
         return {
           success: false,
           message: error.message,
           data: null,
         };
       }
+
+      // ✅ TEMP: Hardcoded student FCM token (for testing)
+      const studentToken =
+        "czKuCAedTcSGdIuRoLRzcK:APA91bHh67Vb0sZIUsidTmoFfKdkV_LmEVwYXnh_CE0uc5uD6FiveR1BwltuCWVerXx_RXlTIBOxBX49YaMyZCaEdlYvoxUmis4Rxu6fDl1wPqzJM1FBUDQ";
+
+      // ✅ Send notification
+      await sendNotification({
+        token: studentToken,
+        title: "New Schedule Added",
+        body: `A new schedule for your course has been added.`,
+      });
 
       return {
         success: true,

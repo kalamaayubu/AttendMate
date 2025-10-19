@@ -30,11 +30,6 @@ const courses = [
   },
   { id: "42c11e93-ffbd-4767-9434-77917e97ca26", code: "ZMB103", name: "Zumba" },
   {
-    id: "f4a23822-8b19-4f67-81c8-19221a9cc341",
-    code: "SPN104",
-    name: "Spin Class",
-  },
-  {
     id: "ac100e66-0bd2-4564-9e3e-82c925c00771",
     code: "MDT105",
     name: "Meditation",
@@ -80,7 +75,7 @@ export default function AddSchedule() {
 
     const payload = {
       ...data,
-      instructorId: user?.id || "s94hf949wnflwh94ho4g4ho4we",
+      instructorId: user?.id,
     };
 
     const res = await schedulesService.addSchedule(payload);
