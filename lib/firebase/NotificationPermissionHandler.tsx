@@ -32,7 +32,17 @@ export default function NotificationPermissionHandler() {
     if (!user?.id) return;
 
     (async () => {
+      // ✅ 1. Ensure Android notification channel exists (THIN LINE FIX)
+      await Notifications.setNotificationChannelAsync("default", {
+        name: "Default",
+        importance: Notifications.AndroidImportance.MAX,
+        sound: "default",
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: "#FF231F7C",
+      });
+
       const token = await requestPermissionsAndGetToken();
+
       if (token) {
         // Send token to the backend
         await notificationServices.saveToken(token, user.id);
@@ -46,8 +56,14 @@ export default function NotificationPermissionHandler() {
         await Notifications.scheduleNotificationAsync({
           content: {
             title:
-              remoteMessage.notification?.title ?? remoteMessage.data?.title,
-            body: remoteMessage.notification?.body ?? remoteMessage.data?.body,
+              remoteMessage.notification?.title ??
+              String(remoteMessage.data?.title ?? "This is the title"),
+            body:
+              remoteMessage.notification?.body ??
+              String(
+                remoteMessage.data?.body ??
+                  "This is the body of the notification. Hey there, I hope you are doing great."
+              ),
             data: remoteMessage.data ?? {},
           },
           trigger: null,

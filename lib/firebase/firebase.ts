@@ -2,7 +2,7 @@
 import messaging from "@react-native-firebase/messaging";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
-import { Platform } from "react-native";
+import { Alert, Linking, Platform } from "react-native";
 import { getFirebaseApp } from "./firebaseInit";
 
 export async function requestPermissionsAndGetToken() {
@@ -16,13 +16,30 @@ export async function requestPermissionsAndGetToken() {
   }
 
   // 1. Request permissions to receive notifications
-  const permission = await messaging().requestPermission();
-  const enabled =
-    permission === messaging.AuthorizationStatus.AUTHORIZED ||
-    permission === messaging.AuthorizationStatus.PROVISIONAL;
+  console.log("🔔 Requesting notification permissions...");
+  const { status, canAskAgain } = await Notifications.requestPermissionsAsync();
+  console.log("Notification permission status:", status);
+  console.log("🔔 Can ask again?:", canAskAgain);
 
-  if (!enabled) {
+  if (status !== "granted") {
     console.warn("Push Notification permission denied");
+
+    // 👇 Add this
+    if (!canAskAgain) {
+      console.log(
+        "🔧 Opening app settings for user to enable notifications..."
+      );
+
+      Alert.alert(
+        "Enable Notifications",
+        "Turn on AttendMate notifications in settings to stay updated.",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Open Settings", onPress: () => Linking.openSettings() },
+        ]
+      );
+    }
+
     return null;
   }
 

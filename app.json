@@ -12,6 +12,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.attendmate"
     },
+
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
@@ -23,17 +24,6 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.anonymous.attendmate",
       "googleServicesFile": "./google-services.json",
-      "manifest": {
-        "application": {
-          "meta-data": [
-            {
-              "android:name": "com.google.firebase.messaging.default_notification_color",
-              "android:resource": "@color/notification_icon_color",
-              "tools:replace": "android:resource"
-            }
-          ]
-        }
-      },
       "intentFilters": [
         {
           "action": "VIEW",
@@ -46,6 +36,7 @@
         }
       ]
     },
+
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
@@ -60,7 +51,8 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/icon.png"
+          "icon": "./assets/images/icon.png",
+          "color": "#4A90E2"
         }
       ],
       "expo-router",

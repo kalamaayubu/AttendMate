@@ -1,10 +1,14 @@
 import { ProtectedLayout } from "@/components/general/ProtectedLayout";
+import NotificationPermissionHandler from "@/lib/firebase/NotificationPermissionHandler";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 
 export default function StudentLayout() {
   return (
     <ProtectedLayout allowedRoles={["student"]}>
+      {/* Notification handler */}
+      <NotificationPermissionHandler />
+
       <Tabs
         screenOptions={({ route }) => ({
           tabBarActiveTintColor: "#16a34a",

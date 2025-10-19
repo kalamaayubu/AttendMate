@@ -46,3 +46,6 @@ app-example
 
 # tests
 /tests
+
+# firebase config
+serviceAccount.json
