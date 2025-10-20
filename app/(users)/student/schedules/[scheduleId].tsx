@@ -104,17 +104,17 @@ export default function ScheduleDetails() {
   });
   const friendlyTime = `${start.format("h:mm A")} - ${end.format("h:mm A")}`;
 
-  // const attendancePercent =
-  //   (classInfo.attendance.attended / classInfo.attendance.total) * 100;
+  // TIme check
+  const now = dayjs(); // local time
+  const isWithinScheduleTime = now.isAfter(start) && now.isBefore(end);
+  console.log("IS WITHIN TIME:", isWithinScheduleTime);
 
-  // Mock: lesson time & place
-  const lessonTime = true; // change to true to simulate within lesson time
   const place = true; // change to false to simulate not in classroom
-  const canMarkAttendance = lessonTime && place;
+  const canMarkAttendance = isWithinScheduleTime && place;
 
   // Determine why student cannot mark attendance
   const reasons: string[] = [];
-  if (!lessonTime)
+  if (!isWithinScheduleTime)
     reasons.push("The class time has not started or has already ended.");
   if (!place) reasons.push("You are not in the class venue.");
 

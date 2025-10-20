@@ -35,7 +35,7 @@ export default function RootLayout() {
         <View className="flex-1 justify-end p-6 pb-0">
           <View className="gap-4 mb-20">
             <Text className="text-lg text-center text-gray-500">
-              Accurate • Timely • Modern • Efficient
+              Accurate • Timely • Efficient
             </Text>
             <Pressable
               onPress={() => router.replace("/(auth)/login")}

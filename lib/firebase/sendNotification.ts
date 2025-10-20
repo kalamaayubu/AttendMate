@@ -7,7 +7,7 @@ export async function sendNotification({
   token: string;
   title: string;
   body: string;
-  data?: Record<string, string>;
+  data: Record<string, string>;
 }) {
   try {
     console.log("BACKENDAPIKEY::", process.env.EXPO_PUBLIC_BACKEND_API_KEY!);

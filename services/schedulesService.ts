@@ -36,6 +36,9 @@ export const schedulesService = {
         token: studentToken,
         title: "New Schedule Added",
         body: `A new schedule for your course has been added.`,
+        data: {
+          screen: "notifications",
+        },
       });
 
       return {
@@ -49,6 +52,44 @@ export const schedulesService = {
         message: err.message || "Unexpected error occurred.",
         data: null,
       };
+    }
+  },
+
+  // Instructor: Fetch instructor's schedules
+  async getMySchedules(instructorId: string) {
+    if (!instructorId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("schedules")
+        .select(
+          `
+          id,
+          start_time,
+          end_time,
+          venue,
+          course: courses(
+            id,
+            course_code,
+            course_name
+          )
+        `
+        )
+        .eq("instructor_id", instructorId);
+
+      if (error) {
+        console.error("Error fetching instructor schedules");
+        return { success: false, error: error.message, data: null };
+      }
+
+      return {
+        success: true,
+        message: "Schedules fetched successfully",
+        data: data,
+      };
+    } catch (error: any) {
+      console.error("Error fetching instructor schedules");
+      return { success: false, error: error.message, data: null };
     }
   },
 

@@ -21,6 +21,11 @@ import {
 import Toast from "react-native-toast-message";
 import { useSelector } from "react-redux";
 
+// Handling dates
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
+
 const courses = [
   { id: "60ce1ecc-0ec1-4f71-8b93-3bd2af4699e2", code: "YGA101", name: "Yoga" },
   {
@@ -75,6 +80,9 @@ export default function AddSchedule() {
 
     const payload = {
       ...data,
+      // Always store dates & time in utc and display in local
+      startTime: dayjs(data.startTime).utc().format(),
+      endTime: dayjs(data.endTime).utc().format(),
       instructorId: user?.id,
     };
 
