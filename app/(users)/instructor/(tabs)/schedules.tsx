@@ -1,6 +1,7 @@
 import CustomHeader from "@/components/general/CustomHeader";
 import { RootState } from "@/redux/store";
 import { schedulesService } from "@/services/schedulesService";
+import { getCurrentLocation } from "@/utils/getLocation";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import { router } from "expo-router";
@@ -61,6 +62,34 @@ export default function Schedules() {
 
     fetchInstructorSchedules();
   }, [instructor?.id]);
+
+  // Handle start session
+  const handleStartSession = async (scheduleId: string) => {
+    const coords = await getCurrentLocation();
+    if (!coords) return;
+
+    const { latitude, longitude } = coords;
+
+    const res = await schedulesService.startSession(
+      scheduleId,
+      latitude,
+      longitude
+    );
+
+    if (res?.success) {
+      Toast.show({
+        type: "success",
+        text1: "Session started",
+        text2: "Location saved successfully.",
+      });
+    } else {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: res?.error || "Could not start session.",
+      });
+    }
+  };
 
   return (
     <SafeAreaView edges={["left", "right"]} className="bg-gray-50 flex-1">
@@ -164,8 +193,8 @@ export default function Schedules() {
                   </View>
 
                   <TouchableOpacity
-                    onPress={() => router.push(`/instructor/schedules`)}
-                    className="mt-2 bg-indigo-500 py-2 rounded-full"
+                    onPress={() => handleStartSession(item.id)}
+                    className="mt-2 bg-indigo-500/95 py-2 rounded-full"
                   >
                     <Text className="text-white text-center font-semibold">
                       Start session

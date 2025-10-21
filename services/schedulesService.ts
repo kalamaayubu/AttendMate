@@ -93,6 +93,27 @@ export const schedulesService = {
     }
   },
 
+  // Instructor: Start session
+  async startSession(scheduleId: string, latitude: number, longitude: number) {
+    try {
+      const { data, error } = await supabase
+        .from("schedules")
+        .update({ longitude: longitude, latitude: latitude })
+        .eq("id", scheduleId);
+
+      if (error) {
+        console.error("Error saving location:", error.message);
+        return { success: false, error: error.message };
+      }
+
+      console.log("Error starting session:", data);
+      return { success: true, message: "Session started successfully" };
+    } catch (error: any) {
+      console.error("Error starting session:", error.message);
+      return { success: false, error: error.message };
+    }
+  },
+
   // Student: Fetching schedules
   async getSchedules(studentId: string) {
     try {
