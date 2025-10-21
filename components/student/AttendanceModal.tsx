@@ -1,4 +1,5 @@
 import { requestBiometricPermission } from "@/utils/biometricAuth"; // adjust path as needed
+import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Modal, Pressable, Text, View } from "react-native";
 
@@ -27,7 +28,6 @@ export default function AttendanceModal({
     if (success) setAttendanceResult("Attendance marked successfully!");
     else setAttendanceResult("Failed to mark attendance. Try again.");
   };
-  Place;
   const handleClose = () => {
     setAttendanceResult(null);
     onClose();
@@ -35,41 +35,74 @@ export default function AttendanceModal({
 
   return (
     <Modal
-      visible={visible}
-      transparent
       animationType="fade"
+      transparent
+      visible={visible}
       onRequestClose={handleClose}
     >
-      <View className="flex-1 bg-black/50 justify-center items-center px-6">
-        <View className="bg-white rounded-2xl p-6 w-full">
-          <Text className="text-lg font-semibold mb-4">Confirm Attendance</Text>
-          <Text className="text-sm text-gray-700 mb-6">
-            Attendmate wants to ensure its you, verify your identity.
-          </Text>
+      <Pressable onPress={handleClose} className="flex-1 bg-black/50" />
+
+      <View className="flex-1 absolute bottom-0 w-full justify-center items-center">
+        <View className="bg-white rounded-t-3xl pt-4 p-6 pb-16 py-8 w-full">
+          <View className="items-center mt-6">
+            {attendanceResult ? (
+              ""
+            ) : (
+              <>
+                <Text className="text-xl font-semibold mb-4">
+                  Confirm Attendance
+                </Text>
+                <Text className="text-center text-gray-600 mb-6">
+                  Is this you? Verify your identity.
+                </Text>
+              </>
+            )}
+          </View>
 
           {attendanceResult && (
             <Text
-              className={`mb-4 font-medium ${
-                attendanceResult.includes("successfully")
-                  ? "text-green-600"
-                  : "text-red-600"
+              className={`mb-4 text-center ${
+                attendanceResult.includes("successfully") ? (
+                  <View>
+                    <Ionicons
+                      name="checkmark-circle"
+                      size={64}
+                      color="#22c55e"
+                    />
+                  </View>
+                ) : (
+                  "text-red-600"
+                )
               }`}
             >
-              {attendanceResult}
+              {attendanceResult.includes("successfully") ? (
+                <View className="items-center">
+                  <Ionicons name="checkmark-circle" size={80} color="#22c55e" />
+                  <Text className="text-2xl font-semibold mt-4 text-green-600">
+                    Congratulations
+                  </Text>
+                  <Text className="text-gray-700 mt-2 mb-6">
+                    Attendance marked successfully!!
+                  </Text>
+                </View>
+              ) : (
+                <View className="items-center">
+                  <Ionicons name="close-circle" size={80} color="#f97316" />
+                  <Text className="text-2xl font-semibold mt-4 text-orange-500">
+                    Verification Failed
+                  </Text>
+                  <Text className="text-gray-500 mt-2 mb-6 text-center">
+                    {attendanceResult}
+                  </Text>
+                </View>
+              )}
             </Text>
           )}
 
-          <View className="flex-row justify-end gap-3">
-            <Pressable
-              className="px-4 py-2 rounded-lg bg-gray-200"
-              onPress={handleClose}
-            >
-              <Text>Cancel</Text>
-            </Pressable>
-
+          <View className="items-center mt-6">
             {!attendanceResult && (
               <Pressable
-                className="px-4 py-2 rounded-lg bg-green-600"
+                className="px-6 py-2 rounded-full bg-green-600"
                 onPress={handleMarkAttendance}
               >
                 <Text className="text-white">Verify Identity</Text>

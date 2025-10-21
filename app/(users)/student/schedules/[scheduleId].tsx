@@ -8,7 +8,6 @@ import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Modal,
   Pressable,
   ScrollView,
   Text,
@@ -33,9 +32,16 @@ export default function ScheduleDetails() {
   const [loading, setLoading] = useState(true);
   const [openInstructions, setOpenInstructions] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-
+  const [locationCheck, setLocationCheck] = useState<{
+    success: boolean;
+    isWithin?: boolean;
+    distance?: number;
+    error?: string;
+  } | null>(null);
   const [scheduleDetails, setScheduleDetails] =
     useState<StudentScheduleDetails | null>(null);
+
+  console.log(typeof scheduleId);
 
   // Fetch schedule details when component mounts
   useEffect(() => {
@@ -72,6 +78,17 @@ export default function ScheduleDetails() {
     fetchScheduleDetails();
   }, [scheduleId]);
 
+  // Location check when component mount
+  useEffect(() => {
+    const checkLocation = async () => {
+      if (!scheduleId || Array.isArray(scheduleId)) return;
+      const res = await schedulesService.isWithinLocation(scheduleId);
+      setLocationCheck(res);
+    };
+
+    checkLocation();
+  }, []);
+
   // Show loading state
   if (loading) {
     return (
@@ -104,19 +121,23 @@ export default function ScheduleDetails() {
   });
   const friendlyTime = `${start.format("h:mm A")} - ${end.format("h:mm A")}`;
 
-  // TIme check
+  // Time check
   const now = dayjs(); // local time
   const isWithinScheduleTime = now.isAfter(start) && now.isBefore(end);
   console.log("IS WITHIN TIME:", isWithinScheduleTime);
 
-  const place = true; // change to false to simulate not in classroom
-  const canMarkAttendance = isWithinScheduleTime && place;
+  // Location check
+  const isWithinVenueLocation = locationCheck?.isWithin ?? false;
+  console.log("IS WITHIN VENUE:", isWithinVenueLocation);
+
+  // If attendance marking conditions are met
+  const canMarkAttendance = isWithinScheduleTime && isWithinVenueLocation;
 
   // Determine why student cannot mark attendance
   const reasons: string[] = [];
   if (!isWithinScheduleTime)
     reasons.push("The class time has not started or has already ended.");
-  if (!place) reasons.push("You are not in the class venue.");
+  if (!isWithinVenueLocation) reasons.push("You are not in the class venue.");
 
   const reason = reasons.join(" ");
 
@@ -222,30 +243,6 @@ export default function ScheduleDetails() {
         </Pressable>
 
         {/* ===== Modal for disabled FAB(Floating Action Button) ===== */}
-        <Modal
-          visible={modalVisible}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setModalVisible(false)}
-        >
-          <Pressable
-            className="flex-1 justify-center items-center bg-black/50"
-            onPress={() => setModalVisible(false)}
-          >
-            <View className="bg-white rounded-xl p-6 w-80">
-              <Text className="text-lg font-semibold text-gray-800 mb-4">
-                Cannot Mark Attendance
-              </Text>
-              <Text className="text-sm text-gray-600">{reason}</Text>
-              <Pressable
-                className="mt-6 bg-green-600 py-2 rounded-lg"
-                onPress={() => setModalVisible(false)}
-              >
-                <Text className="text-white text-center font-semibold">OK</Text>
-              </Pressable>
-            </View>
-          </Pressable>
-        </Modal>
 
         {/* ===== Attendance Modal ===== */}
         <AttendanceModal

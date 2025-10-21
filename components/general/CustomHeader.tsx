@@ -56,7 +56,7 @@ export default function CustomHeader({ title, backButton }: CustomHeaderProps) {
 
       {/* Bottom Sheet */}
       <Modal
-        animationType="slide"
+        animationType="fade"
         transparent
         visible={sheetVisible}
         onRequestClose={() => setSheetVisible(false)}

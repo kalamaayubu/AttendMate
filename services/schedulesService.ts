@@ -1,6 +1,8 @@
 import { sendNotification } from "@/lib/firebase/sendNotification";
 import { supabase } from "@/lib/supabase";
 import { ScheduleForm, StudentSchedule, StudentScheduleDetails } from "@/types";
+import { getCurrentLocation } from "@/utils/getLocation";
+import haversine from "haversine-distance";
 
 export const schedulesService = {
   // Instructor: Adding a new schedule
@@ -245,6 +247,61 @@ export const schedulesService = {
     return {
       success: true,
       data: flattened,
+    };
+  },
+
+  // Student: Compare locatiion to that of the instructor
+  async isWithinLocation(scheduleId: string) {
+    // Get the location of the instructor
+    const { data, error } = await supabase
+      .from("schedules")
+      .select("latitude, longitude")
+      .eq("id", scheduleId)
+      .single();
+
+    if (error || !data) {
+      console.error("Error fetching venue location");
+      return {
+        success: false,
+        error: error.message || "Could not get location information",
+      };
+    }
+
+    // Get the location of the student
+    const studentLocation = await getCurrentLocation();
+    if (!studentLocation) {
+      return { success: false, error: "Failed to get your location" };
+    }
+
+    // Instructor and student location coordinates
+    const instructorCoords = {
+      lat: Number(data.latitude),
+      lon: Number(data.longitude),
+    };
+    const studentCoords = {
+      lat: Number(studentLocation.latitude),
+      lon: Number(studentLocation.longitude),
+    };
+
+    // Compute distance between instructor and student using haversine formula
+    const distance = haversine(instructorCoords, studentCoords);
+
+    // Check if student is within 50 metres
+    const isWithin = distance <= 50;
+
+    if (!isWithin) {
+      console.error(
+        `🚫 You are not within the venue. Distance: ${distance.toFixed(
+          2
+        )} meters`
+      );
+      return { success: false, error: "You are not within the venue" };
+    }
+
+    return {
+      success: true,
+      isWithin,
+      distance,
     };
   },
 };
