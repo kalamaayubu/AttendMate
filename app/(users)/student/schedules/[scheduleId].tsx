@@ -3,7 +3,6 @@ import AttendanceModal from "@/components/student/AttendanceModal";
 import { schedulesService } from "@/services/schedulesService";
 import { StudentScheduleDetails } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -17,18 +16,21 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
-// dayjs for time conversion
+// dayjs for time conversions
+import { RootState } from "@/redux/store";
 import dayjs from "dayjs";
 import calendar from "dayjs/plugin/calendar";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useSelector } from "react-redux";
 
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
 dayjs.extend(calendar);
 
 export default function ScheduleDetails() {
-  const { scheduleId } = useLocalSearchParams();
+  const scheduleId = useLocalSearchParams().scheduleId as string;
+  const student = useSelector((state: RootState) => state.user.user); // Logged in user
   const [loading, setLoading] = useState(true);
   const [openInstructions, setOpenInstructions] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -41,15 +43,15 @@ export default function ScheduleDetails() {
   const [scheduleDetails, setScheduleDetails] =
     useState<StudentScheduleDetails | null>(null);
 
-  console.log(typeof scheduleId);
-
   // Fetch schedule details when component mounts
   useEffect(() => {
     const fetchScheduleDetails = async () => {
       setLoading(true);
       try {
+        if (!student) return;
         const res = await schedulesService.getScheduleDetailsForStudent(
-          scheduleId as string
+          scheduleId as string,
+          student?.id as string
         );
         setLoading(false);
 
@@ -76,7 +78,7 @@ export default function ScheduleDetails() {
     };
 
     fetchScheduleDetails();
-  }, [scheduleId]);
+  }, [scheduleId, student]);
 
   // Location check when component mount
   useEffect(() => {
@@ -87,7 +89,7 @@ export default function ScheduleDetails() {
     };
 
     checkLocation();
-  }, []);
+  }, [scheduleId]);
 
   // Show loading state
   if (loading) {
@@ -121,16 +123,17 @@ export default function ScheduleDetails() {
   });
   const friendlyTime = `${start.format("h:mm A")} - ${end.format("h:mm A")}`;
 
+  // If student have already marked the attendance
+  const hasMarkedAttendance = scheduleDetails.attendance?.length > 0;
+
   // Time check
   const now = dayjs(); // local time
   const isWithinScheduleTime = now.isAfter(start) && now.isBefore(end);
-  console.log("IS WITHIN TIME:", isWithinScheduleTime);
 
   // Location check
   const isWithinVenueLocation = locationCheck?.isWithin ?? false;
-  console.log("IS WITHIN VENUE:", isWithinVenueLocation);
 
-  // If attendance marking conditions are met
+  // Attendance marking conditions met
   const canMarkAttendance = isWithinScheduleTime && isWithinVenueLocation;
 
   // Determine why student cannot mark attendance
@@ -147,40 +150,27 @@ export default function ScheduleDetails() {
         <CustomHeader title={`${scheduleDetails?.courseCode}`} backButton />
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
           {/* ===== Header Card with Gradient ===== */}
-          <View
-            className="rounded-2xl shadow-gray-600 shadow-2xl mb-4"
-            style={{
-              overflow: "hidden",
-              borderLeftWidth: 5,
-              borderLeftColor: "#16a34a",
-            }}
-          >
-            <LinearGradient
-              colors={["#ffff", "#ffff"]}
-              start={[0, 0]}
-              end={[1, 1]}
-              className="p-5 gap-3"
-            >
-              <Text className="text-2xl font-semibold text-gray-800 mb-1">
-                {scheduleDetails?.courseName}
+
+          <View className="p-5 gap-2 rounded-2xl mb-10 bg-green-100 border border-green-200">
+            <Text className="text-2xl font-semibold text-green-600 mb-1">
+              {scheduleDetails?.courseName}
+            </Text>
+            <Text className="font-semibold text-gray-800">{friendlyDate}</Text>
+            <Text className="text-sm text-gray-700">{friendlyTime}</Text>
+
+            <View className="flex-row items-center mt-2">
+              <Ionicons name="location-outline" size={16} color={"black"} />
+              <Text className="ml-1 text-sm text-gray-600">
+                {scheduleDetails?.venue}
               </Text>
-              <Text className=" text-gray-700">{friendlyDate}</Text>
-              <Text className="text-sm text-gray-700">{friendlyTime}</Text>
+            </View>
 
-              <View className="flex-row items-center mt-2">
-                <Ionicons name="location-outline" size={16} color={"gray"} />
-                <Text className="ml-1 text-sm text-gray-500">
-                  {scheduleDetails?.venue}
-                </Text>
-              </View>
-
-              <View className="flex-row items-center mt-1">
-                <Ionicons name="person-outline" size={16} color={"gray"} />
-                <Text className="ml-1 text-sm text-gray-500">
-                  {scheduleDetails?.instructorName}
-                </Text>
-              </View>
-            </LinearGradient>
+            <View className="flex-row items-center mt-1">
+              <Ionicons name="person-outline" size={16} color={"black"} />
+              <Text className="ml-1 text-sm text-gray-600">
+                {scheduleDetails?.instructorName}
+              </Text>
+            </View>
           </View>
 
           {/* ===== Attendance Progress Bar ===== */}
@@ -228,8 +218,23 @@ export default function ScheduleDetails() {
         {/* ===== Floating Action Button ===== */}
         <Pressable
           className={`absolute bottom-16 right-6 w-16 h-16 rounded-full items-center justify-center shadow-lg
-          ${canMarkAttendance ? "bg-indigo-500" : "bg-gray-400"}`}
+            ${
+              hasMarkedAttendance
+                ? "bg-green-500"
+                : canMarkAttendance
+                ? "bg-indigo-500"
+                : "bg-gray-400"
+            }
+          `}
           onPress={() => {
+            if (hasMarkedAttendance) {
+              Toast.show({
+                type: "info",
+                text1: "Already Marked",
+                text2: "You've already marked attendance for this class.",
+              });
+              return;
+            }
             if (canMarkAttendance) setModalVisible(true);
             else
               Toast.show({
@@ -239,15 +244,24 @@ export default function ScheduleDetails() {
               });
           }}
         >
-          <Ionicons name="checkmark-outline" size={28} color="white" />
+          <Ionicons
+            name={
+              hasMarkedAttendance
+                ? "checkmark-done-outline"
+                : canMarkAttendance
+                ? "checkmark-outline"
+                : "time-outline"
+            }
+            size={28}
+            color="white"
+          />
         </Pressable>
-
-        {/* ===== Modal for disabled FAB(Floating Action Button) ===== */}
 
         {/* ===== Attendance Modal ===== */}
         <AttendanceModal
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
+          scheduleId={scheduleId}
         />
       </SafeAreaView>
     </>

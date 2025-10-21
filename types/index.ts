@@ -38,4 +38,5 @@ export interface StudentScheduleDetails extends StudentSchedule {
   instructions?: string;
   instructorName: string;
   instructorEmail: string;
+  attendance: { id: string; student_id: string }[]; // ✅ array of objects
 }

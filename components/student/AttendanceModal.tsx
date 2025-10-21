@@ -1,19 +1,28 @@
+import { RootState } from "@/redux/store";
+import { schedulesService } from "@/services/schedulesService";
 import { requestBiometricPermission } from "@/utils/biometricAuth"; // adjust path as needed
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Modal, Pressable, Text, View } from "react-native";
+import Toast from "react-native-toast-message";
+import { useSelector } from "react-redux";
 
 interface AttendanceModalProps {
   visible: boolean;
   onClose: () => void;
+  scheduleId: string;
 }
 
 export default function AttendanceModal({
   visible,
   onClose,
+  scheduleId,
 }: AttendanceModalProps) {
   const [attendanceResult, setAttendanceResult] = useState<null | string>(null);
+  // Get student id from the store
+  const student = useSelector((state: RootState) => state.user.user);
 
+  // Function to add attendance marked by student
   const handleMarkAttendance = async () => {
     // Check student against biometrics credentials
     const biometric = await requestBiometricPermission();
@@ -23,10 +32,26 @@ export default function AttendanceModal({
       return;
     }
 
-    // 🔹 If biometrics succeed, simulate marking attendance
-    const success = true; // replace with API call
-    if (success) setAttendanceResult("Attendance marked successfully!");
-    else setAttendanceResult("Failed to mark attendance. Try again.");
+    // 🔹 If biometrics succeed, mark attendance
+    if (!student) return;
+    const res = await schedulesService.markAttendance(student?.id, scheduleId);
+
+    if (!res.success) {
+      setAttendanceResult("Failed to mark attendance. Try again.");
+      Toast.show({
+        type: "error",
+        text1: "An error occured",
+        text2: res.error,
+      });
+      return;
+    }
+
+    // Success
+    setAttendanceResult("Attendance marked successfully");
+    Toast.show({
+      type: "success",
+      text1: "Attendance marked successfully",
+    });
   };
   const handleClose = () => {
     setAttendanceResult(null);
@@ -60,33 +85,19 @@ export default function AttendanceModal({
           </View>
 
           {attendanceResult && (
-            <Text
-              className={`mb-4 text-center ${
-                attendanceResult.includes("successfully") ? (
-                  <View>
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={64}
-                      color="#22c55e"
-                    />
-                  </View>
-                ) : (
-                  "text-red-600"
-                )
-              }`}
-            >
+            <View className="items-center mb-6">
               {attendanceResult.includes("successfully") ? (
-                <View className="items-center">
+                <>
                   <Ionicons name="checkmark-circle" size={80} color="#22c55e" />
                   <Text className="text-2xl font-semibold mt-4 text-green-600">
                     Congratulations
                   </Text>
-                  <Text className="text-gray-700 mt-2 mb-6">
+                  <Text className="text-gray-700 mt-2 mb-6 text-center">
                     Attendance marked successfully!!
                   </Text>
-                </View>
+                </>
               ) : (
-                <View className="items-center">
+                <>
                   <Ionicons name="close-circle" size={80} color="#f97316" />
                   <Text className="text-2xl font-semibold mt-4 text-orange-500">
                     Verification Failed
@@ -94,9 +105,9 @@ export default function AttendanceModal({
                   <Text className="text-gray-500 mt-2 mb-6 text-center">
                     {attendanceResult}
                   </Text>
-                </View>
+                </>
               )}
-            </Text>
+            </View>
           )}
 
           <View className="items-center mt-6">

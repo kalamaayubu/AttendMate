@@ -191,7 +191,7 @@ export const schedulesService = {
   },
 
   // Student: Fetching schedule details
-  async getScheduleDetailsForStudent(scheduleId: string) {
+  async getScheduleDetailsForStudent(scheduleId: string, studentId: string) {
     const { data, error } = await supabase
       .from("schedules")
       .select(
@@ -212,6 +212,10 @@ export const schedulesService = {
               full_name,
               email
             )
+          ),
+          attendance (
+            id,
+            student_id
           )
         `
       )
@@ -242,6 +246,7 @@ export const schedulesService = {
       instructions: data.instructions || "Nothing to display here",
       instructorName: instructor?.profile?.full_name,
       instructorEmail: instructor?.profile?.email,
+      attendance: data.attendance?.filter((s) => s.student_id === studentId),
     };
 
     return {
@@ -303,5 +308,21 @@ export const schedulesService = {
       isWithin,
       distance,
     };
+  },
+
+  // Student: Adding attendance
+  async markAttendance(studentId: string, scheduleId: string) {
+    const { error } = await supabase.from("attendance").insert({
+      student_id: studentId,
+      schedule_id: scheduleId,
+    });
+
+    if (error) {
+      console.log("Error marking attendance", error.message);
+      return { success: false, error: error.message };
+    }
+
+    console.log("Attendance successfully marked");
+    return { success: true, message: "Attendance marked successfully!" };
   },
 };
