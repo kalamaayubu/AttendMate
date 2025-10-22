@@ -120,16 +120,12 @@ export default function Schedules() {
                     router.push(`/student/schedules/${item.scheduleId}`)
                   }
                   className="bg-white rounded-2xl shadow-sm p-4 mb-4 flex-row items-center"
-                  style={{
-                    borderLeftWidth: 5,
-                    borderLeftColor: "#3b82f6",
-                  }}
                 >
                   <View
                     className="w-12 h-12 rounded-full items-center justify-center mr-4"
-                    style={{ backgroundColor: "#3b82f620" }}
+                    style={{ backgroundColor: "#eef2ff" }}
                   >
-                    <Ionicons name="book-outline" size={24} color="#3b82f6" />
+                    <Ionicons name="book-outline" size={24} color="#6366f1" />
                   </View>
 
                   <View className="flex-1">
@@ -145,6 +141,13 @@ export default function Schedules() {
                     <Text className="text-xs text-gray-500">
                       Venue: {item.venue}
                     </Text>
+                  </View>
+                  <View>
+                    <Ionicons
+                      name="chevron-forward"
+                      size={18}
+                      color="#9ca3af"
+                    />
                   </View>
                 </Pressable>
               );

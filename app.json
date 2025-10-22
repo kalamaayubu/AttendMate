@@ -12,7 +12,6 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.attendmate"
     },
-
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
@@ -36,7 +35,6 @@
         }
       ]
     },
-
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
@@ -90,6 +88,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "cc3ecdd7-02ed-49ee-8f01-63ca8212e32c"
+      }
     }
   }
 }

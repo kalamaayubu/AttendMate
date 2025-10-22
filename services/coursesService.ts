@@ -1,4 +1,4 @@
-import { AddCourseForm } from "@/types";
+import { AddCourseForm, Course, CourseResponse, RawCourseData } from "@/types";
 import { supabase } from "../lib/supabase";
 
 export const coursesService = {
@@ -69,6 +69,73 @@ export const coursesService = {
     } catch (err: any) {
       return { success: false, error: err.message, data: [] };
     }
+  },
+
+  // Student: Get enrolled courses
+  async getStudentEnrolledCourses(studentId: string) {
+    const { data, error } = await supabase
+      .from("enrollments")
+      .select(
+        `
+          course: courses(
+            id,
+            course_code,
+            course_name
+          )
+        `
+      )
+      .eq("student_id", studentId);
+
+    if (error) {
+      console.error("Could not fetch enrolled courses", error.message);
+      return { success: false, error: error.message };
+    }
+
+    const processCourses = (data: CourseResponse[]): Course[] => {
+      return data.map(({ course }) => ({
+        id: course.id,
+        code: course.course_code,
+        name: course.course_name,
+      }));
+    };
+
+    const formattedData = processCourses(data);
+
+    console.log("ENROLLEDTO:::", JSON.stringify(formattedData, null, 4));
+    return { success: true, data: formattedData };
+  },
+
+  // Instructor: Get my courses only
+  async getMyCoursesOnly(instructorId: string) {
+    const { data, error } = await supabase
+      .from("instructor_courses")
+      .select(
+        `
+          course:courses (
+            id,
+            course_code,
+            course_name
+          )
+        `
+      )
+      .eq("instructor_id", instructorId);
+
+    if (error) {
+      console.error("Error getting only instructor courses", error);
+      return { success: false, error: error.message, data: [] };
+    }
+
+    // Object projection(data extraction)
+    const dataProjection = (data as RawCourseData[]).map(
+      ({ course }): Course => ({
+        id: course.id,
+        code: course.course_code,
+        name: course.course_name,
+      })
+    );
+
+    console.log(":::", JSON.stringify(dataProjection, null, 2));
+    return { success: true, data: dataProjection };
   },
 
   // Instructor: Get all courses they are NOT teaching

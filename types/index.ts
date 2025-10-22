@@ -23,6 +23,28 @@ export interface AddCourseForm {
   course_code: string;
 }
 
+export interface RawCourseData {
+  course: {
+    id: string;
+    course_code: string;
+    course_name: string;
+  };
+}
+
+export interface Course {
+  id: string;
+  code: string;
+  name: string;
+}
+
+export type CourseResponse = {
+  course: {
+    id: string;
+    course_code: string;
+    course_name: string;
+  };
+};
+
 export interface StudentSchedule {
   enrollmentId?: string; // optional(required only on list view)
   courseId: string;

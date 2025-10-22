@@ -99,7 +99,7 @@ export default function StudentDashboard() {
               chartConfig={{
                 backgroundGradientFrom: "#fff",
                 backgroundGradientTo: "#fff",
-                color: (opacity = 1) => `rgba(59,130,246,${opacity})`,
+                color: (opacity = 1) => `rgba(99, 102, 241,${opacity})`,
                 labelColor: (opacity = 1) => `rgba(0,0,0,${opacity})`,
                 propsForDots: { r: "5", strokeWidth: "0", stroke: "#3b82f6" },
               }}

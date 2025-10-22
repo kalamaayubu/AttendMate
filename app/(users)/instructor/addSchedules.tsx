@@ -4,7 +4,7 @@ import { ScheduleForm } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { Stack } from "expo-router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
@@ -22,33 +22,34 @@ import Toast from "react-native-toast-message";
 import { useSelector } from "react-redux";
 
 // Handling dates
+import { coursesService } from "@/services/coursesService";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
 
-const courses = [
-  { id: "60ce1ecc-0ec1-4f71-8b93-3bd2af4699e2", code: "YGA101", name: "Yoga" },
-  {
-    id: "7316cf17-9c67-458b-ac01-94afe7e0a292",
-    code: "PIL102",
-    name: "Pilates",
-  },
-  { id: "42c11e93-ffbd-4767-9434-77917e97ca26", code: "ZMB103", name: "Zumba" },
-  {
-    id: "ac100e66-0bd2-4564-9e3e-82c925c00771",
-    code: "MDT105",
-    name: "Meditation",
-  },
-  {
-    id: "072bd4e6-0457-4bac-b414-efe48d24d8f6",
-    code: "CRF106",
-    name: "Crossfit",
-  },
-];
-
 export default function AddSchedule() {
   // Get instructor ID from redux
   const { user } = useSelector((state: RootState) => state.user);
+  const [myCourses, setMyCourses] = useState<
+    { id: string; code: string; name: string }[]
+  >([]);
+
+  // Fetch the courses of an instructor
+  useEffect(() => {
+    const fetchMyCourses = async () => {
+      if (!user) return;
+      const res = await coursesService.getMyCoursesOnly(user?.id);
+
+      if (!res.success) {
+        console.error("Error fetching ONLY instructor courses", res.error);
+      }
+
+      if (!res.data) return;
+      setMyCourses(res?.data);
+    };
+
+    fetchMyCourses();
+  }, [user]);
 
   const {
     control,
@@ -65,6 +66,7 @@ export default function AddSchedule() {
     },
   });
 
+  // Function to handle the addition of a schedule
   const onSubmit = async (data: ScheduleForm) => {
     if (!data.startTime || !data.endTime) {
       Toast.show({
@@ -162,7 +164,7 @@ export default function AddSchedule() {
                   style={{
                     color: "#374151",
                     backgroundColor: "#f9fafb",
-                    height: 50,
+                    height: 52,
                   }}
                 >
                   <Picker.Item
@@ -170,7 +172,7 @@ export default function AddSchedule() {
                     value=""
                     color="#9CA3AF"
                   />
-                  {courses.map((course) => (
+                  {myCourses.map((course) => (
                     <Picker.Item
                       key={course.id}
                       label={course.name}
