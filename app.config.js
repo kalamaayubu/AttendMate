@@ -31,22 +31,13 @@ export default {
           category: ["BROWSABLE", "DEFAULT"],
         },
       ],
-      manifest: {
-        merge: [
-          {
-            "android:name":
-              "com.google.firebase.messaging.default_notification_color",
-            "android:resource": "@color/notification_icon_color",
-            "tools:replace": "android:resource",
-          },
-        ],
-      },
     },
     web: {
       output: "static",
       favicon: "./assets/images/favicon.png",
     },
     plugins: [
+      "./plugins/withFirebaseNotificationFix",
       [
         "@react-native-firebase/app",
         {
@@ -66,10 +57,10 @@ export default {
         "expo-splash-screen",
         {
           image: "./assets/images/splash-icon.png",
-          imageWidth: 200,
+          imageWidth: 100,
           resizeMode: "contain",
           backgroundColor: "#ffffff",
-          dark: { backgroundColor: "#000000" },
+          light: { backgroundColor: "#ffffff" },
         },
       ],
       "expo-web-browser",
