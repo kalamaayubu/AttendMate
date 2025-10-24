@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import CustomHeader from "@/components/general/CustomHeader";
+import CustomRefreshControl from "@/components/general/RefreshControl";
 import { CourseCard } from "@/components/instructor/CourseCard";
 import { SelectCourseModal } from "@/components/instructor/SelectCourseModal";
 import { RootState } from "@/redux/store";
@@ -21,29 +22,39 @@ import { useSelector } from "react-redux";
 export const CoursesScreen = () => {
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
   // Get the user id from the store
   const user = useSelector((state: RootState) => state.user.user);
   const instructorId = user?.id;
 
-  useEffect(() => {
+  // Helper to fetch courses
+  const fetchCourses = useCallback(async () => {
+    setLoading(true);
     if (!instructorId) return; // wait until we have the user id
 
-    const fetchCourses = async () => {
-      setLoading(true);
-      const { success, data, error } =
-        await coursesService.getInstructorCourses(instructorId);
-      if (success) {
-        setCourses(data);
-      } else {
-        console.error("Error loading instructor courses:", error);
-      }
-      setLoading(false);
-    };
-
-    fetchCourses();
+    const { success, data, error } = await coursesService.getInstructorCourses(
+      instructorId
+    );
+    if (success) {
+      setCourses(data);
+    } else {
+      console.error("Error loading instructor courses:", error);
+    }
+    setLoading(false);
   }, [instructorId]);
+
+  useEffect(() => {
+    fetchCourses();
+  }, [instructorId, fetchCourses]);
+
+  // --- Pull to refresh ---
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchCourses();
+    setRefreshing(false);
+  }, [fetchCourses]);
 
   // Function to add course to an instructor
   const handleAddCourse = async (course: any) => {
@@ -75,26 +86,8 @@ export const CoursesScreen = () => {
 
   return (
     <>
-      <CustomHeader title="Courses" />
-      <SafeAreaView className="flex-1 bg-white">
-        {/* Heading information */}
-        <View className="mb-6 mx-4 p-5 bg-green-50 rounded-2xl border border-green-100 shadow-sm">
-          <View className="flex-row items-center gap-3 mb-2">
-            <View className="bg-green-100 p-2 rounded-xl">
-              <Ionicons name="library-outline" size={22} color="#16a34a" />
-            </View>
-            <Text className="text-lg font-semibold text-gray-800">
-              Your Courses
-            </Text>
-          </View>
-
-          <Text className="text-gray-600 leading-relaxed">
-            {courses.length > 0
-              ? "You’re currently taking students through the following courses."
-              : "You haven’t taken any courses yet. Tap the + button to get started."}
-          </Text>
-        </View>
-
+      <SafeAreaView edges={["left", "right"]} className="flex-1 bg-white">
+        <CustomHeader title="Courses" />
         {/* Loading State */}
         {loading ? (
           <View className="flex-1 justify-center items-center">
@@ -107,7 +100,37 @@ export const CoursesScreen = () => {
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => <CourseCard course={item} />}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 80, paddingHorizontal: 16 }}
+            contentContainerStyle={{
+              paddingHorizontal: 16,
+            }}
+            refreshControl={
+              <CustomRefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+              />
+            }
+            ListHeaderComponent={
+              <View className="mb-6 mt-4 p-5 bg-green-50 rounded-xl border border-green-100 shadow-sm">
+                <View className="flex-row items-center gap-3 mb-2">
+                  <View className="bg-green-100 p-2 rounded-xl">
+                    <Ionicons
+                      name="library-outline"
+                      size={22}
+                      color="#16a34a"
+                    />
+                  </View>
+                  <Text className="text-lg font-semibold text-gray-800">
+                    Your Courses
+                  </Text>
+                </View>
+
+                <Text className="text-gray-600 leading-relaxed">
+                  {courses.length > 0
+                    ? "You’re currently taking students through the following courses."
+                    : "You haven’t taken any courses yet. Tap the + button to get started."}
+                </Text>
+              </View>
+            }
           />
         ) : (
           <View className="flex-1 justify-center items-center">

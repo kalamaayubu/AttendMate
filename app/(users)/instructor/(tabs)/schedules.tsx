@@ -1,11 +1,12 @@
 import CustomHeader from "@/components/general/CustomHeader";
+import CustomRefreshControl from "@/components/general/RefreshControl";
 import { RootState } from "@/redux/store";
 import { schedulesService } from "@/services/schedulesService";
 import { getCurrentLocation } from "@/utils/getLocation";
 import { Ionicons } from "@expo/vector-icons";
 import dayjs from "dayjs";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -20,48 +21,57 @@ import { useSelector } from "react-redux";
 export default function Schedules() {
   const [schedules, setSchedules] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const instructor = useSelector((state: RootState) => state?.user.user); // Get instructor id
   const [openItemId, setOpenItemId] = useState<string | null>(null);
 
-  // Fetch instructor's schedules
-  useEffect(() => {
-    if (!instructor?.id) return;
+  // Helper to fetch instructor schedules
+  const fetchInstructorSchedules = async () => {
+    try {
+      setLoading(true);
+      if (!instructor?.id) return;
 
-    const fetchInstructorSchedules = async () => {
-      try {
-        setLoading(true);
-        const res = await schedulesService.getMySchedules(instructor?.id);
+      const res = await schedulesService.getMySchedules(instructor?.id);
 
-        if (!res?.success) {
-          Toast.show({
-            type: "error",
-            text1: "An error occured",
-            text2: res?.error,
-          });
-        }
-
-        if (!res) return;
-        // ensure we only pass an array to setSchedules
-        const data = Array.isArray(res.data) ? res.data : [];
-        console.log("DATA:::", data);
-        setSchedules(data);
-      } catch (error: any) {
-        console.error(
-          "Error occured fetching instructor schedules",
-          error.message
-        );
+      if (!res?.success) {
         Toast.show({
           type: "error",
           text1: "An error occured",
-          text2: error.message,
+          text2: res?.error,
         });
-      } finally {
-        setLoading(false);
       }
-    };
 
+      if (!res) return;
+      // ensure we only pass an array to setSchedules
+      const data = Array.isArray(res.data) ? res.data : [];
+      console.log("DATA:::", data);
+      setSchedules(data);
+    } catch (error: any) {
+      console.error(
+        "Error occured fetching instructor schedules",
+        error.message
+      );
+      Toast.show({
+        type: "error",
+        text1: "An error occured",
+        text2: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch instructor's schedules
+  useEffect(() => {
     fetchInstructorSchedules();
   }, [instructor?.id]);
+
+  // --- Pull to refresh ---
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchInstructorSchedules();
+    setRefreshing(false);
+  }, []);
 
   // Handle start session
   const handleStartSession = async (scheduleId: string) => {
@@ -97,22 +107,6 @@ export default function Schedules() {
       <CustomHeader title="Schedules" />
 
       {/* Page heading and descriptions */}
-      <View className="pb-0">
-        <View className="mb-6 p-5 m-5 bg-green-50 rounded-2xl border border-green-100 shadow-sm">
-          <View className="flex-row items-center gap-3 mb-1">
-            <View className="bg-green-100 p-2 rounded-xl">
-              <Ionicons name="calendar-outline" size={22} color="#16a34a" />
-            </View>
-            <Text className="text-lg font-semibold text-gray-800">
-              Manage your schedules
-            </Text>
-          </View>
-          <Text className="text-gray-600 leading-relaxed">
-            Tap the <Text className="text-green-600 font-bold text-xl">＋</Text>{" "}
-            button on the bottom right to create a new class schedule.
-          </Text>
-        </View>
-      </View>
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
@@ -204,6 +198,35 @@ export default function Schedules() {
               )}
             </View>
           )}
+          refreshControl={
+            <CustomRefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+            />
+          }
+          ListHeaderComponent={
+            <View className="pb-0">
+              <View className="mb-6 p-5 mt-5 bg-green-50 rounded-2xl border border-green-100 shadow-sm">
+                <View className="flex-row items-center gap-3 mb-1">
+                  <View className="bg-green-100 p-2 rounded-xl">
+                    <Ionicons
+                      name="calendar-outline"
+                      size={22}
+                      color="#16a34a"
+                    />
+                  </View>
+                  <Text className="text-lg font-semibold text-gray-800">
+                    Manage your schedules
+                  </Text>
+                </View>
+                <Text className="text-gray-600 leading-relaxed">
+                  Tap the{" "}
+                  <Text className="text-green-600 font-bold text-xl">＋</Text>{" "}
+                  button on the bottom right to create a new class schedule.
+                </Text>
+              </View>
+            </View>
+          }
           ListEmptyComponent={
             <View className="flex-1 items-center justify-center py-40">
               <Text className="text-gray-500">No schedules found.</Text>

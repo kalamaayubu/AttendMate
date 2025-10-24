@@ -34,7 +34,7 @@ export default function CustomHeader({ title, backButton }: CustomHeaderProps) {
             (Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0) +
             HEADER_HEIGHT,
         }}
-        className="bg-indigo-500 flex-row items-center px-4"
+        className="bg-indigo-500 z-10 flex-row items-center px-4"
       >
         {/* Back button */}
         {backButton && (

@@ -3,7 +3,7 @@ import { RootState } from "@/redux/store";
 import { schedulesService } from "@/services/schedulesService";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -16,6 +16,7 @@ import Toast from "react-native-toast-message";
 import { useSelector } from "react-redux";
 
 // Date handling
+import CustomRefreshControl from "@/components/general/RefreshControl";
 import dayjs from "dayjs";
 import isToday from "dayjs/plugin/isToday";
 import localizedFormat from "dayjs/plugin/localizedFormat";
@@ -31,31 +32,40 @@ export default function Schedules() {
   const [activeTab, setActiveTab] = useState("All");
   const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const studentId = useSelector((state: RootState) => state.user.user?.id);
 
+  // Helper to fetch schedules
+  const fetchSchedules = useCallback(async () => {
+    if (!studentId) return;
+    setLoading(true);
+
+    const res = await schedulesService.getSchedules(studentId);
+    setLoading(false);
+
+    if (!res.success) {
+      Toast.show({
+        type: "error",
+        text1: "Error fetching schedules",
+        text2: res.error,
+      });
+      return;
+    }
+
+    setSchedules(res.data ?? []);
+  }, [studentId]);
+
+  // Fetch schedules when component mounts
   useEffect(() => {
-    // Fetch schedules when component mounts
-    const fetchSchedules = async () => {
-      if (!studentId) return;
-      setLoading(true);
-
-      const res = await schedulesService.getSchedules(studentId);
-      setLoading(false);
-
-      if (!res.success) {
-        Toast.show({
-          type: "error",
-          text1: "Error fetching schedules",
-          text2: res.error,
-        });
-        return;
-      }
-
-      setSchedules(res.data ?? []);
-    };
-
     fetchSchedules();
   }, [studentId]);
+
+  // -- Pull to refresh
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchSchedules();
+    setRefreshing(false);
+  }, [fetchSchedules]);
 
   // Filter based on tab
   // const filteredData =
@@ -75,27 +85,6 @@ export default function Schedules() {
         {/* ===== Header ===== */}
         <CustomHeader title="Schedules" />
 
-        {/* ===== Tabs ===== */}
-        <View className="flex-row justify-start px-4 bg-white shadow-sm py-3">
-          {tabs.map((tab) => (
-            <Pressable
-              key={tab}
-              onPress={() => setActiveTab(tab)}
-              className={`px-6 py-2 rounded-full ${
-                activeTab === tab ? "bg-green-600/80" : "bg-transparent"
-              }`}
-            >
-              <Text
-                className={`text-sm font-medium ${
-                  activeTab === tab ? "text-white" : "text-gray-600"
-                }`}
-              >
-                {tab}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-
         {/* ===== Schedule List ===== */}
         {loading ? (
           <View className="flex-1 items-center justify-center">
@@ -106,7 +95,34 @@ export default function Schedules() {
           <FlatList
             data={schedules}
             keyExtractor={(item) => item.scheduleId}
-            contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
+            contentContainerStyle={{ paddingHorizontal: 0, paddingBottom: 40 }}
+            ListHeaderComponent={
+              <View className="flex-row justify-start mb-8 px-4 bg-white shadow-sm py-3">
+                {tabs.map((tab) => (
+                  <Pressable
+                    key={tab}
+                    onPress={() => setActiveTab(tab)}
+                    className={`px-6 py-2 rounded-full ${
+                      activeTab === tab ? "bg-green-600/80" : "bg-transparent"
+                    }`}
+                  >
+                    <Text
+                      className={`text-sm font-medium ${
+                        activeTab === tab ? "text-white" : "text-gray-600"
+                      }`}
+                    >
+                      {tab}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            }
+            refreshControl={
+              <CustomRefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+              />
+            }
             renderItem={({ item }) => {
               const start = dayjs(item.startTime);
               const end = dayjs(item.endTime);
@@ -119,7 +135,7 @@ export default function Schedules() {
                   onPress={() =>
                     router.push(`/student/schedules/${item.scheduleId}`)
                   }
-                  className="bg-white rounded-2xl shadow-sm p-4 mb-4 flex-row items-center"
+                  className="bg-white rounded-2xl mx-6 shadow-sm p-4 mb-4 flex-row items-center"
                 >
                   <View
                     className="w-12 h-12 rounded-full items-center justify-center mr-4"
