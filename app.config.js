@@ -31,6 +31,17 @@ export default {
           category: ["BROWSABLE", "DEFAULT"],
         },
       ],
+      manifest: {
+        additions: [
+          {
+            type: "meta-data",
+            "android:name":
+              "com.google.firebase.messaging.default_notification_color",
+            "android:resource": "@color/notification_icon_color",
+            "tools:replace": "android:resource",
+          },
+        ],
+      },
     },
     web: {
       output: "static",
