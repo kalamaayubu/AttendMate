@@ -4,7 +4,7 @@ export default {
     slug: "attendmate",
     version: "1.0.0",
     orientation: "portrait",
-    icon: "./assets/images/icon.png",
+    icon: "./assets/images/amLogo.png",
     scheme: "attendmate",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
@@ -15,9 +15,9 @@ export default {
     android: {
       adaptiveIcon: {
         backgroundColor: "#E6F4FE",
-        foregroundImage: "./assets/images/android-icon-foreground.png",
-        backgroundImage: "./assets/images/android-icon-background.png",
-        monochromeImage: "./assets/images/android-icon-monochrome.png",
+        foregroundImage: "./assets/images/amLogo.png",
+        backgroundImage: "./assets/images/amLogo.png",
+        monochromeImage: "./assets/images/amLogo.png",
       },
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
@@ -48,7 +48,7 @@ export default {
       [
         "expo-notifications",
         {
-          icon: "./assets/images/icon.png",
+          icon: "./assets/images/amLogo.png",
           color: "#4A90E2",
         },
       ],
@@ -56,7 +56,7 @@ export default {
       [
         "expo-splash-screen",
         {
-          image: "./assets/images/splash-icon.png",
+          image: "./assets/images/amLogo.png",
           imageWidth: 100,
           resizeMode: "contain",
           backgroundColor: "#ffffff",
