@@ -31,6 +31,12 @@ export default {
           category: ["BROWSABLE", "DEFAULT"],
         },
       ],
+      // For automatic updates
+      updates: {
+        enabled: true,
+        checkAutomatically: "ON_LOAD", // check on app start
+        fallbackToCacheTimeout: 0, // immediately use cached version if offline
+      },
     },
     web: {
       output: "static",
@@ -57,7 +63,7 @@ export default {
         "expo-splash-screen",
         {
           image: "./assets/images/amLogo.png",
-          imageWidth: 100,
+          imageWidth: 200,
           resizeMode: "contain",
           backgroundColor: "#ffffff",
           light: { backgroundColor: "#ffffff" },
