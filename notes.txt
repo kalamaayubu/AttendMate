@@ -1,0 +1,39 @@
+*********************** DEV BUILD TO EAS SHARABLE .apk FILE *************************
+1. Install eas cli
+npm install -g eas-cli
+
+2. Login to your expo account
+eas login
+
+3. Build your installable apk
+eas build:configure
+
+Build testable apk
+eas build -p android --profile preview
+
+--- Adding file as an EAS secret ---
+eas env:create --name YOUR_SECRET_FILE_NAME --type file --value ./path/to/the-file.exension
+
+--- Auto updates ---
+In order users to receive app updates, add the updates on your android/ios block in app.json/app.config.js
+android: {
+  ...
+  updates: {
+    enabled: true,
+    checkAutomatically: "ON_LOAD",  // check on app start
+    fallbackToCacheTimeout: 0,      // immediately use cached version if offline
+  },
+},
+ios: {
+  ...
+  updates: {
+    enabled: true,
+    checkAutomatically: "ON_LOAD",
+    fallbackToCacheTimeout: 0,
+  },
+},
+
+--- Once the preview build(whith the updates confgs) is installed, you can push JS updates OTA by running
+eas update --branch preview --message "A message describing the update/change"
+--branch preview -> ensures only preview builds get these updates
+users get the updates next time they open the app(because of ON_LOAD)
