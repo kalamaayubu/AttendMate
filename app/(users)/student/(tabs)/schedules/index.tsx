@@ -88,7 +88,7 @@ export default function Schedules() {
         {/* ===== Schedule List ===== */}
         {loading ? (
           <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color="#16a34a" />
+            <ActivityIndicator size="large" color="#6366f1" />
             <Text className="text-gray-500 mt-2">Loading schedules...</Text>
           </View>
         ) : (
@@ -103,7 +103,7 @@ export default function Schedules() {
                     key={tab}
                     onPress={() => setActiveTab(tab)}
                     className={`px-6 py-2 rounded-full ${
-                      activeTab === tab ? "bg-green-600/80" : "bg-transparent"
+                      activeTab === tab ? "bg-indigo-500" : "bg-transparent"
                     }`}
                   >
                     <Text

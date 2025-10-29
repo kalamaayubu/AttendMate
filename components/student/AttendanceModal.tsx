@@ -2,6 +2,7 @@ import { RootState } from "@/redux/store";
 import { schedulesService } from "@/services/schedulesService";
 import { requestBiometricPermission } from "@/utils/biometricAuth"; // adjust path as needed
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import { Modal, Pressable, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
@@ -52,6 +53,8 @@ export default function AttendanceModal({
       type: "success",
       text1: "Attendance marked successfully",
     });
+
+    router.reload();
   };
   const handleClose = () => {
     setAttendanceResult(null);

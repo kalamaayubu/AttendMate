@@ -109,7 +109,7 @@ export default function Courses() {
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#16a34a" />
+          <ActivityIndicator size="large" color="#6366f1" />
         </View>
       ) : (
         <FlatList
@@ -123,12 +123,19 @@ export default function Courses() {
             paddingBottom: 100,
           }}
           ListHeaderComponent={
-            <View className="bg-green-100 border rounded-2xl mb-6 mt-2 p-6 border-green-200">
-              <Text className="text-xl mb-2 font-semibold">
-                My enrolled courses
-              </Text>
-              <Text className="text-gray-600">
-                To enroll to a new course, click the + button below.
+            <View className="mb-6 p-5 rounded-xl">
+              <View className="flex-row items-center gap-3 mb-2">
+                <View className="bg-black p-2 rounded-xl">
+                  <Ionicons name="library-outline" size={22} color="white" />
+                </View>
+                <Text className="text-2xl font-bold text-gray-800">
+                  My enrolled courses
+                </Text>
+              </View>
+
+              <Text className="text-gray-600 text-lg">
+                To enroll to a new course, click the + button on the bottom
+                right of the screen.
               </Text>
             </View>
           }
@@ -147,7 +154,7 @@ export default function Courses() {
           elevation: 10,
           overflow: Platform.OS === "android" ? "hidden" : "visible",
         }}
-        className="bg-indigo-500/95 absolute bottom-2 w-16 h-16 self-center items-center justify-center rounded-full"
+        className="bg-indigo-500/95 absolute bottom-2 w-16 h-16 self-end mr-6 items-center justify-center rounded-full"
         onPress={() => console.log("Add new course")}
       >
         <Ionicons name="add" color={"white"} size={30} />

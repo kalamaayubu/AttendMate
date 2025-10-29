@@ -5,6 +5,7 @@ import { redirectBasedOnRole } from "@/utils/auth/redirectBasedOnRole";
 import { router } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import {
+  ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -42,8 +43,7 @@ export default function Login() {
     if (error) {
       Toast.show({
         type: "error",
-        text1: "Login Failed",
-        text2: error.message,
+        text1: error.message,
       });
       console.log("Login error:", error.message);
       return; // Stop here if login failed
@@ -77,8 +77,8 @@ export default function Login() {
         >
           <View className="flex-1 justify-center p-6 bg-white">
             {/* Logo */}
-            <View className="w-10 h-10 bg-green-600 self-center mb-8 rounded-full relative">
-              <View className="absolute bg-indigo-600/80 size-12 top-1/4 left-1/4 rounded-full" />
+            <View className="w-10 h-10 bg-gray-400 self-center mb-8 rounded-lg relative">
+              <View className="absolute bg-indigo-600/90 size-12 top-1/4 left-1/4 rounded-lg" />
             </View>
             <Text className="text-2xl font-bold text-center mb-6 text-gray-800">
               Log In
@@ -154,17 +154,17 @@ export default function Login() {
             <Pressable
               onPress={handleSubmit(onSubmit)}
               disabled={isSubmitting} // prevent pressing while submitting
-              className={`bg-green-600 rounded-full py-4 active:scale-95 mt-4 ${
-                isSubmitting ? "opacity-70" : ""
-              }`}
+              className={`bg-indigo-500 rounded-full py-4 active:scale-95 mt-4`}
             >
               {isSubmitting ? (
-                <Text className="text-center text-white font-semibold">
-                  Logging In...
-                </Text>
+                <View className="flex-row gap-2 items-center justify-center">
+                  <ActivityIndicator size={18} color="#fff" />
+                  <Text className="text-center text-white font-semibold">
+                    Logging In
+                  </Text>
+                </View>
               ) : (
                 // Or show a spinner instead:
-                // <ActivityIndicator color="#fff" />
                 <Text className="text-center text-white font-semibold">
                   Log In
                 </Text>
@@ -177,7 +177,7 @@ export default function Login() {
             >
               <Text className="text-center">
                 Don’t have an account?{" "}
-                <Text className="text-green-600">Sign up</Text>
+                <Text className="text-indigo-600">Sign up</Text>
               </Text>
             </Pressable>
           </View>

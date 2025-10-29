@@ -44,7 +44,6 @@ export default function Schedules() {
       if (!res) return;
       // ensure we only pass an array to setSchedules
       const data = Array.isArray(res.data) ? res.data : [];
-      console.log("DATA:::", data);
       setSchedules(data);
     } catch (error: any) {
       console.error(
@@ -106,11 +105,9 @@ export default function Schedules() {
       {/* Header */}
       <CustomHeader title="Schedules" />
 
-      {/* Page heading and descriptions */}
-
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#16a34a" size="large" />
+          <ActivityIndicator color="#6366f1" size="large" />
           <Text className="text-gray-700 mt-2">Loading schedules...</Text>
         </View>
       ) : (
@@ -139,12 +136,12 @@ export default function Schedules() {
               <View className="flex-row items-center">
                 <View
                   className="rounded-full p-3 mr-3"
-                  style={{ backgroundColor: "#16a34a" + "20" }}
+                  style={{ backgroundColor: "#6366f1" + "20" }}
                 >
                   <Ionicons
                     name="calendar-outline"
                     size={20}
-                    color={"#16a34a"}
+                    color={"#6366f1"}
                   />
                 </View>
 
@@ -205,26 +202,21 @@ export default function Schedules() {
             />
           }
           ListHeaderComponent={
-            <View className="pb-0">
-              <View className="mb-6 p-5 mt-5 bg-green-50 rounded-2xl border border-green-100 shadow-sm">
-                <View className="flex-row items-center gap-3 mb-1">
-                  <View className="bg-green-100 p-2 rounded-xl">
-                    <Ionicons
-                      name="calendar-outline"
-                      size={22}
-                      color="#16a34a"
-                    />
-                  </View>
-                  <Text className="text-lg font-semibold text-gray-800">
-                    Manage your schedules
-                  </Text>
+            <View className="mb-6 mt-4 p-5 rounded-xl">
+              <View className="flex-row items-center gap-3 mb-2">
+                <View className="bg-black p-2 rounded-xl">
+                  <Ionicons name="time-outline" size={22} color="white" />
                 </View>
-                <Text className="text-gray-600 leading-relaxed">
-                  Tap the{" "}
-                  <Text className="text-green-600 font-bold text-xl">＋</Text>{" "}
-                  button on the bottom right to create a new class schedule.
+                <Text className="text-2xl font-bold text-gray-800">
+                  Manage your schedules
                 </Text>
               </View>
+
+              <Text className="text-lg text-gray-800">
+                Tap the{" "}
+                <Text className="text-green-600 font-bold text-xl">＋</Text>{" "}
+                button on the bottom right to create a new class schedule
+              </Text>
             </View>
           }
           ListEmptyComponent={

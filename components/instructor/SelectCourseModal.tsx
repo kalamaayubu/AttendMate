@@ -85,7 +85,7 @@ export const SelectCourseModal = ({
         {/* Loading & Error States */}
         {loading ? (
           <View className="py-10 items-center">
-            <ActivityIndicator size="large" color="#16a34a" />
+            <ActivityIndicator size="large" color="#6366f1" />
             <Text className="mt-2 text-gray-500">Loading courses...</Text>
           </View>
         ) : error ? (
@@ -95,7 +95,7 @@ export const SelectCourseModal = ({
             </Text>
             <TouchableOpacity
               onPress={loadCourses}
-              className="px-4 py-4 mt-10 rounded-full w-full items-center bg-green-600"
+              className="px-4 py-4 mt-10 rounded-full w-full items-center bg-indigo-500"
             >
               <Text className="text-white font-semibold">Retry</Text>
             </TouchableOpacity>
@@ -119,7 +119,7 @@ export const SelectCourseModal = ({
                     onPress={() => setSelectedId(item.id)}
                     className={`p-4 mb-3 border rounded-2xl ${
                       isSelected
-                        ? "border-indigo-600 bg-indigo-50"
+                        ? "border-indigo-500 bg-indigo-50"
                         : "border-gray-100"
                     }`}
                   >
@@ -145,7 +145,7 @@ export const SelectCourseModal = ({
               disabled={!selectedId || adding}
               onPress={handleAddPress}
               className={`mt-4 py-3 rounded-full flex-row items-center justify-center ${
-                selectedId && !adding ? "bg-green-600" : "bg-gray-300"
+                selectedId && !adding ? "bg-indigo-500" : "bg-gray-300"
               }`}
             >
               {adding ? (

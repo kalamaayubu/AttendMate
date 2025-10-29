@@ -91,7 +91,7 @@ export const CoursesScreen = () => {
         {/* Loading State */}
         {loading ? (
           <View className="flex-1 justify-center items-center">
-            <ActivityIndicator size="large" color="#16a34a" />
+            <ActivityIndicator size="large" color="#6366f1" />
             <Text className="text-gray-500 mt-3">Loading courses...</Text>
           </View>
         ) : courses.length > 0 ? (
@@ -110,21 +110,17 @@ export const CoursesScreen = () => {
               />
             }
             ListHeaderComponent={
-              <View className="mb-6 mt-4 p-5 bg-green-50 rounded-xl border border-green-100 shadow-sm">
+              <View className="mb-6 mt-4 p-5 rounded-xl">
                 <View className="flex-row items-center gap-3 mb-2">
-                  <View className="bg-green-100 p-2 rounded-xl">
-                    <Ionicons
-                      name="library-outline"
-                      size={22}
-                      color="#16a34a"
-                    />
+                  <View className="bg-black p-2 rounded-xl">
+                    <Ionicons name="library-outline" size={22} color="white" />
                   </View>
-                  <Text className="text-lg font-semibold text-gray-800">
+                  <Text className="text-2xl font-bold text-gray-800">
                     Your Courses
                   </Text>
                 </View>
 
-                <Text className="text-gray-600 leading-relaxed">
+                <Text className="text-gray-600 text-lg">
                   {courses.length > 0
                     ? "You’re currently taking students through the following courses."
                     : "You haven’t taken any courses yet. Tap the + button to get started."}

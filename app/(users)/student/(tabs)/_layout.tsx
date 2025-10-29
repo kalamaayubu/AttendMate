@@ -11,7 +11,7 @@ export default function StudentLayout() {
 
       <Tabs
         screenOptions={({ route }) => ({
-          tabBarActiveTintColor: "#16a34a",
+          tabBarActiveTintColor: "#6663f1",
           tabBarInactiveTintColor: "#888",
           tabBarLabelStyle: {
             fontSize: 10,

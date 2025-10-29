@@ -49,7 +49,7 @@ export default function DateTimeField({
                     : value.toLocaleString()
                   : `Select ${label.toLowerCase()}`}
               </Text>
-              <Ionicons name="time-outline" size={20} color="#16a34a" />
+              <Ionicons name="time-outline" size={20} color="#6366f1" />
             </TouchableOpacity>
 
             {/* --- Date Picker (only if not timeOnly) --- */}
@@ -126,39 +126,6 @@ export default function DateTimeField({
                   return null;
                 }
               })()}
-
-            {/* {showTimePicker && (
-              <DateTimePicker
-                value={value ?? new Date()}
-                mode="time"
-                display={Platform.OS === "ios" ? "spinner" : "default"}
-                is24Hour={false}
-                onChange={(event, selectedTime) => {
-                  if (!event) return;
-                  if (Platform.OS === "android") setShowTimePicker(false);
-
-                  if (event?.type !== "set" || !selectedTime) return;
-
-                  // ✅ Fix: ensure endTime inherits the date from startTime
-                  if (timeOnly) {
-                    const startTime = control._formValues?.startTime;
-                    if (startTime instanceof Date) {
-                      const sameDate = new Date(startTime);
-                      sameDate.setHours(selectedTime.getHours());
-                      sameDate.setMinutes(selectedTime.getMinutes());
-                      onChange(sameDate);
-                    } else {
-                      onChange(selectedTime);
-                    }
-                  } else if (tempDate) {
-                    const finalDate = new Date(tempDate);
-                    finalDate.setHours(selectedTime.getHours());
-                    finalDate.setMinutes(selectedTime.getMinutes());
-                    onChange(finalDate);
-                  }
-                }}
-              />
-            )} */}
           </>
         )}
       />

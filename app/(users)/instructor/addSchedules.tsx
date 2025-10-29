@@ -132,10 +132,25 @@ export default function AddSchedule() {
           }}
         >
           {/* --- Info Header --- */}
-          <View className="mb-6 p-5 bg-green-50 rounded-2xl border border-green-100 shadow-sm">
+          <View className="mb-6 p-5 rounded-xl">
             <View className="flex-row items-center gap-3 mb-2">
-              <View className="bg-green-100 p-2 rounded-xl">
-                <Ionicons name="create-outline" size={22} color="#16a34a" />
+              <View className="bg-black p-2 rounded-xl">
+                <Ionicons name="create-outline" size={22} color="white" />
+              </View>
+              <Text className="text-2xl font-bold text-gray-800">
+                Create New Schedule
+              </Text>
+            </View>
+
+            <Text className="text-gray-600 text-lg">
+              Fill in the course details, venue, and timings below to create a
+              new schedule.
+            </Text>
+          </View>
+          {/* <View className="mb-6 p-5 bg-indigo-50 rounded-2xl border border-indigo-100 shadow-sm">
+            <View className="flex-row items-center gap-3 mb-2">
+              <View className="bg-indigo-100 p-2 rounded-xl">
+                <Ionicons name="create-outline" size={22} color="#6366f1" />
               </View>
               <Text className="text-lg font-semibold text-gray-800">
                 Create New Schedule
@@ -146,7 +161,7 @@ export default function AddSchedule() {
               Fill in the course details, venue, and timings below to create a
               new schedule.
             </Text>
-          </View>
+          </View> */}
 
           {/* --- Course Picker --- */}
           <Text className="mb-1 font-semibold text-gray-700">Course</Text>
@@ -160,7 +175,7 @@ export default function AddSchedule() {
                   selectedValue={value}
                   onValueChange={onChange}
                   mode="dropdown"
-                  dropdownIconColor="#16a34a"
+                  dropdownIconColor="#6366f1"
                   style={{
                     color: "#374151",
                     backgroundColor: "#f9fafb",
@@ -212,10 +227,6 @@ export default function AddSchedule() {
             rules={{
               required: "End time is required",
               validate: (value: any, formValues: any) => {
-                // Debug logs
-                console.log("🕒 Start Time:", formValues.startTime);
-                console.log("🕓 End Time:", value);
-
                 // Validation logic
                 if (!formValues.startTime) return "Start time is missing";
                 if (!value) return "End time is missing";
@@ -287,7 +298,7 @@ export default function AddSchedule() {
           <Pressable
             onPress={handleSubmit(onSubmit)}
             disabled={isSubmitting}
-            className="bg-green-600 active:scale-95 transition-all duration-300 py-4 rounded-full items-center shadow-md"
+            className="bg-indigo-500 active:scale-95 transition-all duration-300 py-4 rounded-full items-center shadow-md"
           >
             {isSubmitting ? (
               <View className="flex-row gap-2 items-center">
@@ -301,7 +312,7 @@ export default function AddSchedule() {
             )}
           </Pressable>
 
-          <Text className="text-gray-400 text-center text-xs mt-5">
+          <Text className="text-gray-400 -translate-y-2 text-center text-xs mt-5">
             Your new schedule will appear in your list once added.
           </Text>
         </ScrollView>

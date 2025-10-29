@@ -1,8 +1,10 @@
 import CustomHeader from "@/components/general/CustomHeader";
 import CustomRefreshControl from "@/components/general/RefreshControl";
+import { setReportData } from "@/redux/reportData";
 import { RootState } from "@/redux/store";
 import { coursesService } from "@/services/coursesService";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -13,13 +15,16 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [isGeneratingReportData, setIsGeneratingReportData] = useState(false);
+
   const [courses, setCourses] = useState<any[]>([]);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
+  const dispatch = useDispatch();
 
   const instructor = useSelector((state: RootState) => state?.user.user);
   const instructorId = instructor?.id;
@@ -46,6 +51,8 @@ export default function ReportsPage() {
 
   // Function to generate report
   const handleGenerateReport = async (courseId: string) => {
+    setIsGeneratingReportData(true);
+
     // Fetch the report data
     const res = await coursesService.getAttendanceReport(courseId);
     if (!res.success) {
@@ -56,7 +63,12 @@ export default function ReportsPage() {
       });
     }
 
-    // Navigate to report details page to display it
+    // Save report data to redux
+    setIsGeneratingReportData(false);
+    dispatch(setReportData({ courseId, data: res.data }));
+
+    // Navigate to details screen
+    router.push(`/instructor/reports/${courseId}`);
   };
 
   // Page refresh
@@ -128,11 +140,23 @@ export default function ReportsPage() {
 
                   <TouchableOpacity
                     onPress={() => handleGenerateReport(item.id)}
+                    disabled={isGeneratingReportData}
                     className="mt-2 bg-indigo-500/95 py-2 rounded-full"
                   >
-                    <Text className="text-white text-center font-semibold">
-                      Generate Report
-                    </Text>
+                    <View className="flex-row gap-2 items-center justify-center">
+                      {isGeneratingReportData ? (
+                        <>
+                          <ActivityIndicator color={"white"} size={"small"} />
+                          <Text className="text-white text-center font-semibold">
+                            Generating Report...
+                          </Text>
+                        </>
+                      ) : (
+                        <Text className="text-white text-center font-semibold">
+                          Generate Report
+                        </Text>
+                      )}
+                    </View>
                   </TouchableOpacity>
                 </View>
               )}

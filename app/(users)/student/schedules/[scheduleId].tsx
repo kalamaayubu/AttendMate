@@ -95,7 +95,7 @@ export default function ScheduleDetails() {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-gray-50">
-        <ActivityIndicator size="large" color="#16a34a" />
+        <ActivityIndicator size="large" color="#6366f1" />
         <Text className="text-gray-500 mt-2">Loading schedule details...</Text>
       </SafeAreaView>
     );
@@ -151,8 +151,8 @@ export default function ScheduleDetails() {
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
           {/* ===== Header Card with Gradient ===== */}
 
-          <View className="p-5 gap-2 rounded-2xl mb-10 bg-green-100 border border-green-200">
-            <Text className="text-2xl font-semibold text-green-600 mb-1">
+          <View className="p-5 gap-2 rounded-2xl mb-10 bg-white border border-indigo-100">
+            <Text className="text-2xl font-semibold mb-1">
               {scheduleDetails?.courseName}
             </Text>
             <Text className="font-semibold text-gray-800">{friendlyDate}</Text>

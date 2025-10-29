@@ -10,7 +10,6 @@ export async function sendNotification({
   data: Record<string, string>;
 }) {
   try {
-    console.log("BACKENDAPIKEY::", process.env.EXPO_PUBLIC_BACKEND_API_KEY!);
     const res = await fetch(
       `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/send-notification`,
       {

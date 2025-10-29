@@ -47,7 +47,7 @@ export function ProtectedLayout({ allowedRoles, children }: Props) {
   if (isAuthorized === null) {
     return (
       <View className="flex-1 justify-center items-center bg-white">
-        <ActivityIndicator size="large" color="#16a34a" />
+        <ActivityIndicator size="large" color="#6366f1" />
       </View>
     );
   }

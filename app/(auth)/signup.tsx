@@ -3,6 +3,7 @@ import { SignupForm } from "@/types";
 import { router } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import {
+  ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -78,8 +79,8 @@ export default function Signup() {
           keyboardShouldPersistTaps="handled"
         >
           <View className="p-6 bg-white">
-            <View className="w-10 h-10 bg-green-600 self-center mb-8 rounded-full relative">
-              <View className="absolute bg-indigo-600/80 size-12 top-1/4 left-1/4 rounded-full" />
+            <View className="w-10 h-10 bg-gray-400 self-center mb-8 rounded-lg relative">
+              <View className="absolute bg-indigo-600/90 size-12 top-1/4 left-1/4 rounded-lg" />
             </View>
             <Text className="text-2xl font-bold text-center mb-6 text-gray-800">
               Create Account
@@ -184,17 +185,18 @@ export default function Signup() {
             <Pressable
               onPress={handleSubmit(onSubmit)}
               disabled={isSubmitting} // disables press while submitting
-              className={`bg-green-600 rounded-full mt-2 py-4 active:scale-95 ${
+              className={`bg-indigo-500 rounded-full mt-2 py-4 active:scale-95 ${
                 isSubmitting ? "opacity-70" : ""
               }`}
             >
               {isSubmitting ? (
-                <Text className="text-center text-white font-semibold">
-                  Submitting...
-                </Text>
+                <View className="flex-row gap-2 items-center justify-center">
+                  <ActivityIndicator size={18} color="#fff" />
+                  <Text className="text-center text-white font-semibold">
+                    Signing up
+                  </Text>
+                </View>
               ) : (
-                // OR use a spinner:
-                // <ActivityIndicator color="#fff" />
                 <Text className="text-center text-white font-semibold">
                   Sign Up
                 </Text>
@@ -207,7 +209,7 @@ export default function Signup() {
             >
               <Text className="text-center">
                 Already have an account?{" "}
-                <Text className="text-green-600">Log in</Text>
+                <Text className="text-indigo-600">Log in</Text>
               </Text>
             </Pressable>
           </View>

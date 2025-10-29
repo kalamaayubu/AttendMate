@@ -101,7 +101,6 @@ export const coursesService = {
 
     const formattedData = processCourses(data);
 
-    console.log("ENROLLEDTO:::", JSON.stringify(formattedData, null, 4));
     return { success: true, data: formattedData };
   },
 
@@ -134,7 +133,6 @@ export const coursesService = {
       })
     );
 
-    console.log(":::", JSON.stringify(dataProjection, null, 2));
     return { success: true, data: dataProjection };
   },
 
@@ -196,8 +194,6 @@ export const coursesService = {
 
     // Extract schedule IDs into an array
     const scheduleIds = schedules.map((s) => s.id);
-    // DEBUG
-    console.log("SCHEDULES DATA:", scheduleIds);
 
     // 2️⃣ Fetch enrollments (students + course + instructor info)
     const { data: enrollments, error: enrollmentError } = await supabase
@@ -210,10 +206,11 @@ export const coursesService = {
           profiles(full_name)
         ),
         course:courses(
+          id, 
           course_code,
           course_name,
           instructor_courses!inner(
-            instructors!inner(
+            instructor:instructors(
               profiles(full_name)
             )
           )
@@ -227,9 +224,6 @@ export const coursesService = {
       return { success: false, error: enrollmentError.message };
     }
 
-    // DEBUG
-    console.log("ENROLLMENTS DATA:", JSON.stringify(enrollments, null, 2));
-
     // 3️⃣ Fetch attendance for those schedules
     const { data: attendance, error: attendanceError } = await supabase
       .from("attendance")
@@ -238,7 +232,7 @@ export const coursesService = {
           id,
           student_id,
           schedule_id,
-          schedule:schedules(start_time)
+          schedule:schedules(id, start_time)
         `
       )
       .in("schedule_id", scheduleIds); // ✅ Now a plain array
@@ -248,7 +242,6 @@ export const coursesService = {
       return { success: false, error: attendanceError.message };
     }
 
-    console.log("ATTENDANCE DATA:", JSON.stringify(attendance, null, 2));
     const finalData = { enrollments, attendance };
     console.log("THE FINAL DATA:::", JSON.stringify(finalData, null, 2));
 

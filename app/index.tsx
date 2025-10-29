@@ -12,8 +12,8 @@ export default function RootLayout() {
         {/* Top view */}
         <View className="text-2xl elevation-none flex flex-col gap-8">
           <View className="flex px-6 gap-4 items-center justify-center mb-10 mt-20">
-            <View className="w-10 h-10 bg-green-600 self-center mb-2 rounded-full relative">
-              <View className="absolute bg-indigo-600/80 size-12 top-1/4 left-1/4 rounded-full" />
+            <View className="w-10 h-10 bg-gray-400 self-center mb-2 rounded-lg relative">
+              <View className="absolute bg-indigo-600/90 size-12 top-1/4 left-1/4 rounded-lg" />
             </View>
             <Text className="text-2xl font-bold">AttendMate</Text>
           </View>
@@ -39,7 +39,7 @@ export default function RootLayout() {
             </Text>
             <Pressable
               onPress={() => router.replace("/(auth)/login")}
-              className="px-6 active:scale-95 transition-all duration-300 rounded-full bg-green-600 py-4"
+              className="px-6 active:scale-95 transition-all duration-300 rounded-full bg-indigo-500 py-4"
             >
               <Text className="text-white text-center">Log in Here</Text>
             </Pressable>

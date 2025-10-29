@@ -5,6 +5,7 @@ if (__DEV__) {
   require("../ReactotronConfig");
 }
 
+import CustomToast from "@/components/general/CustomToast";
 import { supabase } from "@/lib/supabase";
 import { persistor, store } from "@/redux/store";
 import * as NavigationBar from "expo-navigation-bar";
@@ -56,7 +57,7 @@ export default function RootLayout() {
         <PersistGate
           loading={
             <View className="flex-1 justify-center items-center">
-              <ActivityIndicator size="large" color="#16a34a" />
+              <ActivityIndicator size="large" color="#6366f1" />
             </View>
           }
           persistor={persistor}
@@ -70,10 +71,15 @@ export default function RootLayout() {
 
           {/* Toast notification provider */}
           <Toast
+            config={{
+              success: CustomToast,
+              error: CustomToast,
+              info: CustomToast,
+            }}
             position="top"
             visibilityTime={6000}
             autoHide
-            topOffset={80}
+            topOffset={60}
             swipeable
           />
         </PersistGate>

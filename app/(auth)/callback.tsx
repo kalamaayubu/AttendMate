@@ -7,7 +7,7 @@ export default function AuthCallbackScreen() {
 
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color="#4F46E5" />
+      <ActivityIndicator size="large" color="#6366f1" />
       <Text style={styles.text}>Signing you in...</Text>
     </View>
   );
