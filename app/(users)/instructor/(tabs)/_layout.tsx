@@ -28,7 +28,7 @@ export default function InstructorLayout() {
               case "schedules":
                 iconName = "calendar-outline";
                 break;
-              case "reports":
+              case "reports/index":
                 iconName = "document-text-outline";
                 break;
               case "courses":
@@ -44,7 +44,7 @@ export default function InstructorLayout() {
       >
         <Tabs.Screen name="home" options={{ title: "Home" }} />
         <Tabs.Screen name="schedules" options={{ title: "Schedules" }} />
-        <Tabs.Screen name="reports" options={{ title: "Reports" }} />
+        <Tabs.Screen name="reports/index" options={{ title: "Reports" }} />
         <Tabs.Screen name="courses" options={{ title: "Courses" }} />
       </Tabs>
     </ProtectedLayout>

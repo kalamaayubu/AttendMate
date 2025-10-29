@@ -181,6 +181,81 @@ export const coursesService = {
     }
   },
 
+  // Instructor: attendance report for a course
+  async getAttendanceReport(courseId: string) {
+    // 1️⃣ Get all schedules for the course
+    const { data: schedules, error: scheduleError } = await supabase
+      .from("schedules")
+      .select("id")
+      .eq("course_id", courseId);
+
+    if (scheduleError) {
+      console.error("Error fetching schedules:", scheduleError);
+      return { success: false, error: scheduleError.message };
+    }
+
+    // Extract schedule IDs into an array
+    const scheduleIds = schedules.map((s) => s.id);
+    // DEBUG
+    console.log("SCHEDULES DATA:", scheduleIds);
+
+    // 2️⃣ Fetch enrollments (students + course + instructor info)
+    const { data: enrollments, error: enrollmentError } = await supabase
+      .from("enrollments")
+      .select(
+        `
+        students(
+          id,
+          reg_no,
+          profiles(full_name)
+        ),
+        course:courses(
+          course_code,
+          course_name,
+          instructor_courses!inner(
+            instructors!inner(
+              profiles(full_name)
+            )
+          )
+        )
+      `
+      )
+      .eq("course_id", courseId);
+
+    if (enrollmentError) {
+      console.error("Error fetching enrollments:", enrollmentError);
+      return { success: false, error: enrollmentError.message };
+    }
+
+    // DEBUG
+    console.log("ENROLLMENTS DATA:", JSON.stringify(enrollments, null, 2));
+
+    // 3️⃣ Fetch attendance for those schedules
+    const { data: attendance, error: attendanceError } = await supabase
+      .from("attendance")
+      .select(
+        `
+          id,
+          student_id,
+          schedule_id,
+          schedule:schedules(start_time)
+        `
+      )
+      .in("schedule_id", scheduleIds); // ✅ Now a plain array
+
+    if (attendanceError) {
+      console.error("Error fetching attendance:", attendanceError);
+      return { success: false, error: attendanceError.message };
+    }
+
+    console.log("ATTENDANCE DATA:", JSON.stringify(attendance, null, 2));
+    const finalData = { enrollments, attendance };
+    console.log("THE FINAL DATA:::", JSON.stringify(finalData, null, 2));
+
+    // 4️⃣ Combine them if desired
+    return { success: true, data: { enrollments, attendance } };
+  },
+
   // Instructor: Assigning themselves a course
   async addInstructorCourse(instructorId: string, courseId: string) {
     console.log(`INSTRUCTOR: ${instructorId} COURSE: ${courseId}`);
