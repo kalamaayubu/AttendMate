@@ -146,9 +146,9 @@ export default function ReportsPage() {
                     <View className="flex-row gap-2 items-center justify-center">
                       {isGeneratingReportData ? (
                         <>
-                          <ActivityIndicator color={"white"} size={"small"} />
+                          <ActivityIndicator color={"white"} size={16} />
                           <Text className="text-white text-center font-semibold">
-                            Generating Report...
+                            Generating Report
                           </Text>
                         </>
                       ) : (

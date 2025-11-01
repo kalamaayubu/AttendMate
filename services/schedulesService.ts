@@ -7,7 +7,34 @@ import haversine from "haversine-distance";
 export const schedulesService = {
   // Instructor: Adding a new schedule
   async addSchedule(schedule: ScheduleForm) {
-    // console.log("ADDING SCHEDULE:", schedule);
+    // Fetch enrolled students device_id
+    const { data: enrolledStudentsTokens, error: enrolledStudentsError } =
+      await supabase
+        .from("enrollments")
+        .select(
+          `
+              student:students (
+                profile:profiles(
+                  device_id
+                )
+              )
+            `
+        )
+        .eq("course_id", schedule.course);
+
+    if (enrolledStudentsError) {
+      console.error("Enrolled Student Error:", enrolledStudentsError);
+      return { success: false, error: enrolledStudentsError.message };
+    }
+
+    // Extract device_ids
+    const FCMTokens = enrolledStudentsTokens
+      .map((row) => row?.student?.profile?.device_id)
+      .filter(Boolean); // Remove nulls
+
+    console.log("FCM tokens to notify:", FCMTokens);
+
+    // Insert schedule
     try {
       const { data, error } = await supabase.from("schedules").insert([
         {
@@ -29,23 +56,19 @@ export const schedulesService = {
         };
       }
 
-      // ✅ TEMP: Hardcoded student FCM token (for testing)
-      const studentToken =
-        "czKuCAedTcSGdIuRoLRzcK:APA91bHh67Vb0sZIUsidTmoFfKdkV_LmEVwYXnh_CE0uc5uD6FiveR1BwltuCWVerXx_RXlTIBOxBX49YaMyZCaEdlYvoxUmis4Rxu6fDl1wPqzJM1FBUDQ";
-
-      // ✅ Send notification
-      await sendNotification({
-        token: studentToken,
-        title: "New Schedule Added",
-        body: `A new schedule for your course has been added.`,
-        data: {
-          screen: "notifications",
-        },
-      });
+      //  Send notification to all recipients
+      for (const token of FCMTokens) {
+        await sendNotification({
+          token,
+          title: "New Schedule Added",
+          body: `A new schedule for your course has been added.`,
+          data: { screen: "notifications" },
+        });
+      }
 
       return {
         success: true,
-        message: "Schedule added successfully.",
+        message: "Schedule created successfully.",
         data,
       };
     } catch (err: any) {
@@ -148,7 +171,7 @@ export const schedulesService = {
         };
       }
 
-      // Flatten data and format cleanly
+      // Flatten data and format cleanly for the presentation layer
       const flattenSchedules = (data: any[]): StudentSchedule[] => {
         return data.flatMap((enrollment) => {
           const { id: enrollmentId, courses } = enrollment;
@@ -158,9 +181,6 @@ export const schedulesService = {
             course_code: courseCode,
             schedules,
           } = courses;
-
-          // console.log("ENROLLMENT:", enrollment);
-          // console.log("COURSES:", courses);
 
           return (schedules || []).map((schedule: any) => ({
             enrollmentId,
@@ -291,8 +311,8 @@ export const schedulesService = {
     // Compute distance between instructor and student using haversine formula
     const distance = haversine(instructorCoords, studentCoords);
 
-    // Check if student is within 50 metres
-    const isWithin = distance <= 50;
+    // Check if student is within 25 metres
+    const isWithin = distance <= 25;
 
     if (!isWithin) {
       console.error(

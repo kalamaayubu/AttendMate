@@ -4,7 +4,7 @@ export async function sendNotification({
   body,
   data,
 }: {
-  token: string;
+  token: string | string[];
   title: string;
   body: string;
   data: Record<string, string>;

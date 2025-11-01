@@ -12,7 +12,7 @@ const CustomToast = ({ text1, text2, type }: ToastConfigParams<any>) => {
 
   return (
     <View
-      className={`mx-auto px-4 py-2 w-5/6 rounded-full shadow-sm border border-white/50 ${style.replace(
+      className={`mx-auto px-4 py-2 w-5/6 rounded-md shadow-sm border border-white/50 ${style.replace(
         /text-[^ ]+/,
         ""
       )}`}

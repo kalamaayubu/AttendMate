@@ -49,25 +49,32 @@ const FinalReportModal: React.FC<FinalReportModalProps> = ({
           </View>
 
           {/* Scrollable Table */}
-          <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+          <ScrollView className="flex-1">
+            <ScrollView horizontal contentContainerStyle={{ marginLeft: 24 }}>
               <View className="w-3/4 justify-center items-center">
                 <View className="border gap-4 border-b-0 scale-75 -translate-y-6 border-gray-300 bg-white">
                   {/* Report titles */}
-                  <View className="p-2 mb-6">
-                    <Text className="text-lg">
-                      INSTRUCTOR:{" "}
-                      {
-                        enrollments?.[0]?.course?.instructor_courses?.[0]
-                          ?.instructor?.profiles?.full_name
-                      }
-                    </Text>
-                    <Text className="text-lg">
-                      COURSE NAME: {enrollments?.[0]?.course?.course_name}
-                    </Text>
-                    <Text className="text-lg">
-                      COURSE CODE: {enrollments?.[0]?.course?.course_code}
-                    </Text>
+                  <View className="p-2 mb-6 gap-4">
+                    <View className="flex-row gap-1 items-center">
+                      <Text className="font-bold">INSTRUCTOR:</Text>
+                      <Text>
+                        {" "}
+                        {
+                          enrollments?.[0]?.course?.instructor_courses?.[0]
+                            ?.instructor?.profiles?.full_name
+                        }
+                      </Text>
+                    </View>
+
+                    <View className="flex-row gap-1 items-center">
+                      <Text className="font-bold">COURSE NAME:</Text>
+                      <Text>{enrollments?.[0]?.course?.course_name}</Text>
+                    </View>
+
+                    <View className="flex-row gap-1 items-center">
+                      <Text className="font-bold">COURSE CODE:</Text>
+                      <Text>{enrollments?.[0]?.course?.course_code}</Text>
+                    </View>
                   </View>
 
                   {/* Table Header */}

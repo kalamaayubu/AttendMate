@@ -17,6 +17,7 @@ export default function InstructorLayout() {
           },
           tabBarStyle: {
             height: 60,
+            paddingHorizontal: 4,
           },
           tabBarIcon: ({ color, size }) => {
             let iconName: keyof typeof Ionicons.glyphMap;
@@ -38,7 +39,7 @@ export default function InstructorLayout() {
                 iconName = "ellipse-outline";
             }
 
-            return <Ionicons name={iconName} size={18} color={color} />;
+            return <Ionicons name={iconName} size={20} color={color} />;
           },
         })}
       >

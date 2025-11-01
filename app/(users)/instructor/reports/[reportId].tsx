@@ -35,7 +35,7 @@ const AttendanceReport = () => {
 
   return (
     <SafeAreaView edges={["left", "right"]} className="flex-1">
-      <CustomHeader title="Attendance Report" />
+      <CustomHeader title="Attendance Report" backButton />
 
       {/* Top Info Section */}
       <View className="m-4 p-4 rounded-2xl bg-white shadow-sm border border-gray-100">
