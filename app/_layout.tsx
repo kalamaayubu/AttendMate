@@ -17,23 +17,12 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 
 export default function RootLayout() {
-  // Hide navigation bars
+  // Set Navigation Bar (Android)
   useEffect(() => {
-    const goImmersive = async () => {
-      try {
-        // Completely hide Android navigation bar
-        await NavigationBar.setVisibilityAsync("hidden");
-      } catch (error) {
-        console.warn("Failed to hide navigation/status bar:", error);
-      }
-    };
-
-    goImmersive();
-
-    // 🧹 Cleanup — restore bars when layout unmounts
-    return () => {
-      NavigationBar.setVisibilityAsync("visible");
-    };
+    NavigationBar.setVisibilityAsync("visible");
+    NavigationBar.setPositionAsync("relative");
+    NavigationBar.setBackgroundColorAsync("#ffffff"); // light background
+    NavigationBar.setButtonStyleAsync("dark"); // dark icons
   }, []);
 
   // Manage supabase token refresh based on app lifecycle
@@ -62,7 +51,11 @@ export default function RootLayout() {
           }
           persistor={persistor}
         >
-          <Stack screenOptions={{ headerShown: false }}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+            }}
+          >
             {/* Home screen */}
             <Stack.Screen name="index" options={{ headerShown: false }} />
             {/* Auth group (login, signup, etc.) */}
@@ -76,10 +69,10 @@ export default function RootLayout() {
               error: CustomToast,
               info: CustomToast,
             }}
-            position="top"
+            position="bottom"
             visibilityTime={6000}
             autoHide
-            topOffset={60}
+            bottomOffset={50}
             swipeable
           />
         </PersistGate>

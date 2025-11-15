@@ -13,12 +13,19 @@ export default function InstructorLayout() {
           tabBarLabelStyle: {
             fontSize: 10,
             fontWeight: "600",
-            elevation: 0,
           },
           tabBarStyle: {
-            height: 60,
+            height: 68,
             paddingHorizontal: 4,
+            backgroundColor: "#ffffff",
+            borderBottomWidth: 1,
+            borderBottomColor: "#f3f4f6",
+            marginBottom: 44,
+            borderTopRightRadius: 24,
+            borderTopLeftRadius: 24,
+            elevation: 1,
           },
+
           tabBarIcon: ({ color, size }) => {
             let iconName: keyof typeof Ionicons.glyphMap;
 

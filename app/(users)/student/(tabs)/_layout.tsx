@@ -19,7 +19,15 @@ export default function StudentLayout() {
             elevation: 0,
           },
           tabBarStyle: {
-            height: 60,
+            height: 68,
+            paddingHorizontal: 4,
+            backgroundColor: "#ffffff",
+            borderBottomWidth: 1,
+            borderBottomColor: "#f3f4f6",
+            marginBottom: 44,
+            borderTopRightRadius: 18,
+            borderTopLeftRadius: 18,
+            elevation: 1,
           },
           tabBarIcon: ({ color }) => {
             let iconName: keyof typeof Ionicons.glyphMap;
@@ -41,7 +49,7 @@ export default function StudentLayout() {
                 iconName = "ellipse-outline";
             }
 
-            return <Ionicons name={iconName} size={18} color={color} />;
+            return <Ionicons name={iconName} size={20} color={color} />;
           },
         })}
       >
