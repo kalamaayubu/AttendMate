@@ -42,7 +42,7 @@ export default function Schedules() {
   }, [schedules, selectedCourse]);
 
   // Helper to fetch instructor schedules
-  const fetchInstructorSchedules = async () => {
+  const fetchInstructorSchedules = useCallback(async () => {
     try {
       setLoading(true);
       if (!instructor?.id) return;
@@ -74,19 +74,19 @@ export default function Schedules() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [instructor?.id]);
 
   // Fetch instructor's schedules
   useEffect(() => {
     fetchInstructorSchedules();
-  }, [instructor?.id]);
+  }, [fetchInstructorSchedules]);
 
   // --- Pull to refresh ---
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchInstructorSchedules();
     setRefreshing(false);
-  }, []);
+  }, [fetchInstructorSchedules]);
 
   // Handle start session
   const handleStartSession = async (scheduleId: string) => {

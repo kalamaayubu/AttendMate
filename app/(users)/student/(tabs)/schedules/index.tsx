@@ -26,7 +26,7 @@ dayjs.extend(relativeTime);
 dayjs.extend(isToday);
 dayjs.extend(localizedFormat);
 
-const tabs = ["All", "Today", "Upcoming"];
+const tabs = ["All", "Today", "Upcoming", "Past"];
 
 export default function Schedules() {
   const [activeTab, setActiveTab] = useState("All");
@@ -58,7 +58,7 @@ export default function Schedules() {
   // Fetch schedules when component mounts
   useEffect(() => {
     fetchSchedules();
-  }, [studentId]);
+  }, [studentId, fetchSchedules]);
 
   // -- Pull to refresh
   const onRefresh = useCallback(async () => {
@@ -68,14 +68,34 @@ export default function Schedules() {
   }, [fetchSchedules]);
 
   // Filter based on tab
-  // const filteredData =
-  //   activeTab === "All"
-  //     ? scheduleData
-  //     : scheduleData.filter((section) =>
-  //         activeTab === "Today"
-  //           ? section.title === "Today"
-  //           : section.title !== "Today"
-  //       );
+  const now = dayjs();
+
+  const filteredData =
+    activeTab === "All"
+      ? schedules
+      : schedules.filter((section) => {
+          // defend against missing values
+          const start = section.startTime ? dayjs(section.startTime) : null;
+          const end = section.endTime ? dayjs(section.endTime) : null;
+
+          if (activeTab === "Today") {
+            // event starts, ends, or spans the current day
+            if (!start && !end) return false;
+            if (start && start.isSame(now, "day")) return true;
+            if (end && end.isSame(now, "day")) return true;
+            if (start && end && start.isBefore(now) && end.isAfter(now))
+              return true;
+            return false;
+          }
+
+          if (activeTab === "Upcoming") {
+            // event start is in the future
+            return start ? start.isAfter(now) : false;
+          }
+
+          // Past
+          return end ? end.isBefore(now) : false;
+        });
 
   return (
     <>
@@ -93,7 +113,7 @@ export default function Schedules() {
           </View>
         ) : (
           <FlatList
-            data={schedules}
+            data={filteredData}
             keyExtractor={(item) => item.scheduleId}
             contentContainerStyle={{ paddingHorizontal: 0, paddingBottom: 40 }}
             ListHeaderComponent={

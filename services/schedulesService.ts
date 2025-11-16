@@ -2,6 +2,7 @@ import { sendNotification } from "@/lib/firebase/sendNotification";
 import { supabase } from "@/lib/supabase";
 import { ScheduleForm, StudentSchedule, StudentScheduleDetails } from "@/types";
 import { getCurrentLocation } from "@/utils/getLocation";
+import dayjs from "dayjs";
 import haversine from "haversine-distance";
 
 export const schedulesService = {
@@ -196,9 +197,13 @@ export const schedulesService = {
       };
 
       const formattedSchedules = flattenSchedules(data || []);
+      const sortedSchedules = formattedSchedules.sort(
+        (a, b) => dayjs(b.startTime).valueOf() - dayjs(a.startTime).valueOf()
+      );
+      console.log("FETCHED SCHEDULES:", sortedSchedules);
       return {
         success: true,
-        data: formattedSchedules,
+        data: sortedSchedules,
       };
     } catch (err: any) {
       console.log("EXCEPTION FETCHING SCHEDULES:", err);

@@ -71,6 +71,26 @@ export const coursesService = {
     }
   },
 
+  // Student: Enroll in a course
+  async enrollInCourse(studentId: string, courseIds: Course[]) {
+    const { data, error } = await supabase
+      .from("enrollments")
+      .insert(
+        courseIds.map((courseId) => ({
+          student_id: studentId,
+          course_id: courseId,
+        }))
+      )
+      .select();
+
+    if (error) {
+      console.error("Could not enroll in course", error.message);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data };
+  },
+
   // Student: Get enrolled courses
   async getStudentEnrolledCourses(studentId: string) {
     const { data, error } = await supabase
@@ -104,6 +124,41 @@ export const coursesService = {
     return { success: true, data: formattedData };
   },
 
+  // Student: Get unenrolled courses
+  async getStudentUnenrolledCourses(studentId?: string) {
+    // 1️⃣ Get all enrolled course IDs for the student
+    const { data: enrolledData, error: enrolledError } = await supabase
+      .from("enrollments")
+      .select("course_id")
+      .eq("student_id", studentId);
+
+    if (enrolledError) {
+      console.error("Error fetching enrolled courses", enrolledError);
+      return { success: false, error: enrolledError.message, data: [] };
+    }
+
+    const enrolledCourseIds = enrolledData?.map((e) => e.course_id) || [];
+
+    // 2️⃣ Fetch courses not in the enrolled list
+    const { data: coursesData, error: coursesError } = await supabase
+      .from("courses")
+      .select("id, course_code, course_name")
+      .not("id", "in", `(${enrolledCourseIds.join(",")})`);
+
+    if (coursesError) {
+      console.error("Error fetching unenrolled courses", coursesError);
+      return { success: false, error: coursesError.message, data: [] };
+    }
+
+    const formattedCourses =
+      coursesData?.map((course) => ({
+        id: course.id,
+        code: course.course_code,
+        name: course.course_name,
+      })) || [];
+
+    return { success: true, data: formattedCourses };
+  },
   // Instructor: Get my courses only
   async getMyCoursesOnly(instructorId: string) {
     const { data, error } = await supabase
