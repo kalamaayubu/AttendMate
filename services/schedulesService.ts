@@ -1,4 +1,4 @@
-import { sendNotification } from "@/lib/firebase/sendNotification";
+import { sendNotification } from "@/backend/actions/sendNotification.action";
 import { supabase } from "@/lib/supabase";
 import { ScheduleForm, StudentSchedule, StudentScheduleDetails } from "@/types";
 import { getCurrentLocation } from "@/utils/getLocation";

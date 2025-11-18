@@ -1,4 +1,4 @@
-// lib/firebase/getFirebaseApp.ts
+// For initializing Firebase
 import firebase from "@react-native-firebase/app";
 
 // Initialize Firebase only once
