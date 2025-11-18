@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "384562130741",
+    "project_id": "attendmate-f45c8",
+    "storage_bucket": "attendmate-f45c8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:384562130741:android:f46469ec62485d6256a67c",
+        "android_client_info": {
+          "package_name": "com.anonymous.attendmate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA6YrotJMZkpFsYN7S5EU2yjKUkHDjxzck"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

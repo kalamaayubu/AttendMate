@@ -1,4 +1,3 @@
-import { sendNotification } from "@/lib/firebase/sendNotification";
 import { supabase } from "@/lib/supabase";
 import { ScheduleForm, StudentSchedule, StudentScheduleDetails } from "@/types";
 import { getCurrentLocation } from "@/utils/getLocation";
@@ -57,14 +56,23 @@ export const schedulesService = {
         };
       }
 
-      //  Send notification to all recipients
-      for (const token of FCMTokens) {
-        await sendNotification({
-          token,
-          title: "New Schedule Added",
-          body: `A new schedule for your course has been added.`,
-          data: { screen: "notifications" },
+      //  Send notification to all recipients via API route
+      if (FCMTokens.length > 0) {
+        const response = await fetch("../backend/app/api/sendNotification", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            tokens: FCMTokens,
+            title: "New Schedule Added",
+            body: `A new schedule for your course has been added.`,
+            data: { screen: "notifications" },
+          }),
         });
+
+        const notificationResult = await response.json();
+        console.log("Notification API result:", notificationResult);
       }
 
       return {

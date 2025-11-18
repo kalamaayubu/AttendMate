@@ -82,7 +82,7 @@ export default function AddSchedule() {
 
     const payload = {
       ...data,
-      // Always store dates & time in utc and display in local
+      // Store dates & time in utc and display in local
       startTime: dayjs(data.startTime).utc().format(),
       endTime: dayjs(data.endTime).utc().format(),
       instructorId: user?.id,

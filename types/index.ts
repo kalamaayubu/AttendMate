@@ -62,3 +62,10 @@ export interface StudentScheduleDetails extends StudentSchedule {
   instructorEmail: string;
   attendance: { id: string; student_id: string }[]; // ✅ array of objects
 }
+
+export type NotificationPayload = {
+  token: string;
+  title: string;
+  body: string;
+  data?: Record<string, string>;
+};
