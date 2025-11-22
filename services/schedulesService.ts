@@ -7,6 +7,7 @@ import haversine from "haversine-distance";
 export const schedulesService = {
   // Instructor: Adding a new schedule
   async addSchedule(schedule: ScheduleForm) {
+    console.log("SCHEDULEEEEE", schedule);
     // Fetch enrolled students device_id
     const { data: enrolledStudentsTokens, error: enrolledStudentsError } =
       await supabase
@@ -58,18 +59,21 @@ export const schedulesService = {
 
       //  Send notification to all recipients via API route
       if (FCMTokens.length > 0) {
-        const response = await fetch("../backend/app/api/sendNotification", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            tokens: FCMTokens,
-            title: "New Schedule Added",
-            body: `A new schedule for your course has been added.`,
-            data: { screen: "notifications" },
-          }),
-        });
+        const response = await fetch(
+          "http://172.16.206.207:3000/api/sendNotification",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              tokens: FCMTokens,
+              title: "New Schedule Added",
+              body: `A new schedule for your course has been added.`,
+              data: { screen: "notifications" },
+            }),
+          }
+        );
 
         const notificationResult = await response.json();
         console.log("Notification API result:", notificationResult);

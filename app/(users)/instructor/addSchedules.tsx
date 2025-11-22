@@ -79,6 +79,7 @@ export default function AddSchedule() {
 
     console.log("🕒 Submitted Start Time:", data.startTime);
     console.log("🕓 Submitted End Time:", data.endTime);
+    console.log("scheduleeeeee", data);
 
     const payload = {
       ...data,
