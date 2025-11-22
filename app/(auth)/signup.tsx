@@ -79,8 +79,8 @@ export default function Signup() {
           keyboardShouldPersistTaps="handled"
         >
           <View className="p-6 bg-white">
-            <View className="w-10 h-10 bg-gray-400 self-center mb-8 rounded-lg relative">
-              <View className="absolute bg-indigo-600/90 size-12 top-1/4 left-1/4 rounded-lg" />
+            <View className="w-10 h-10 bg-indigo-500/20 self-center mb-8 rounded-lg relative">
+              <View className="absolute bg-indigo-600/90 size-12 top-1/4 left-1/4 rounded-full" />
             </View>
             <Text className="text-2xl font-bold text-center mb-6 text-gray-800">
               Create Account

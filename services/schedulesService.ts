@@ -60,7 +60,7 @@ export const schedulesService = {
       //  Send notification to all recipients via API route
       if (FCMTokens.length > 0) {
         const response = await fetch(
-          "http://172.16.206.207:3000/api/sendNotification",
+          "https://attendmatebackend.netlify.app/.netlify/functions/sendNotification",
           {
             method: "POST",
             headers: {
