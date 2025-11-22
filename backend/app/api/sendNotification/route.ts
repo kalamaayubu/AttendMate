@@ -1,6 +1,11 @@
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
-import { NotificationPayload } from "../../../../types";
+type NotificationPayload = {
+  token: string;
+  title: string;
+  body: string;
+  data?: Record<string, string>;
+};
 
 async function sendNotification({
   token,
@@ -61,7 +66,7 @@ export async function POST(req: NextRequest) {
     if (!tokens || !Array.isArray(tokens)) {
       return NextResponse.json(
         { error: "Invalid or missing tokens array" },
-        { status: 400 }
+        { status: 400, headers: { "Access-Control-Allow-Origin": "*" } }
       );
     }
 
