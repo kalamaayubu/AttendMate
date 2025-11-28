@@ -1,4 +1,5 @@
 import * as LocalAuthentication from "expo-local-authentication";
+import { Linking, Platform } from "react-native";
 
 export async function requestBiometricPermission() {
   try {
@@ -11,14 +12,33 @@ export async function requestBiometricPermission() {
       };
     }
 
+    // CHECK THE BIOMETRICS SUPPORTED
+    const supportedTypes =
+      await LocalAuthentication.supportedAuthenticationTypesAsync();
+
+    const supportsFingerprint = supportedTypes.includes(
+      LocalAuthentication.AuthenticationType.FINGERPRINT
+    );
+
+    const supportsFace = supportedTypes.includes(
+      LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION
+    );
+
     // 2️⃣ Check if biometrics are enrolled (fingerprint or face registered)
     const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+    console.log(await LocalAuthentication.supportedAuthenticationTypesAsync());
+    console.log(await LocalAuthentication.isEnrolledAsync());
+
     if (!isEnrolled) {
-      return {
-        success: false,
-        message:
-          "No biometric credentials found. Please register your fingerprint or face ID first.",
-      };
+      let msg = "No biometrics enrolled.";
+
+      if (supportsFace && !supportsFingerprint) msg = "Please set up Face ID.";
+      if (!supportsFace && supportsFingerprint)
+        msg = "Please set up fingerprint.";
+      if (supportsFace && supportsFingerprint)
+        msg = "Please set up fingerprint or Face ID.";
+
+      return { success: false, message: msg };
     }
 
     // 3️⃣ Prompt for biometric authentication
@@ -36,7 +56,7 @@ export async function requestBiometricPermission() {
     } else if (result.error === "user_cancel") {
       return {
         success: false,
-        message: "Authentication canceled by user.",
+        message: "Could not proceed, you cancelled the authentication.",
       };
     } else if (result.error === "lockout") {
       return {
@@ -56,5 +76,14 @@ export async function requestBiometricPermission() {
       success: false,
       message: "An unexpected error occurred during biometric authentication.",
     };
+  }
+}
+
+// Helper function to open biometric registration settings
+export function openBiometricSettings() {
+  if (Platform.OS === "android") {
+    Linking.openSettings();
+  } else if (Platform.OS === "ios") {
+    Linking.openURL("App-Prefs:root=TOUCHID_PASSCODE");
   }
 }

@@ -46,7 +46,7 @@ export default function NotificationPermissionHandler() {
       const token = await requestPermissionsAndGetToken();
 
       if (token) {
-        // Send token to the backend
+        // Save the retrieved FCM token
         await notificationServices.saveToken(token, user.id);
       }
     })(); // Invoke the async function immediately: ()

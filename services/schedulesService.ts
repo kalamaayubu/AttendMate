@@ -348,18 +348,53 @@ export const schedulesService = {
   },
 
   // Student: Adding attendance
-  async markAttendance(studentId: string, scheduleId: string) {
+  async markAttendance(
+    studentId: string,
+    scheduleId: string,
+    deviceId: string
+  ) {
+    // 1. Fetch student saved device ID
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("physicalDeviceId")
+      .eq("id", studentId)
+      .single();
+
+    if (profileError) {
+      return { success: false, error: "Failed to verify device." };
+    }
+
+    // 🔵 CASE 1 — Student has NO saved device yet → REGISTER IT
+    if (!profile.physicalDeviceId) {
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ physicalDeviceId: deviceId })
+        .eq("id", studentId);
+
+      if (updateError) {
+        return { success: false, error: "Failed to save device." };
+      }
+      // Continue to mark attendance
+    }
+
+    // 🔴 CASE 2 — Student has a different device → DENY
+    if (profile.physicalDeviceId && profile.physicalDeviceId !== deviceId) {
+      return {
+        success: false,
+        error: "Your account is tied to another device.",
+      };
+    }
+
+    // 🟢 CASE 3 — Device matches → Allow attendance
     const { error } = await supabase.from("attendance").insert({
       student_id: studentId,
       schedule_id: scheduleId,
     });
 
     if (error) {
-      console.log("Error marking attendance", error.message);
-      return { success: false, error: error.message };
+      return { success: false, error: "Could not mark attendance." };
     }
 
-    console.log("Attendance successfully marked");
     return { success: true, message: "Attendance marked successfully!" };
   },
 };

@@ -18,6 +18,8 @@ import Toast from "react-native-toast-message";
 
 // dayjs for time conversions
 import { RootState } from "@/redux/store";
+import { getDeviceId } from "@/utils/auth/getDeviceId";
+import { getUserDeviceId } from "@/utils/auth/getUserDeviceId";
 import dayjs from "dayjs";
 import calendar from "dayjs/plugin/calendar";
 import localizedFormat from "dayjs/plugin/localizedFormat";
@@ -34,6 +36,9 @@ export default function ScheduleDetails() {
   const [loading, setLoading] = useState(true);
   const [openInstructions, setOpenInstructions] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [savedDeviceId, setSavedDeviceId] = useState<string | null>(null); // Unique identification of device
+  const [deviceIdLoaded, setDeviceIdLoaded] = useState(false);
+
   const [locationCheck, setLocationCheck] = useState<{
     success: boolean;
     isWithin?: boolean;
@@ -91,6 +96,30 @@ export default function ScheduleDetails() {
     checkLocation();
   }, [scheduleId]);
 
+  // Get the device id
+  useEffect(() => {
+    const fetchDevice = async () => {
+      if (!student) return;
+
+      const id = await getUserDeviceId(student.id);
+
+      setSavedDeviceId(id); // can be null, "", or string
+      setDeviceIdLoaded(true); // loading finished regardless
+    };
+
+    fetchDevice();
+  }, [student]);
+
+  // Loading state if device id is not yet loaded
+  if (!deviceIdLoaded) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center bg-gray-50">
+        <ActivityIndicator size="large" color="#6366f1" />
+        <Text className="mt-1 text-gray-500">Verifying device...</Text>
+      </SafeAreaView>
+    );
+  }
+
   // Show loading state
   if (loading) {
     return (
@@ -105,7 +134,7 @@ export default function ScheduleDetails() {
   if (!scheduleDetails) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-gray-50">
-        <Text className="text-gray-500">No details available.</Text>
+        <Text className="text-gray-500 text-xl">No details available.</Text>
       </SafeAreaView>
     );
   }
@@ -133,14 +162,29 @@ export default function ScheduleDetails() {
   // Location check
   const isWithinVenueLocation = locationCheck?.isWithin ?? false;
 
+  /**
+   * Ensure user can only mark attendance with just their device
+   * A device(through the device_id) is bound to a single user(attendant)
+   **/
+
+  // 1. Get the loged in userID and deviceID,
+  const deviceId = getDeviceId();
+  console.log("THE DEVICE ID:", deviceId);
+  console.log("THE SAVED DEVICE ID:", savedDeviceId);
+  const isTheOwner =
+    savedDeviceId === null || // first time user → allow
+    savedDeviceId === deviceId; // already registered device → must match
+
   // Attendance marking conditions met
-  const canMarkAttendance = isWithinScheduleTime && isWithinVenueLocation;
+  const canMarkAttendance =
+    isWithinScheduleTime && isWithinVenueLocation && isTheOwner;
 
   // Determine why student cannot mark attendance
   const reasons: string[] = [];
   if (!isWithinScheduleTime)
     reasons.push("The class time has not started or has already ended.");
   if (!isWithinVenueLocation) reasons.push("You are not in the class venue.");
+  if (!isTheOwner) reasons.push("Your account is not bound to this device.");
 
   const reason = reasons.join(" ");
 

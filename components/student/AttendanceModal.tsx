@@ -1,8 +1,11 @@
 import { RootState } from "@/redux/store";
 import { schedulesService } from "@/services/schedulesService";
-import { requestBiometricPermission } from "@/utils/biometricAuth"; // adjust path as needed
+import { getDeviceId } from "@/utils/auth/getDeviceId";
+import {
+  openBiometricSettings,
+  requestBiometricPermission,
+} from "@/utils/biometricAuth"; // adjust path as needed
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
 import React, { useState } from "react";
 import { Modal, Pressable, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
@@ -19,8 +22,8 @@ export default function AttendanceModal({
   onClose,
   scheduleId,
 }: AttendanceModalProps) {
+  const [needsEnrollment, setNeedsEnrollment] = useState(false);
   const [attendanceResult, setAttendanceResult] = useState<null | string>(null);
-  // Get student id from the store
   const student = useSelector((state: RootState) => state.user.user);
 
   // Function to add attendance marked by student
@@ -29,13 +32,24 @@ export default function AttendanceModal({
     const biometric = await requestBiometricPermission();
 
     if (!biometric.success) {
-      setAttendanceResult(biometric.message);
+      if (biometric.message.includes("No biometric credentials")) {
+        setNeedsEnrollment(true);
+      } else {
+        setAttendanceResult(biometric.message);
+      }
       return;
     }
 
     // 🔹 If biometrics succeed, mark attendance
     if (!student) return;
-    const res = await schedulesService.markAttendance(student?.id, scheduleId);
+
+    // Get device id
+    const deviceId = getDeviceId();
+    const res = await schedulesService.markAttendance(
+      student?.id,
+      scheduleId,
+      deviceId
+    );
 
     if (!res.success) {
       setAttendanceResult("Failed to mark attendance. Try again.");
@@ -53,8 +67,6 @@ export default function AttendanceModal({
       type: "success",
       text1: "Attendance marked successfully",
     });
-
-    router.reload();
   };
   const handleClose = () => {
     setAttendanceResult(null);
@@ -73,7 +85,7 @@ export default function AttendanceModal({
       <View className="flex-1 absolute bottom-0 w-full justify-center items-center">
         <View className="bg-white rounded-t-3xl pt-4 p-6 pb-16 py-8 w-full">
           <View className="items-center mt-6">
-            {attendanceResult ? (
+            {attendanceResult || needsEnrollment ? (
               ""
             ) : (
               <>
@@ -86,6 +98,26 @@ export default function AttendanceModal({
               </>
             )}
           </View>
+
+          {/* When device has no biometric registered */}
+          {needsEnrollment && (
+            <View className="flex flex-col items-center justify-center">
+              <Ionicons name="finger-print" size={80} color="#f59e0b" />
+              <Text className="text-xl font-semibold mt-4 text-orange-500">
+                No Biometrics Found
+              </Text>
+              <Text className="text-gray-500 mt-2 mb-6 text-center">
+                You need to register biometrics (fingerprint/Face ID) to mark
+                attendance.
+              </Text>
+              <Pressable
+                className="px-8 py-3 rounded-full bg-indigo-500"
+                onPress={() => openBiometricSettings()}
+              >
+                <Text className="text-white">Open Settings</Text>
+              </Pressable>
+            </View>
+          )}
 
           {attendanceResult && (
             <View className="items-center mb-6">
@@ -114,9 +146,9 @@ export default function AttendanceModal({
           )}
 
           <View className="items-center mt-6">
-            {!attendanceResult && (
+            {!attendanceResult && !needsEnrollment && (
               <Pressable
-                className="px-6 py-2 rounded-full bg-green-600"
+                className="px-8 py-3 mb-4 rounded-full bg-green-600"
                 onPress={handleMarkAttendance}
               >
                 <Text className="text-white">Verify Identity</Text>

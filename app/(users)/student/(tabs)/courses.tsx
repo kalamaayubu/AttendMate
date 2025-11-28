@@ -255,9 +255,9 @@ export default function Courses() {
             {/* Modal content goes here */}
             {/* Header */}
             <View className="items-center mb-4">
-              <View className="w-20 h-1.5 bg-gray-300 rounded-full mb-3" />
-              <Text className="text-xl font-bold text-gray-800">
-                Choose Courses to Enroll
+              <View className="w-20 h-2 mt-2 bg-gray-300 rounded-full mb-3" />
+              <Text className="text-2xl font-bold text-gray-800">
+                Choose Course
               </Text>
             </View>
 

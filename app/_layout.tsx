@@ -46,7 +46,7 @@ export default function RootLayout() {
         <PersistGate
           loading={
             <View className="flex-1 justify-center items-center">
-              <ActivityIndicator size="large" color="#6366f1" />
+              <ActivityIndicator size={60} color="#6366f1" />
             </View>
           }
           persistor={persistor}

@@ -72,7 +72,7 @@ export const SelectCourseModal = ({
       >
         {/* Header */}
         <View className="flex-row justify-between items-center mb-2">
-          <Text className="text-xl font-semibold text-gray-800">
+          <Text className="text-2xl font-semibold text-gray-800">
             Select a Course
           </Text>
           <TouchableOpacity onPress={onClose}>
@@ -144,7 +144,7 @@ export const SelectCourseModal = ({
             <TouchableOpacity
               disabled={!selectedId || adding}
               onPress={handleAddPress}
-              className={`mt-4 py-3 rounded-full flex-row items-center justify-center ${
+              className={`mt-4 mb-10 py-3 rounded-full flex-row items-center justify-center ${
                 selectedId && !adding ? "bg-indigo-500" : "bg-gray-300"
               }`}
             >
