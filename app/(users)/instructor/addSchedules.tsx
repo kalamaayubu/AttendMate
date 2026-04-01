@@ -210,6 +210,7 @@ export default function AddSchedule() {
             name="endTime"
             label="End Time"
             timeOnly
+            timeBaseFieldName="startTime"
             rules={{
               required: "End time is required",
               validate: (value: any, formValues: any) => {

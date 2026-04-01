@@ -1,5 +1,7 @@
 import CustomHeader from "@/components/general/CustomHeader";
 import CustomRefreshControl from "@/components/general/RefreshControl";
+import ScheduleTimelineItem from "@/components/instructor/ScheduleTimelineItem";
+import ScheduleTimelineSectionHeader from "@/components/instructor/ScheduleTimelineSectionHeader";
 import { RootState } from "@/redux/store";
 import { schedulesService } from "@/services/schedulesService";
 import { getCurrentLocation } from "@/utils/getLocation";
@@ -9,8 +11,8 @@ import { router } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  FlatList,
   ScrollView,
+  SectionList,
   Text,
   TouchableOpacity,
   View,
@@ -30,7 +32,7 @@ export default function Schedules() {
   // Derive unique courses from schedules
   const courses = useMemo(() => {
     const setObj = new Set(
-      schedules.map((s) => s.course?.course_code).filter(Boolean)
+      schedules.map((s) => s.course?.course_code).filter(Boolean),
     );
     return Array.from(setObj);
   }, [schedules]);
@@ -40,6 +42,40 @@ export default function Schedules() {
     if (!selectedCourse) return schedules;
     return schedules.filter((s) => s.course?.course_code === selectedCourse);
   }, [schedules, selectedCourse]);
+
+  const scheduleSections = useMemo(() => {
+    const weekdayOrder = [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ];
+
+    const map = new Map<string, any[]>();
+
+    for (const s of filteredSchedules) {
+      const dayName = dayjs(s.start_time).format("dddd"); // "Monday" etc
+      const list = map.get(dayName) ?? [];
+      list.push(s);
+      map.set(dayName, list);
+    }
+
+    const sections = Array.from(map.entries()).map(([dayName, data]) => {
+      // Keep the actual date inside the card; header is day name only.
+      const sorted = [...data].sort(
+        (a, b) => dayjs(a.start_time).valueOf() - dayjs(b.start_time).valueOf(),
+      );
+      return { key: dayName, title: dayName, data: sorted };
+    });
+
+    sections.sort(
+      (a, b) => weekdayOrder.indexOf(a.key) - weekdayOrder.indexOf(b.key),
+    );
+    return sections;
+  }, [filteredSchedules]);
 
   // Helper to fetch instructor schedules
   const fetchInstructorSchedules = useCallback(async () => {
@@ -64,7 +100,7 @@ export default function Schedules() {
     } catch (error: any) {
       console.error(
         "Error occured fetching instructor schedules",
-        error.message
+        error.message,
       );
       Toast.show({
         type: "error",
@@ -98,7 +134,7 @@ export default function Schedules() {
     const res = await schedulesService.startSession(
       scheduleId,
       latitude,
-      longitude
+      longitude,
     );
 
     if (res?.success) {
@@ -127,170 +163,116 @@ export default function Schedules() {
           <Text className="text-gray-700 mt-2">Loading schedules...</Text>
         </View>
       ) : (
-        <FlatList
-          data={filteredSchedules}
-          keyExtractor={(item) =>
-            item.id?.toString() || Math.random().toString()
-          }
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingBottom: 100,
-            paddingHorizontal: 20,
-          }}
-          renderItem={({ item }) => (
-            // Schedule
-            <View
-              className=" items-center rounded-2xl bg-white p-4 mb-3 shadow-sm border border-gray-100"
-              style={{
-                elevation: 2,
-                shadowColor: "#000",
-                shadowOpacity: 0.05,
-                shadowOffset: { width: 0, height: 2 },
-                shadowRadius: 4,
-              }}
-            >
-              <View className="flex-row items-center">
-                <View
-                  className="rounded-full p-3 mr-3"
-                  style={{ backgroundColor: "#6366f1" + "20" }}
-                >
-                  <Ionicons
-                    name="calendar-outline"
-                    size={20}
-                    color={"#6366f1"}
-                  />
-                </View>
+        <View className="flex-1">
+          {/* Global far-left timeline line */}
+          <View />
 
-                <View className="flex-1">
-                  <Text className="text-gray-900 font-semibold">
-                    {item.course?.course_code}
-                  </Text>
-                  <Text className="text-gray-700">
-                    {item.course?.course_name}
-                  </Text>
-                  <Text className="text-gray-500 text-sm mt-1">
-                    {`${dayjs(item.start_time).format(
-                      "ddd, MMM D • h:mm A"
-                    )} - ${dayjs(item.end_time).format("h:mm A")}`}
-                  </Text>
-                </View>
-
-                <TouchableOpacity
-                  onPress={() =>
-                    setOpenItemId(openItemId === item.id ? null : item.id)
-                  }
-                >
-                  <Ionicons
-                    name="chevron-forward"
-                    size={18}
-                    color={"gray"}
-                    className={`rounded-full p-2 ${
-                      openItemId === item.id ? "rotate-90" : ""
-                    }`}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              {/* Expanded Section */}
-              {openItemId === item.id && (
-                <View className="mt-2 w-full border-t border-gray-100">
-                  <View className="flex-row items-center mt-2 mb-2">
-                    <Ionicons name="location-outline" size={16} color="gray" />
-                    <Text className="ml-1 text-gray-700">{item.venue}</Text>
+          <SectionList
+            sections={scheduleSections}
+            keyExtractor={(item) => item.id?.toString() ?? ""}
+            stickySectionHeadersEnabled
+            renderSectionHeader={({ section }) => (
+              <ScheduleTimelineSectionHeader title={section.title} />
+            )}
+            renderItem={({ item, index, section }) => (
+              <ScheduleTimelineItem
+                item={item}
+                isOpen={openItemId === item.id}
+                isLastInSection={index === section.data.length - 1}
+                onToggleOpen={() =>
+                  setOpenItemId(openItemId === item.id ? null : item.id)
+                }
+                onStartSession={handleStartSession}
+              />
+            )}
+            refreshControl={
+              <CustomRefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+              />
+            }
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingBottom: 100,
+            }}
+            ListHeaderComponent={
+              <View className="mb-6 mt-4 p-5 rounded-xl">
+                <View className="flex-row items-center gap-3 mb-2">
+                  <View className="bg-black p-2 rounded-xl">
+                    <Ionicons name="time-outline" size={22} color="white" />
                   </View>
+                  <Text className="text-2xl font-bold text-gray-800">
+                    Manage your schedules
+                  </Text>
+                </View>
 
-                  <TouchableOpacity
-                    onPress={() => handleStartSession(item.id)}
-                    className="mt-2 bg-indigo-500/95 py-2 rounded-full"
-                  >
-                    <Text className="text-white text-center font-semibold">
-                      Start session
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-          )}
-          refreshControl={
-            <CustomRefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-            />
-          }
-          ListHeaderComponent={
-            <View className="mb-6 mt-4 p-5 rounded-xl">
-              <View className="flex-row items-center gap-3 mb-2">
-                <View className="bg-black p-2 rounded-xl">
-                  <Ionicons name="time-outline" size={22} color="white" />
-                </View>
-                <Text className="text-2xl font-bold text-gray-800">
-                  Manage your schedules
+                <Text className="text-lg text-gray-800">
+                  Tap the{" "}
+                  <Text className="text-indigo-500 font-bold text-xl">＋</Text>{" "}
+                  button on the bottom right to create a new class schedule
                 </Text>
-              </View>
 
-              <Text className="text-lg text-gray-800">
-                Tap the{" "}
-                <Text className="text-indigo-500 font-bold text-xl">＋</Text>{" "}
-                button on the bottom right to create a new class schedule
-              </Text>
-
-              {/* Chips row */}
-              {courses.length > 0 && (
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  className="flex-row gap-8 mt-8"
-                >
-                  {/* Optional "All" chip */}
-                  <TouchableOpacity
-                    onPress={() => setSelectedCourse(null)}
-                    className={`px-4 py-2 mr-4 rounded-full border ${
-                      selectedCourse === null
-                        ? "bg-indigo-500 border-indigo-500"
-                        : "bg-gray-100 border-gray-300"
-                    }`}
-                  >
-                    <Text
-                      className={`${
-                        selectedCourse === null ? "text-white" : "text-gray-700"
-                      }`}
+                {/* Filter strip */}
+                {courses.length > 0 && (
+                  <View className="mt-8 bg-red-600 rounded-2xl px-3 py-2">
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
                     >
-                      All
-                    </Text>
-                  </TouchableOpacity>
-
-                  {courses.map((course) => {
-                    const active = selectedCourse === course;
-                    return (
+                      {/* Optional "All" chip */}
                       <TouchableOpacity
-                        key={course}
-                        onPress={() => setSelectedCourse(course)}
-                        className={`px-4 py-2 mr-4 rounded-full border ${
-                          active
+                        onPress={() => setSelectedCourse(null)}
+                        className={`px-6 py-2 mr-3 rounded-full border ${
+                          selectedCourse === null
                             ? "bg-indigo-500 border-indigo-500"
-                            : "bg-gray-100 border-gray-300"
+                            : "bg-white border-gray-300"
                         }`}
                       >
                         <Text
                           className={`${
-                            active ? "text-white" : "text-gray-700"
+                            selectedCourse === null
+                              ? "text-white"
+                              : "text-gray-700"
                           }`}
                         >
-                          {course}
+                          All
                         </Text>
                       </TouchableOpacity>
-                    );
-                  })}
-                </ScrollView>
-              )}
-            </View>
-          }
-          ListEmptyComponent={
-            <View className="flex-1 items-center justify-center py-40">
-              <Text className="text-gray-500">No schedules found.</Text>
-            </View>
-          }
-        />
+
+                      {courses.map((course) => {
+                        const active = selectedCourse === course;
+                        return (
+                          <TouchableOpacity
+                            key={course}
+                            onPress={() => setSelectedCourse(course)}
+                            className={`px-4 py-2 mr-3 rounded-full border ${
+                              active
+                                ? "bg-indigo-500 border-indigo-500"
+                                : "bg-white border-gray-300"
+                            }`}
+                          >
+                            <Text
+                              className={`${
+                                active ? "text-white" : "text-gray-700"
+                              }`}
+                            >
+                              {course}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </ScrollView>
+                  </View>
+                )}
+              </View>
+            }
+            ListEmptyComponent={
+              <View className="flex-1 items-center justify-center py-40">
+                <Text className="text-gray-500">No schedules found.</Text>
+              </View>
+            }
+          />
+        </View>
       )}
 
       {/* Floating Add Button */}

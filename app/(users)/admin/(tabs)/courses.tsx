@@ -48,8 +48,6 @@ export default function Courses() {
     },
   ]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [newCourseName, setNewCourseName] = useState("");
-  const [newCourseCode, setNewCourseCode] = useState("");
 
   const filters = ["All", "CS", "AI", "Math", "Design"];
 
@@ -78,6 +76,15 @@ export default function Courses() {
     }
 
     setIsModalVisible(false);
+    setCourses((prev) => [
+      {
+        id: `${Date.now()}`,
+        name: data.course_name,
+        code: data.course_code,
+        category: "CS",
+      },
+      ...prev,
+    ]);
     Toast.show({
       type: "success",
       text1: "Course added successfully!",
@@ -88,78 +95,70 @@ export default function Courses() {
     <>
       <CustomHeader title="Courses" />
 
-      <SafeAreaView className="flex-1 bg-white">
-        {/* --- Page Description + Search & Filters --- */}
-        <View className="px-6 pb-3 border-b border-gray-100 bg-white">
-          <View className="mb-6 p-5 bg-green-50 rounded-2xl border border-green-100 shadow-sm">
-            <View className="flex-row items-center gap-3 mb-1">
-              <Ionicons name="library-outline" size={22} color="#16a34a" />
-              <Text className="text-lg font-semibold text-gray-800">
-                Manage Courses
-              </Text>
-            </View>
-            <Text className="text-gray-600">
-              Filter, search, or add new courses offered in your institution.
-            </Text>
-          </View>
-
-          {/* --- Search Bar --- */}
-          <View className="flex-row items-center bg-gray-50 border border-gray-200 rounded-xl px-3 py-1 mb-3">
-            <Ionicons name="search" size={18} color="#6B7280" />
-            <TextInput
-              placeholder="Search courses..."
-              placeholderTextColor="#9CA3AF"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              className="flex-1 ml-2 text-gray-800"
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery("")}>
-                <Ionicons name="close-circle" size={18} color="#9CA3AF" />
-              </TouchableOpacity>
-            )}
-          </View>
-
-          {/* --- Filter Chips --- */}
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={filters}
-            keyExtractor={(item) => item}
-            contentContainerStyle={{ paddingVertical: 4 }}
-            renderItem={({ item }) => {
-              const isActive = selectedFilter === item;
-              return (
+      <SafeAreaView className="flex-1" style={{ backgroundColor: "#F9FAFB" }}>
+        {/* Header + search + filters */}
+        <View className=" pb-4">
+          <View className="bg-white border border-gray-100 rounded-2xl p-5 pt-0 shadow-sm">
+            <View className="mt-4 flex-row items-center  border border-gray-200 rounded-2xl px-4 py-1">
+              <Ionicons name="search" size={18} color="#6B7280" />
+              <TextInput
+                placeholder="Search courses..."
+                placeholderTextColor="#9CA3AF"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                className="flex-1 ml-3 text-gray-900 font-semibold"
+              />
+              {searchQuery.length > 0 && (
                 <TouchableOpacity
-                  onPress={() => setSelectedFilter(item)}
-                  activeOpacity={0.8}
-                  className={`mr-3 px-8 py-2 rounded-full border ${
-                    isActive
-                      ? "bg-green-600 border-green-600"
-                      : "bg-white border-gray-200"
-                  }`}
+                  onPress={() => setSearchQuery("")}
+                  hitSlop={10}
                 >
-                  <Text
-                    className={`text-sm font-medium ${
-                      isActive ? "text-white" : "text-gray-700"
+                  <Ionicons name="close-circle" size={18} color="#9CA3AF" />
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {/* Filter chips (horizontal) */}
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={filters}
+              keyExtractor={(item) => item}
+              contentContainerStyle={{ paddingTop: 14 }}
+              renderItem={({ item }) => {
+                const isActive = selectedFilter === item;
+                return (
+                  <TouchableOpacity
+                    onPress={() => setSelectedFilter(item)}
+                    activeOpacity={0.85}
+                    className={`mr-3 px-5 py-2 rounded-full border ${
+                      isActive
+                        ? "bg-indigo-600 border-indigo-600"
+                        : "bg-white border-gray-200"
                     }`}
                   >
-                    {item}
-                  </Text>
-                </TouchableOpacity>
-              );
-            }}
-          />
+                    <Text
+                      className={`text-sm font-extrabold ${
+                        isActive ? "text-white" : "text-gray-700"
+                      }`}
+                    >
+                      {item}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          </View>
         </View>
 
-        {/* --- Courses List --- */}
+        {/* Vertical list only */}
         <FlatList
+          key="admin-courses-vertical"
           data={filteredCourses}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingHorizontal: 20,
-            paddingTop: 16,
             paddingBottom: 140,
           }}
           ListEmptyComponent={() => (
@@ -172,21 +171,42 @@ export default function Courses() {
           )}
           renderItem={({ item }) => (
             <TouchableOpacity
-              activeOpacity={0.85}
-              className="mb-4 bg-white border border-gray-100 rounded-2xl p-5 flex-row justify-between items-center shadow-[0_2px_6px_rgba(0,0,0,0.04)]"
+              activeOpacity={0.92}
+              className="bg-white border border-gray-100 rounded-2xl p-5 mb-4 shadow-sm"
+              style={{ elevation: 1 }}
               onPress={() => console.log(`Open course: ${item.name}`)}
             >
-              <View className="flex-1 pr-4">
-                <Text className="text-gray-800 font-semibold text-[16px] tracking-tight">
-                  {item.name}
-                </Text>
-                <Text className="text-gray-500 text-[13px] mt-1 font-medium">
-                  {item.code}
-                </Text>
-              </View>
+              <View className="flex-row items-center">
+                {/* Image placeholder */}
+                <View
+                  className="rounded-2xl bg-indigo-500/10 border border-indigo-500/20"
+                  style={{ width: 72, height: 56 }}
+                />
 
-              <View className="bg-green-50 rounded-full p-2">
-                <Ionicons name="chevron-forward" size={18} color="#16a34a" />
+                <View className="flex-1 ml-4">
+                  <Text
+                    className="text-indigo-700 text-lg font-extrabold"
+                    numberOfLines={1}
+                  >
+                    {item.name}
+                  </Text>
+                  <Text className="text-gray-600 font-semibold mt-1">
+                    {item.code} • {item.category}
+                  </Text>
+
+                  <View className="flex-row items-center mt-3">
+                    <Text className="text-gray-500 text-xs font-semibold">
+                      Enrollments: —
+                    </Text>
+                    <View className="ml-3 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+                      <Text className="text-green-700 text-xs font-extrabold">
+                        Active
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                <Ionicons name="chevron-forward" size={18} color="#6B7280" />
               </View>
             </TouchableOpacity>
           )}
@@ -196,8 +216,9 @@ export default function Courses() {
         <TouchableOpacity
           activeOpacity={0.85}
           onPress={() => setIsModalVisible(true)}
-          className="absolute bottom-8 right-6  bg-indigo-500/90 w-14 h-14 rounded-full items-center justify-center"
+          className="absolute right-6 bg-indigo-500/90 w-14 h-14 rounded-full items-center justify-center"
           style={{
+            bottom: 106,
             shadowColor: "#000",
             shadowOpacity: 0.2,
             shadowOffset: { width: 0, height: 3 },

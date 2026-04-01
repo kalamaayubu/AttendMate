@@ -8,7 +8,7 @@ import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  FlatList,
+  ScrollView,
   Text,
   TouchableOpacity,
   View,
@@ -89,104 +89,161 @@ export default function ReportsPage() {
           <Text className="text-gray-700 mt-2">Loading courses...</Text>
         </View>
       ) : (
-        <FlatList
-          data={courses}
-          style={{ marginBottom: 0 }}
-          contentContainerStyle={{
-            paddingHorizontal: 16,
-          }}
-          renderItem={({ item }) => (
-            <View className=" items-center rounded-2xl bg-white p-4 mb-4 shadow-sm border border-gray-100">
-              <View className="flex-row items-center">
-                <View
-                  className="rounded-xl p-3 mr-3"
-                  style={{ backgroundColor: "#6366f1" + "20" }}
-                >
-                  <Ionicons name="book-outline" size={18} color={"#6366f1"} />
-                </View>
-
-                <View className="flex-1">
-                  <Text className="text-gray-900 font-semibold">
-                    {item.code}
-                  </Text>
-                  <Text className="text-gray-700">{item.name}</Text>
-                </View>
-
-                <TouchableOpacity
-                  onPress={() =>
-                    setOpenItemId(openItemId === item.id ? null : item.id)
-                  }
-                >
-                  <Ionicons
-                    name="chevron-forward"
-                    size={18}
-                    color={"gray"}
-                    className={`rounded-full p-2 ${
-                      openItemId === item.id ? "rotate-90" : ""
-                    }`}
-                  />
-                </TouchableOpacity>
-              </View>
-
-              {/* Expanded Section */}
-              {openItemId === item.id && (
-                <View className="mt-2 w-full border-t border-gray-100">
-                  <View className="flex-row items-center mt-2 mb-2">
-                    <Ionicons name="people-outline" size={18} color="gray" />
-                    <Text className="ml-1 text-gray-500">
-                      Enrolled students: {item.students}
-                    </Text>
-                  </View>
-
-                  <TouchableOpacity
-                    onPress={() => handleGenerateReport(item.id)}
-                    disabled={isGeneratingReportData}
-                    className="mt-2 bg-indigo-500/95 py-2 rounded-full"
-                  >
-                    <View className="flex-row gap-2 items-center justify-center">
-                      {isGeneratingReportData ? (
-                        <>
-                          <ActivityIndicator color={"white"} size={16} />
-                          <Text className="text-white text-center font-semibold">
-                            Generating Report
-                          </Text>
-                        </>
-                      ) : (
-                        <Text className="text-white text-center font-semibold">
-                          Generate Report
-                        </Text>
-                      )}
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-          )}
-          ListHeaderComponent={
-            <View className="mb-6 mt-4 p-5 rounded-xl">
-              <View className="flex-row items-center gap-3 mb-2">
-                <View className="bg-black p-2 rounded-xl">
-                  <Ionicons name="document-outline" size={22} color="white" />
-                </View>
-                <Text className="text-2xl font-bold text-gray-800">
-                  Want to generate report?
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
+          refreshControl={
+            <CustomRefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
+          {/* Top row: full-width primary metrics */}
+          <View className="mt-4 rounded-2xl bg-indigo-600 p-5 shadow-sm">
+            <View className="flex-row items-center justify-between">
+              <View>
+                <Text className="text-white/80 text-xs font-semibold">
+                  PRIMARY METRICS
+                </Text>
+                <Text className="text-white text-2xl font-extrabold mt-2">
+                  Reports Overview
                 </Text>
               </View>
-
-              <Text className="text-gray-600 text-lg">
-                {courses.length > 0
-                  ? "Click the arrow on the course you want to generate report for."
-                  : "You haven’t taken any courses yet. Tap the + button to get started."}
-              </Text>
+              <View className="h-12 w-12 rounded-2xl bg-white/15 items-center justify-center">
+                <Ionicons name="analytics-outline" size={22} color="white" />
+              </View>
             </View>
-          }
-          refreshControl={
-            <CustomRefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-            />
-          }
-        />
+
+            <View className="flex-row mt-6">
+              <View className="flex-1">
+                <Text className="text-white/80 text-xs font-semibold">
+                  Courses
+                </Text>
+                <Text className="text-white text-3xl font-extrabold mt-1">
+                  {courses.length}
+                </Text>
+              </View>
+              <View className="flex-1">
+                <Text className="text-white/80 text-xs font-semibold">
+                  Total Enrolled
+                </Text>
+                <Text className="text-white text-3xl font-extrabold mt-1">
+                  {courses.reduce((sum: number, c: any) => sum + (c.students ?? 0), 0)}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Middle row: 2-column bento tiles */}
+          <View className="flex-row mt-4">
+            <View
+              className="flex-1 mr-2 rounded-2xl bg-white border border-gray-100 p-5 shadow-sm"
+              style={{ elevation: 2 }}
+            >
+              <Text className="text-gray-500 text-xs font-semibold">
+                AVG ENROLLED
+              </Text>
+              <Text className="text-gray-900 text-4xl font-extrabold mt-2 text-center">
+                {courses.length > 0
+                  ? Math.round(
+                      courses.reduce((sum: number, c: any) => sum + (c.students ?? 0), 0) /
+                        courses.length
+                    )
+                  : 0}
+              </Text>
+              <View className="mt-3 self-center px-3 py-1 rounded-full bg-green-500/15 border border-green-500/20">
+                <Text className="text-green-700 text-xs font-extrabold">
+                  Healthy
+                </Text>
+              </View>
+            </View>
+
+            <View
+              className="flex-1 ml-2 rounded-2xl bg-white border border-gray-100 p-5 shadow-sm"
+              style={{ elevation: 2 }}
+            >
+              <Text className="text-gray-500 text-xs font-semibold">
+                READY TO GENERATE
+              </Text>
+              <Text className="text-gray-900 text-4xl font-extrabold mt-2 text-center">
+                {courses.length}
+              </Text>
+              <View className="mt-3 self-center px-3 py-1 rounded-full bg-green-500/15 border border-green-500/20">
+                <Text className="text-green-700 text-xs font-extrabold">
+                  Good
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Bottom row: Detailed Insights + course actions */}
+          <View
+            className="mt-4 rounded-2xl bg-gray-100 border border-gray-200 p-5"
+            style={{ elevation: 1 }}
+          >
+            <View className="flex-row items-center justify-between">
+              <View>
+                <Text className="text-indigo-600 text-xs font-semibold">
+                  DETAILED INSIGHTS
+                </Text>
+                <Text className="text-gray-900 text-xl font-extrabold mt-1">
+                  Generate by Course
+                </Text>
+              </View>
+              <Ionicons name="document-text-outline" size={20} color="#6366f1" />
+            </View>
+
+            <View className="mt-4">
+              {courses.map((c: any) => {
+                const isOpen = openItemId === c.id;
+                return (
+                  <View
+                    key={c.id}
+                    className="bg-white border border-gray-200 rounded-2xl p-4 mb-3"
+                  >
+                    <TouchableOpacity
+                      onPress={() => setOpenItemId(isOpen ? null : c.id)}
+                      className="flex-row items-center"
+                    >
+                      <View className="h-10 w-10 rounded-xl bg-indigo-500/10 items-center justify-center">
+                        <Ionicons name="book-outline" size={18} color="#6366f1" />
+                      </View>
+                      <View className="flex-1 ml-3">
+                        <Text className="text-indigo-600 font-extrabold">
+                          {c.code}
+                        </Text>
+                        <Text className="text-gray-700 font-semibold">
+                          {c.name}
+                        </Text>
+                        <Text className="text-gray-500 text-xs mt-1">
+                          Enrolled: {c.students}
+                        </Text>
+                      </View>
+                      <Ionicons
+                        name="chevron-forward"
+                        size={18}
+                        color="gray"
+                        className={`${isOpen ? "rotate-90" : ""}`}
+                      />
+                    </TouchableOpacity>
+
+                    {isOpen && (
+                      <View className="mt-3">
+                        <TouchableOpacity
+                          onPress={() => handleGenerateReport(c.id)}
+                          disabled={isGeneratingReportData}
+                          className="bg-indigo-500/95 py-2 rounded-full"
+                        >
+                          <Text className="text-white text-center font-semibold">
+                            {isGeneratingReportData ? "Generating..." : "Generate Report"}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        </ScrollView>
       )}
     </SafeAreaView>
   );

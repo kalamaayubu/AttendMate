@@ -64,7 +64,7 @@ export default function NotificationPermissionHandler() {
               remoteMessage.notification?.body ??
               String(
                 remoteMessage.data?.body ??
-                  "You have a new update. Please check it out."
+                  "You have a new update. Please check it out.",
               ),
             data: remoteMessage.data ?? {},
             sound: "default",
@@ -72,7 +72,7 @@ export default function NotificationPermissionHandler() {
           },
           trigger: null,
         });
-      }
+      },
     );
 
     // ✅ Handle notification tap (background or foreground)

@@ -59,7 +59,7 @@ export default function Login() {
           email: user.email || "", // Ensure email is a string
           role: user.user_metadata?.role || "member", // Default to 'member' if role is missing
           full_name: user.user_metadata.full_name || null,
-        })
+        }),
       ); // Set the user in Redux
       await redirectBasedOnRole(); // Redirect based on the role
     }
@@ -80,8 +80,11 @@ export default function Login() {
             <View className="w-10 h-10 bg-indigo-500/20 self-center mb-8 rounded-lg relative">
               <View className="absolute bg-indigo-600/90 size-12 top-1/4 left-1/4 rounded-full" />
             </View>
-            <Text className="text-2xl font-bold text-center mb-6 text-gray-800">
-              Log In
+            <Text className="text-4xl font-bold text-center mb-2 text-gray-800">
+              AttendMate
+            </Text>
+            <Text className="text-lg text-center mb-10 text-gray-400">
+              Welcome back, login to your account
             </Text>
 
             {/* Email */}
@@ -107,7 +110,7 @@ export default function Login() {
                     onChangeText={onChange}
                     className={`${
                       errors.email && "border-red-500"
-                    } border border-gray-300 rounded-full px-6 py-3 mb-4`}
+                    } border-b border-gray-500 mb-6`}
                   />
                   {errors.email && (
                     <Text className="text-red-500 text-sm translate-x-2 -translate-y-1 mb-2">
@@ -139,7 +142,7 @@ export default function Login() {
                     onChangeText={onChange}
                     className={`${
                       errors.password && "border-red-500"
-                    } border border-gray-300 text-gray-800 outline-none rounded-full px-6 py-3 mb-2`}
+                    } border-b border-gray-500 text-gray-800 outline-none mb-8`}
                   />
                   {errors.password && (
                     <Text className="text-red-500 text-sm translate-x-2 -translate-y-1 mb-2">

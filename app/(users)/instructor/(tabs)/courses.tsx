@@ -96,12 +96,16 @@ export const CoursesScreen = () => {
           </View>
         ) : courses.length > 0 ? (
           <FlatList
+            key="instructor-courses-vertical-tiles"
             data={courses}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <CourseCard course={item} />}
+            renderItem={({ item, index }) => (
+              <CourseCard course={item} stackIndex={index} />
+            )}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
               paddingHorizontal: 16,
+              paddingBottom: 100,
             }}
             refreshControl={
               <CustomRefreshControl
@@ -110,21 +114,40 @@ export const CoursesScreen = () => {
               />
             }
             ListHeaderComponent={
-              <View className="mb-6 mt-4 p-5 rounded-xl">
-                <View className="flex-row items-center gap-3 mb-2">
+              <View className="mb-6 mt-4 p-5 rounded-xl bg-indigo-500/5 border border-indigo-500/20">
+                <View className="flex-row items-center gap-3 mb-3">
                   <View className="bg-black p-2 rounded-xl">
-                    <Ionicons name="library-outline" size={22} color="white" />
+                    <Ionicons
+                      name="library-outline"
+                      size={22}
+                      color="white"
+                    />
                   </View>
-                  <Text className="text-2xl font-bold text-gray-800">
-                    Your Courses
-                  </Text>
+                  <View className="flex-1">
+                    <Text className="text-2xl font-bold text-gray-800">
+                      Course Catalog
+                    </Text>
+                    <Text className="text-gray-600 text-lg mt-1">
+                      Your instructor courses in one place.
+                    </Text>
+                  </View>
                 </View>
 
-                <Text className="text-gray-600 text-lg">
-                  {courses.length > 0
-                    ? "You’re currently taking students through the following courses."
-                    : "You haven’t taken any courses yet. Tap the + button to get started."}
-                </Text>
+                <View className="flex-row items-center justify-between">
+                  <View className="bg-white border border-gray-100 rounded-xl px-4 py-2">
+                    <Text className="text-gray-600 text-sm">Total</Text>
+                    <Text className="text-indigo-600 font-bold text-lg">
+                      {courses.length}
+                    </Text>
+                  </View>
+
+                  <View className="bg-green-500/10 border border-green-500/20 rounded-xl px-4 py-2">
+                    <Text className="text-gray-600 text-sm">Hint</Text>
+                    <Text className="text-gray-800 font-semibold text-sm mt-1">
+                      Tap a tile to explore
+                    </Text>
+                  </View>
+                </View>
               </View>
             }
           />

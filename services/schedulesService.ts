@@ -4,6 +4,9 @@ import { getCurrentLocation } from "@/utils/getLocation";
 import dayjs from "dayjs";
 import haversine from "haversine-distance";
 
+const SUPABASE_FUNCTION_URL = "https://rlduflfmrkgpupdubrjl.supabase.co/functions/v1/send-notification";
+const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+
 export const schedulesService = {
   // Instructor: Adding a new schedule
   async addSchedule(schedule: ScheduleForm) {
@@ -19,7 +22,7 @@ export const schedulesService = {
                   device_id
                 )
               )
-            `
+            `,
         )
         .eq("course_id", schedule.course);
 
@@ -57,27 +60,35 @@ export const schedulesService = {
         };
       }
 
-      //  Send notification to all recipients via API route
+      //  Send notification to all recipients supabase edge function
       if (FCMTokens.length > 0) {
-        const response = await fetch(
-          "https://attendmatebackend.netlify.app/.netlify/functions/sendNotification",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              tokens: FCMTokens,
-              title: "New Schedule Added",
-              body: `A new schedule for your course has been added.`,
-              data: { screen: "notifications" },
-            }),
-          }
-        );
+  const response = await fetch(SUPABASE_FUNCTION_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      // IMPORTANT: Supabase Edge Functions require your Anon Key to bypass the gateway
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+    },
+    body: JSON.stringify({
+      tokens: FCMTokens,
+      title: "New Schedule Added",
+      body: `A new schedule for your course has been added.`,
+      data: { screen: "notifications" },
+    }),
+  });
 
-        const notificationResult = await response.json();
-        console.log("Notification API result:", notificationResult);
-      }
+  if (response.ok) {
+    const notificationResult = await response.json();
+    console.log("Supabase Edge Function result:", notificationResult);
+  } else {
+    const errorText = await response.text();
+    console.error(
+      "Supabase Edge Function failed:",
+      response.status,
+      errorText
+    );
+  }
+}
 
       return {
         success: true,
@@ -111,7 +122,7 @@ export const schedulesService = {
             course_code,
             course_name
           )
-        `
+        `,
         )
         .eq("instructor_id", instructorId);
 
@@ -171,7 +182,7 @@ export const schedulesService = {
                 venue
               )
             )
-          `
+          `,
         )
         .eq("student_id", studentId);
 
@@ -210,7 +221,7 @@ export const schedulesService = {
 
       const formattedSchedules = flattenSchedules(data || []);
       const sortedSchedules = formattedSchedules.sort(
-        (a, b) => dayjs(b.startTime).valueOf() - dayjs(a.startTime).valueOf()
+        (a, b) => dayjs(b.startTime).valueOf() - dayjs(a.startTime).valueOf(),
       );
       console.log("FETCHED SCHEDULES:", sortedSchedules);
       return {
@@ -254,7 +265,7 @@ export const schedulesService = {
             id,
             student_id
           )
-        `
+        `,
       )
       .eq("id", scheduleId)
       .single();
@@ -334,8 +345,8 @@ export const schedulesService = {
     if (!isWithin) {
       console.error(
         `🚫 You are not within the venue. Distance: ${distance.toFixed(
-          2
-        )} meters`
+          2,
+        )} meters`,
       );
       return { success: false, error: "You are not within the venue" };
     }
@@ -351,7 +362,7 @@ export const schedulesService = {
   async markAttendance(
     studentId: string,
     scheduleId: string,
-    deviceId: string
+    deviceId: string,
   ) {
     // 1. Fetch student saved device ID
     const { data: profile, error: profileError } = await supabase

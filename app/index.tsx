@@ -15,7 +15,7 @@ export default function RootLayout() {
             <View className="w-10 h-10 bg-indigo-500/20 self-center mb-2 rounded-lg relative">
               <View className="absolute bg-indigo-600/90 size-12 top-1/4 left-1/4 rounded-full" />
             </View>
-            <Text className="text-2xl font-bold">AttendMate</Text>
+            <Text className="text-3xl font-bold">AttendMate</Text>
           </View>
           {/* Simple illustration */}
           <LottieView

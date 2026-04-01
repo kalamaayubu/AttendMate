@@ -69,7 +69,7 @@ export default function RootLayout() {
               error: CustomToast,
               info: CustomToast,
             }}
-            position="bottom"
+            position="top"
             visibilityTime={6000}
             autoHide
             bottomOffset={50}
