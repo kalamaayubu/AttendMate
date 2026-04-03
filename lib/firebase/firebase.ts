@@ -20,7 +20,7 @@ export async function requestPermissionsAndGetToken() {
   const { status, canAskAgain } = await Notifications.requestPermissionsAsync();
   console.log("Notification permission status:", status);
   console.log("🔔 Can ask again?:", canAskAgain);
-
+ 
   if (status !== "granted") {
     console.warn("Push Notification permission denied");
 

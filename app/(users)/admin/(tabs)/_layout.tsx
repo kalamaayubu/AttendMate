@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     bottom: Platform.OS === "ios" ? 55 : 45,
     marginHorizontal: "5%",
     width: "90%",
-    backgroundColor: "#000000",
+    backgroundColor: "#4f46e5",
     borderRadius: 35,
     borderTopWidth: 0,
     elevation: 10,
@@ -71,7 +71,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.15,
     shadowRadius: 10,
-    // paddingHorizontal: 10,
     paddingTop: 15,
   },
   pill: {

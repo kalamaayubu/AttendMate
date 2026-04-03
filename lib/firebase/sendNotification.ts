@@ -8,7 +8,7 @@ export async function sendNotification({
   title: string;
   body: string;
   data: Record<string, string>;
-}) {
+}) { 
   try {
     const res = await fetch(
       `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/send-notification`,

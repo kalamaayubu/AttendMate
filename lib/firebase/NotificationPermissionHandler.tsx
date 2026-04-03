@@ -34,7 +34,7 @@ export default function NotificationPermissionHandler() {
     (async () => {
       // ✅ 1. Ensure Android notification channel exists (THIN LINE FIX)
       await Notifications.setNotificationChannelAsync("default", {
-        name: "Default",
+        name: "default",
         importance: Notifications.AndroidImportance.HIGH,
         sound: "default",
         vibrationPattern: [0, 250, 250, 250],
