@@ -1,57 +1,284 @@
 import CustomHeader from "@/components/general/CustomHeader";
+import { supabase } from "@/lib/supabase";
+import { RootState } from "@/redux/store";
 import { Ionicons } from "@expo/vector-icons";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Dimensions, ScrollView, Text, View } from "react-native";
 import { LineChart, PieChart } from "react-native-chart-kit";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useSelector } from "react-redux";
 
 const screenWidth = Dimensions.get("window").width;
 
-const quickStats = [
+const PIE_COLORS = [
+  "#3b82f6",
+  "#16a34a",
+  "#f59e0b",
+  "#ef4444",
+  "#8b5cf6",
+  "#14b8a6",
+];
+
+function clampPercent(n: number) {
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(100, Math.round(n)));
+}
+
+type QuickStat = {
+  id: string;
+  title: string;
+  value: string | number;
+  icon: string;
+  color: string;
+};
+
+type TableRow = { unit: string; total: number; attended: number };
+
+type PieSlice = {
+  name: string;
+  attendance: number;
+  color: string;
+};
+
+const defaultQuickStats: QuickStat[] = [
   {
     id: "1",
     title: "Enrolled courses",
-    value: 8,
+    value: 0,
     icon: "school-outline",
     color: "#fb923c",
   },
   {
     id: "2",
     title: "Attended",
-    value: 48,
+    value: 0,
     icon: "checkmark-done-circle-outline",
     color: "#16a34a",
   },
   {
     id: "3",
     title: "Score",
-    value: "83%",
+    value: "0%",
     icon: "trophy-outline",
     color: "#6366f1",
   },
 ];
 
-const attendanceTrend = {
-  labels: ["Math", "Physics", "Chem", "Bio", "CS", "Lit"],
-  datasets: [{ data: [90, 85, 92, 70, 88, 95], strokeWidth: 3 }],
-};
-
-const attendancePie = [
-  { name: "Math", attendance: 90, color: "#3b82f6" },
-  { name: "Physics", attendance: 85, color: "#16a34a" },
-  { name: "Chem", attendance: 92, color: "#f59e0b" },
-  { name: "Bio", attendance: 70, color: "#ef4444" },
-  { name: "CS", attendance: 88, color: "#8b5cf6" },
-  { name: "Lit", attendance: 95, color: "#14b8a6" },
-];
-
-const tableData = [
-  { unit: "Math 101", total: 12, attended: 11 },
-  { unit: "Physics 202", total: 10, attended: 9 },
-  { unit: "Chem 103", total: 8, attended: 6 },
-  { unit: "Bio 201", total: 9, attended: 7 },
-];
-
 export default function StudentDashboard() {
+  const user = useSelector((state: RootState) => state.user.user);
+  const studentId = user?.id;
+
+  const [quickStats, setQuickStats] = useState<QuickStat[]>(defaultQuickStats);
+  const [attendanceTrend, setAttendanceTrend] = useState({
+    labels: ["—"],
+    datasets: [{ data: [0], strokeWidth: 3 }],
+  });
+  const [attendancePie, setAttendancePie] = useState<PieSlice[]>([
+    { name: "—", attendance: 0, color: "#e5e7eb" },
+  ]);
+  const [tableData, setTableData] = useState<TableRow[]>([]);
+
+  const fetchDashboard = useCallback(async () => {
+    if (!studentId) {
+      setQuickStats(defaultQuickStats);
+      setAttendanceTrend({
+        labels: ["—"],
+        datasets: [{ data: [0], strokeWidth: 3 }],
+      });
+      setAttendancePie([{ name: "—", attendance: 0, color: "#e5e7eb" }]);
+      setTableData([]);
+      return;
+    }
+
+    try {
+      const { data: enrollmentRows, error: enrollErr } = await supabase
+        .from("enrollments")
+        .select("course_id")
+        .eq("student_id", studentId);
+
+      if (enrollErr) {
+        console.error("Student dashboard enrollments:", enrollErr);
+        return;
+      }
+
+      const courseIds = [...new Set((enrollmentRows || []).map((e) => e.course_id))];
+
+      if (courseIds.length === 0) {
+        setQuickStats([
+          { ...defaultQuickStats[0], value: 0 },
+          { ...defaultQuickStats[1], value: 0 },
+          { ...defaultQuickStats[2], value: "0%" },
+        ]);
+        setAttendanceTrend({
+          labels: ["—"],
+          datasets: [{ data: [0], strokeWidth: 3 }],
+        });
+        setAttendancePie([
+          { name: "—", attendance: 0, color: "#e5e7eb" },
+        ]);
+        setTableData([]);
+        return;
+      }
+
+      const { data: courseRows, error: coursesErr } = await supabase
+        .from("courses")
+        .select("id, course_code, course_name")
+        .in("id", courseIds);
+
+      if (coursesErr) {
+        console.error("Student dashboard courses:", coursesErr);
+        return;
+      }
+
+      const courses = courseRows || [];
+      const courseMeta = new Map(
+        courses.map((c) => [
+          c.id,
+          { code: c.course_code, name: c.course_name, label: c.course_code || c.course_name },
+        ])
+      );
+
+      const { data: scheduleRows, error: schErr } = await supabase
+        .from("schedules")
+        .select("id, course_id")
+        .in("course_id", courseIds);
+
+      if (schErr) {
+        console.error("Student dashboard schedules:", schErr);
+        return;
+      }
+
+      const schedules = scheduleRows || [];
+      const scheduleIds = schedules.map((s) => s.id);
+      const scheduleToCourse = new Map(schedules.map((s) => [s.id, s.course_id]));
+
+      const totalByCourse = new Map<string, number>();
+      for (const s of schedules) {
+        totalByCourse.set(s.course_id, (totalByCourse.get(s.course_id) || 0) + 1);
+      }
+
+      const attendedByCourse = new Map<string, number>();
+      let totalAttended = 0;
+
+      if (scheduleIds.length > 0) {
+        const { data: attRows, error: attErr } = await supabase
+          .from("attendance")
+          .select("schedule_id")
+          .eq("student_id", studentId)
+          .in("schedule_id", scheduleIds);
+
+        if (attErr) {
+          console.error("Student dashboard attendance:", attErr);
+          return;
+        }
+
+        for (const row of attRows || []) {
+          const cid = scheduleToCourse.get(row.schedule_id);
+          if (!cid) continue;
+          attendedByCourse.set(cid, (attendedByCourse.get(cid) || 0) + 1);
+          totalAttended += 1;
+        }
+      }
+
+      const enrolledCount = courseIds.length;
+      const totalSessions = schedules.length;
+      const overallPct =
+        totalSessions <= 0 ? 0 : clampPercent((totalAttended / totalSessions) * 100);
+
+      setQuickStats([
+        {
+          id: "1",
+          title: "Enrolled courses",
+          value: enrolledCount,
+          icon: "school-outline",
+          color: "#fb923c",
+        },
+        {
+          id: "2",
+          title: "Attended",
+          value: totalAttended,
+          icon: "checkmark-done-circle-outline",
+          color: "#16a34a",
+        },
+        {
+          id: "3",
+          title: "Score",
+          value: `${overallPct}%`,
+          icon: "trophy-outline",
+          color: "#6366f1",
+        },
+      ]);
+
+      const ordered = courseIds
+        .map((id) => {
+          const meta = courseMeta.get(id);
+          const total = totalByCourse.get(id) || 0;
+          const attended = attendedByCourse.get(id) || 0;
+          const pct = total <= 0 ? 0 : clampPercent((attended / total) * 100);
+          return {
+            courseId: id,
+            label: meta?.label ?? "—",
+            total,
+            attended,
+            pct,
+          };
+        })
+        .sort((a, b) => a.label.localeCompare(b.label));
+
+      const labels = ordered.map((o) =>
+        o.label.length > 10 ? `${o.label.slice(0, 9)}…` : o.label
+      );
+      const percents = ordered.map((o) => o.pct);
+
+      if (labels.length === 0) {
+        setAttendanceTrend({
+          labels: ["—"],
+          datasets: [{ data: [0], strokeWidth: 3 }],
+        });
+      } else {
+        setAttendanceTrend({
+          labels,
+          datasets: [{ data: percents, strokeWidth: 3 }],
+        });
+      }
+
+      const pieSlices: PieSlice[] = ordered.map((o, idx) => ({
+        name: o.label.length > 12 ? `${o.label.slice(0, 11)}…` : o.label,
+        attendance: o.pct,
+        color: PIE_COLORS[idx % PIE_COLORS.length],
+      }));
+
+      setAttendancePie(
+        pieSlices.length > 0
+          ? pieSlices
+          : [{ name: "—", attendance: 0, color: "#e5e7eb" }]
+      );
+
+      setTableData(
+        ordered.map((o) => ({
+          unit: courseMeta.get(o.courseId)?.name ?? o.label,
+          total: o.total,
+          attended: o.attended,
+        }))
+      );
+    } catch (e) {
+      console.error("Student dashboard fetch failed:", e);
+    }
+  }, [studentId]);
+
+  useEffect(() => {
+    fetchDashboard();
+  }, [fetchDashboard]);
+
+  const pieChartData = useMemo(() => {
+    return attendancePie.map((p) => ({
+      ...p,
+      population: Math.max(1, p.attendance),
+      legendFontColor: "#333",
+      legendFontSize: 12,
+    }));
+  }, [attendancePie]);
+
   return (
     <SafeAreaView
       edges={["left", "right"]}
@@ -116,12 +343,7 @@ export default function StudentDashboard() {
           </Text>
           <View className="bg-white rounded-xl p-2 shadow items-center">
             <PieChart
-              data={attendancePie.map((p) => ({
-                ...p,
-                population: p.attendance,
-                legendFontColor: "#333",
-                legendFontSize: 12,
-              }))}
+              data={pieChartData}
               width={screenWidth - 32}
               height={200}
               chartConfig={{
@@ -154,7 +376,7 @@ export default function StudentDashboard() {
             </View>
             {tableData.map((row, idx) => (
               <View
-                key={row.unit}
+                key={`${row.unit}-${idx}`}
                 className={`flex-row px-3 py-2 ${
                   idx % 2 === 0 ? "bg-white" : "bg-gray-50"
                 }`}

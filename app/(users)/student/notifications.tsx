@@ -46,7 +46,6 @@ export default function Notifications() {
             className={`flex-row items-start bg-white rounded-2xl p-4 mb-3 shadow ${item.read ? "" : "border-l-4 border-indigo-500"}`}
             activeOpacity={0.8}
           >
-            {/* Icon */}
             <View className="w-10 h-10 rounded-full bg-indigo-100 items-center justify-center mr-4">
               <Ionicons
                 name={item.read ? "notifications-outline" : "notifications"}
@@ -55,7 +54,6 @@ export default function Notifications() {
               />
             </View>
 
-            {/* Content */}
             <View className="flex-1">
               <Text className="text-base font-semibold text-gray-800">
                 {item.title}
@@ -68,7 +66,6 @@ export default function Notifications() {
           </TouchableOpacity>
         ))}
 
-        {/* Empty state */}
         {notifications.length === 0 && (
           <View className="mt-20 items-center justify-center">
             <Ionicons

@@ -88,7 +88,7 @@ export default function NotificationPermissionHandler() {
             router.push(`/(users)/student/(tabs)/schedules`);
             break;
           case "notifications":
-            router.push(`/(users)/student/(tabs)/notifications`);
+            router.push(`/(users)/student/notifications`);
             break;
           case "courses":
             router.push(`/(users)/instructor/(tabs)/courses`);
@@ -111,7 +111,7 @@ export default function NotificationPermissionHandler() {
               router.push(`/(users)/student/(tabs)/schedules`);
               break;
             case "notifications":
-              router.push(`/(users)/student/(tabs)/notifications`);
+              router.push(`/(users)/student/notifications`);
               break;
             case "courses":
               router.push(`/(users)/instructor/(tabs)/courses`);

@@ -62,7 +62,7 @@ export async function requestBiometricPermission() {
       return {
         success: false,
         message:
-          "Too many failed attempts. Please unlock your device and try again.",
+          "Too many failed attempts. Please lock your screen, then unlock it and try again.",
       };
     } else {
       return {

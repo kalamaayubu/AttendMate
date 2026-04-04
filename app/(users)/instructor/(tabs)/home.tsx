@@ -395,7 +395,7 @@ export default function InstructorDashboard() {
                 </View>
               ))}
             </View>
-
+ 
             <InstructorLineChart
               width={screenWidth - 32}
               data={lineChartData}

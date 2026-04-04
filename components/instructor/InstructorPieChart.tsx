@@ -14,6 +14,8 @@ export default function InstructorPieChart({
   height = 200,
   title = "Attendance Distribution",
 }: InstructorPieChartProps) {
+  console.log("INSTRUCTOR DASHBOARD DAATA:", data);
+
   return (
     <View className="px-4 mt-4">
       <Text className="text-gray-700 font-bold mb-2">{title}</Text>
@@ -36,4 +38,3 @@ export default function InstructorPieChart({
     </View>
   );
 }
-
