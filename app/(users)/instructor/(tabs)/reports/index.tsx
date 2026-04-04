@@ -97,7 +97,7 @@ export default function ReportsPage() {
           }
         >
           {/* Top row: full-width primary metrics */}
-          <View className="mt-4 rounded-2xl bg-indigo-600 p-5 shadow-sm">
+          <View className="mt-4 rounded-2xl bg-indigo-500 p-5 shadow-sm">
             <View className="flex-row items-center justify-between">
               <View>
                 <Text className="text-white/80 text-xs font-semibold">

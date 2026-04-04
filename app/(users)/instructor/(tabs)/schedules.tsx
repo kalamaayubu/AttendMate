@@ -214,7 +214,7 @@ export default function Schedules() {
 
                 {/* Filter strip */}
                 {courses.length > 0 && (
-                  <View className="mt-8 bg-red-600 rounded-2xl px-3 py-2">
+                  <View className="mt-8 bg-gray-600 rounded-2xl px-3 py-2">
                     <ScrollView
                       horizontal
                       showsHorizontalScrollIndicator={false}

@@ -1,3 +1,4 @@
+import { useOptionalAdminMoreMenu } from "@/components/general/AdminMoreMenuContext";
 import StudentMoreMenuModal from "@/components/general/StudentMoreMenuModal";
 import { useOptionalMoreMenu } from "@/components/general/MoreMenuContext";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,11 +21,14 @@ interface CustomHeaderProps {
 
 export default function CustomHeader({ title, backButton }: CustomHeaderProps) {
   const router = useRouter();
+  const adminMore = useOptionalAdminMoreMenu();
   const moreMenu = useOptionalMoreMenu();
   const [sheetVisible, setSheetVisible] = useState(false);
 
   const openSheet = () => {
-    if (moreMenu) {
+    if (adminMore) {
+      adminMore.open();
+    } else if (moreMenu) {
       moreMenu.open();
     } else {
       setSheetVisible(true);
@@ -57,7 +61,7 @@ export default function CustomHeader({ title, backButton }: CustomHeaderProps) {
         </View>
       </View>
 
-      {!moreMenu && (
+      {!moreMenu && !adminMore && (
         <StudentMoreMenuModal
           visible={sheetVisible}
           onClose={() => setSheetVisible(false)}

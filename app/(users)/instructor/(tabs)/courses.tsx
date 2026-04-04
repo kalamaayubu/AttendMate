@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import dayjs from "dayjs";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -142,9 +143,9 @@ export const CoursesScreen = () => {
                   </View>
 
                   <View className="bg-green-500/10 border border-green-500/20 rounded-xl px-4 py-2">
-                    <Text className="text-gray-600 text-sm">Hint</Text>
+                    <Text className="text-gray-600 text-sm">Date</Text>
                     <Text className="text-gray-800 font-semibold text-sm mt-1">
-                      Tap a tile to explore
+                      {dayjs().format("D MMM, YYYY")}
                     </Text>
                   </View>
                 </View>

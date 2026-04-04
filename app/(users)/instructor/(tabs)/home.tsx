@@ -1,3 +1,4 @@
+import InstructorDashboardSkeleton from "../../../../components/dashboard/InstructorDashboardSkeleton";
 import CustomHeader from "../../../../components/general/CustomHeader";
 import CustomRefreshControl from "../../../../components/general/RefreshControl";
 import CourseAttendanceSummaryTable from "../../../../components/instructor/CourseAttendanceSummaryTable";
@@ -5,7 +6,7 @@ import InstructorLineChart from "../../../../components/instructor/InstructorLin
 import InstructorPieChart from "../../../../components/instructor/InstructorPieChart";
 import { Ionicons } from "@expo/vector-icons";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Dimensions, ScrollView, Text, View } from "react-native";
+import { Dimensions, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../redux/store";
@@ -54,7 +55,7 @@ export default function InstructorDashboard() {
   const instructor = useSelector((state: RootState) => state?.user.user);
   const instructorId = instructor?.id;
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [lineChartData, setLineChartData] = useState<any>(() => ({
     labels: MONTH_LABELS,
@@ -80,6 +81,7 @@ export default function InstructorDashboard() {
     async (opts?: { showLoading?: boolean }) => {
       if (!instructorId) {
         setRefreshing(false);
+        setLoading(false);
         return;
       }
 
@@ -352,21 +354,17 @@ export default function InstructorDashboard() {
       edges={["left", "right"]}
       className="flex-1 bg-gray-100 relative"
     >
-      {loading ? (
-        <View className="flex-1 justify-center items-center bg-gray-100">
-          <ActivityIndicator size="large" color="#6366f1" />
-        </View>
-      ) : (
-        <>
-          {/* ===== Header ===== */}
-          <CustomHeader title="Dashboard" />
+      <CustomHeader title="Dashboard" />
 
-          <ScrollView
-            contentContainerClassName="pb-10"
-            refreshControl={
-              <CustomRefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-          >
+      {loading ? (
+        <InstructorDashboardSkeleton />
+      ) : (
+        <ScrollView
+          contentContainerClassName="pb-10"
+          refreshControl={
+            <CustomRefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
             {/* ===== Quick Stats ===== */}
             <View className="flex-row flex-wrap justify-between px-4 mt-4">
               {quickStats.map((item) => (
@@ -404,8 +402,7 @@ export default function InstructorDashboard() {
             <CourseAttendanceSummaryTable
               rows={coursesAttendance}
             />
-          </ScrollView>
-        </>
+        </ScrollView>
       )}
     </SafeAreaView>
   );

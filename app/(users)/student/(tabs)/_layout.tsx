@@ -2,7 +2,7 @@ import { useMoreMenu } from "@/components/general/MoreMenuContext";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 
-export default function StudentTabsLayout() {
+export default function StudentTabsNavigator() {
   const { open } = useMoreMenu();
 
   return (

@@ -1,4 +1,6 @@
+import StudentDashboardSkeleton from "@/components/dashboard/StudentDashboardSkeleton";
 import CustomHeader from "@/components/general/CustomHeader";
+import CustomRefreshControl from "@/components/general/RefreshControl";
 import { supabase } from "@/lib/supabase";
 import { RootState } from "@/redux/store";
 import { Ionicons } from "@expo/vector-icons";
@@ -77,8 +79,12 @@ export default function StudentDashboard() {
     { name: "—", attendance: 0, color: "#e5e7eb" },
   ]);
   const [tableData, setTableData] = useState<TableRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const fetchDashboard = useCallback(async () => {
+  const fetchDashboard = useCallback(
+    async (opts?: { showLoading?: boolean }) => {
+      const showLoading = opts?.showLoading ?? true;
     if (!studentId) {
       setQuickStats(defaultQuickStats);
       setAttendanceTrend({
@@ -87,9 +93,13 @@ export default function StudentDashboard() {
       });
       setAttendancePie([{ name: "—", attendance: 0, color: "#e5e7eb" }]);
       setTableData([]);
+      setLoading(false);
+      setRefreshing(false);
       return;
     }
 
+    if (showLoading) setLoading(true);
+    else setRefreshing(true);
     try {
       const { data: enrollmentRows, error: enrollErr } = await supabase
         .from("enrollments")
@@ -100,6 +110,7 @@ export default function StudentDashboard() {
         console.error("Student dashboard enrollments:", enrollErr);
         return;
       }
+
 
       const courseIds = [...new Set((enrollmentRows || []).map((e) => e.course_id))];
 
@@ -263,11 +274,20 @@ export default function StudentDashboard() {
       );
     } catch (e) {
       console.error("Student dashboard fetch failed:", e);
+    } finally {
+      if (showLoading) setLoading(false);
+      setRefreshing(false);
     }
-  }, [studentId]);
+  },
+    [studentId]
+  );
 
   useEffect(() => {
-    fetchDashboard();
+    fetchDashboard({ showLoading: true });
+  }, [fetchDashboard]);
+
+  const onRefresh = useCallback(async () => {
+    await fetchDashboard({ showLoading: false });
   }, [fetchDashboard]);
 
   const pieChartData = useMemo(() => {
@@ -287,7 +307,15 @@ export default function StudentDashboard() {
       {/* ===== Header ===== */}
       <CustomHeader title="Dashboard" />
 
-      <ScrollView contentContainerClassName="pb-10">
+      {loading ? (
+        <StudentDashboardSkeleton />
+      ) : (
+        <ScrollView
+          contentContainerClassName="pb-10"
+          refreshControl={
+            <CustomRefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
         {/* ===== Stats ===== */}
         <View className="flex-row flex-wrap justify-between px-4 mt-4">
           {quickStats.map((item) => (
@@ -392,7 +420,8 @@ export default function StudentDashboard() {
             ))}
           </View>
         </View>
-      </ScrollView>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 }

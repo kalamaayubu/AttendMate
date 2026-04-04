@@ -1,56 +1,92 @@
+import {
+  AdminMoreMenuProvider,
+  useAdminMoreMenu,
+} from "@/components/general/AdminMoreMenuContext";
 import { ProtectedLayout } from "@/components/general/ProtectedLayout";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { Platform, StyleSheet, View } from "react-native";
 
-export default function AdminLayout() {
-  const BAR_HEIGHT = 70; // Standardized height for consistency
+const BAR_HEIGHT = 70;
+
+function TabIcon({
+  focused,
+  base,
+}: {
+  focused: boolean;
+  base: "home" | "book" | "ellipsis-horizontal";
+}) {
+  const iconName: keyof typeof Ionicons.glyphMap =
+    base === "ellipsis-horizontal"
+      ? "ellipsis-horizontal"
+      : focused
+        ? base
+        : (`${base}-outline` as keyof typeof Ionicons.glyphMap);
 
   return (
-    <ProtectedLayout allowedRoles={["admin"]}>
-      <Tabs
-        screenOptions={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          tabBarStyle: [styles.tabBar, { height: BAR_HEIGHT }],
-          tabBarItemStyle: {
-            height: BAR_HEIGHT, // Match the bar height exactly
-            paddingTop: 0,
-            paddingBottom: 0,
-          },
-        }}
-      >
-        <Tabs.Screen
-          name="home"
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <TabButton focused={focused} icon="home" />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="courses"
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <TabButton focused={focused} icon="book" />
-            ),
-          }}
-        />
-      </Tabs>
-    </ProtectedLayout>
-  );
-}
-
-function TabButton({ focused, icon }) {
-  return (
-    // Remove the extra container View that was causing flex-squashing
     <View style={[styles.pill, focused && styles.activePill]}>
       <Ionicons
-        name={focused ? (icon as any) : `${icon}-outline`}
-        size={22} // Slightly smaller for better fit
+        name={iconName}
+        size={22}
         color={focused ? "#FFFFFF" : "#FFF2F0"}
       />
     </View>
+  );
+}
+
+function AdminTabsInner() {
+  const { open } = useAdminMoreMenu();
+
+  return (
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        tabBarStyle: styles.tabBar,
+        tabBarItemStyle: styles.tabBarItem,
+      }}
+    >
+      <Tabs.Screen
+        name="home"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} base="home" />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="courses"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} base="book" />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="more"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} base="ellipsis-horizontal" />
+          ),
+        }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            open();
+          },
+        }}
+      />
+    </Tabs>
+  );
+}
+
+export default function AdminLayout() {
+  return (
+    <ProtectedLayout allowedRoles={["admin"]}>
+      <AdminMoreMenuProvider>
+        <AdminTabsInner />
+      </AdminMoreMenuProvider>
+    </ProtectedLayout>
   );
 }
 
@@ -58,8 +94,9 @@ const styles = StyleSheet.create({
   tabBar: {
     position: "relative",
     flex: 0,
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
     bottom: Platform.OS === "ios" ? 55 : 45,
     marginHorizontal: "5%",
     width: "90%",
@@ -72,13 +109,22 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 10,
     paddingTop: 15,
+    paddingHorizontal: 12,
+  },
+  tabBarItem: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    height: BAR_HEIGHT,
+    paddingTop: 0,
+    paddingBottom: 0,
   },
   pill: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 250,
-    height: 56, // Explicit height for the pill
+    height: 56,
     minWidth: 56,
   },
   activePill: {

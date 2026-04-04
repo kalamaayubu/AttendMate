@@ -1,11 +1,12 @@
+import AdminDashboardSkeleton from "@/components/dashboard/AdminDashboardSkeleton";
 import CustomHeader from "@/components/general/CustomHeader";
+import CustomRefreshControl from "@/components/general/RefreshControl";
 import dayjs from "dayjs";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AdminCourseDistributionPieCard from "../../../../components/admin/AdminCourseDistributionPieCard";
 import AdminGrowthLineChartCard from "../../../../components/admin/AdminGrowthLineChartCard";
-import AdminLightCard from "../../../../components/admin/AdminLightCard";
 import AdminStatCard from "../../../../components/admin/AdminStatCard";
 import { supabase } from "../../../../lib/supabase";
 
@@ -20,6 +21,7 @@ const colorPalette = [
 
 const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [studentsCount, setStudentsCount] = useState(0);
   const [instructorsCount, setInstructorsCount] = useState(0);
   const [coursesCount, setCoursesCount] = useState(0);
@@ -42,11 +44,12 @@ const AdminDashboard = () => {
     return { from, to };
   }, []);
 
-  useEffect(() => {
-    const fetchAdminDashboard = async () => {
+  const fetchAdminDashboard = useCallback(
+    async (opts?: { showLoading?: boolean }) => {
+      const showLoading = opts?.showLoading ?? true;
+      if (showLoading) setLoading(true);
+      else setRefreshing(true);
       try {
-        setLoading(true);
-
         const countOrZero = async (
           table: string,
           selectColumn: string = "id",
@@ -178,12 +181,20 @@ const AdminDashboard = () => {
       } catch (e) {
         console.error("Admin dashboard fetch failed:", e);
       } finally {
-        setLoading(false);
+        if (showLoading) setLoading(false);
+        setRefreshing(false);
       }
-    };
+    },
+    [chartRange]
+  );
 
-    fetchAdminDashboard();
-  }, [chartRange]);
+  useEffect(() => {
+    fetchAdminDashboard({ showLoading: true });
+  }, [fetchAdminDashboard]);
+
+  const onRefresh = useCallback(async () => {
+    await fetchAdminDashboard({ showLoading: false });
+  }, [fetchAdminDashboard]);
 
   const totalUsers = studentsCount + instructorsCount + adminCount;
 
@@ -194,10 +205,16 @@ const AdminDashboard = () => {
     >
       <CustomHeader title="Dashboard" />
 
-      <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 140 }}
-        showsVerticalScrollIndicator={false}
-      >
+      {loading ? (
+        <AdminDashboardSkeleton />
+      ) : (
+        <ScrollView
+          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 140 }}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <CustomRefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
         {/* Welcome */}
         <View className="">
           {/* <Text className="text-gray-900 text-3xl font-semibold">
@@ -316,17 +333,8 @@ const AdminDashboard = () => {
             ))}
           </View>
         </View>
-
-        {loading && (
-          <View className="mt-2">
-            <AdminLightCard className="p-5">
-              <Text className="text-gray-700 font-semibold">
-                Loading dashboard...
-              </Text>
-            </AdminLightCard>
-          </View>
-        )}
-      </ScrollView>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
